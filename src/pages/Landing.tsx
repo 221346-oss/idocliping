@@ -84,10 +84,10 @@ const Landing = () => {
             {/* Left column — text */}
             <div className="relative z-[3] flex-1 min-w-0 max-w-[540px]">
               <h1 className="text-[clamp(2rem,4vw,3.2rem)] font-[500] leading-[1.08] tracking-[-0.04em] text-foreground max-w-[540px]">
-                Bug tracking for teams that ship fast
+                Where brands and creators ship viral content
               </h1>
               <p className="mt-6 text-base leading-relaxed text-muted-foreground max-w-[420px]">
-                Purpose-built for engineering teams. Clipper, track, and resolve issues without slowing down.
+                Performance-based campaigns. Real payouts. Join Clipper and turn your reach into revenue.
               </p>
               <div className="mt-10 flex items-center gap-4">
                 <Link to="/auth">
