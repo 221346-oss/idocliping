@@ -30,7 +30,7 @@ export default function CreatorReferrals() {
       setCode(codeRow?.code ?? "");
 
       const [{ data: refs }, { data: earn }] = await Promise.all([
-        supabase.from("referrals").select("*, *").eq("referrer_id", user.id),
+        supabase.from("referrals").select("*").eq("referrer_id", user.id),
         supabase.from("earnings").select("amount").eq("creator_id", user.id).eq("type", "referral"),
       ]);
       setReferred(refs ?? []);
