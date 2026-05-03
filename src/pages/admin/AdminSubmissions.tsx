@@ -18,9 +18,12 @@ export default function AdminSubmissions() {
   const load = async () => {
     const { data } = await supabase
       .from("submissions")
-      .select("*, campaigns(title, payout_per_1m_views, budget_remaining, id), profiles!submissions_creator_id_fkey(full_name)")
+      .select("*, campaigns(title, payout_per_1m_views, budget_remaining, id)")
       .order("created_at", { ascending: false });
-    setRows(data ?? []);
+    const ids = Array.from(new Set((data ?? []).map((r: any) => r.creator_id)));
+    const { data: profs } = ids.length ? await supabase.from("profiles").select("user_id, full_name").in("user_id", ids) : { data: [] as any[] };
+    const map = new Map((profs ?? []).map((p: any) => [p.user_id, p.full_name]));
+    setRows((data ?? []).map((r: any) => ({ ...r, _creatorName: map.get(r.creator_id) })));
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
