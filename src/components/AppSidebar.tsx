@@ -1,24 +1,51 @@
-import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Search } from "lucide-react";
+import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks } from "lucide-react";
 import { StackedLogo } from "./StackedLogo";
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, type AppRole } from "@/contexts/AuthContext";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-export const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: Plus, label: "Report Bug", path: "/bugs/new" },
-  { icon: Bug, label: "All Bugs", path: "/bugs" },
-  { icon: BarChart3, label: "Analytics", path: "/analytics" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-];
+type NavItem = { icon: any; label: string; path: string };
+
+const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
+  admin: [
+    { icon: LayoutDashboard, label: "Overview", path: "/admin" },
+    { icon: Building2, label: "Brands", path: "/admin/brands" },
+    { icon: Megaphone, label: "Campaigns", path: "/admin/campaigns" },
+    { icon: FileCheck, label: "Submissions", path: "/admin/submissions" },
+    { icon: Wallet, label: "Withdrawals", path: "/admin/withdrawals" },
+    { icon: Users, label: "Users", path: "/admin/users" },
+    { icon: BarChart3, label: "Analytics", path: "/analytics" },
+    { icon: Bug, label: "Bug Tracker", path: "/bugs" },
+    { icon: Settings, label: "Settings", path: "/settings" },
+  ],
+  brand: [
+    { icon: LayoutDashboard, label: "Overview", path: "/brand" },
+    { icon: Megaphone, label: "Campaigns", path: "/brand/campaigns" },
+    { icon: Settings, label: "Settings", path: "/settings" },
+  ],
+  creator: [
+    { icon: LayoutDashboard, label: "Overview", path: "/creator" },
+    { icon: Sparkles, label: "Marketplace", path: "/creator/campaigns" },
+    { icon: ListChecks, label: "Submissions", path: "/creator/submissions" },
+    { icon: Wallet, label: "Wallet", path: "/creator/wallet" },
+    { icon: Share2, label: "Referrals", path: "/creator/referrals" },
+    { icon: Briefcase, label: "Socials", path: "/creator/social" },
+    { icon: Settings, label: "Settings", path: "/settings" },
+  ],
+  user: [
+    { icon: LayoutDashboard, label: "Overview", path: "/creator" },
+    { icon: Settings, label: "Settings", path: "/settings" },
+  ],
+};
 
 export function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const location = useLocation();
-  const { profile, signOut } = useAuth();
+  const { profile, role, signOut } = useAuth();
+
+  const items = NAV_BY_ROLE[role ?? "creator"];
 
   const initials = profile?.full_name
     ? profile.full_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
@@ -26,7 +53,6 @@ export function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: 
 
   return (
     <>
-      {/* Workspace header */}
       <div className="flex items-center gap-2 px-3 h-11 border-b border-sidebar-border">
         <StackedLogo size={16} color="currentColor" />
         {!collapsed && (
@@ -36,11 +62,11 @@ export function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: 
         )}
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 py-1.5 px-1.5 space-y-px">
-        {navItems.map((item) => {
-          const isActive = location.pathname === item.path || 
-            (item.path !== "/" && location.pathname.startsWith(item.path));
+      <nav className="flex-1 py-1.5 px-1.5 space-y-px overflow-y-auto">
+        {items.map((item) => {
+          const isActive = location.pathname === item.path ||
+            (item.path !== "/" && location.pathname.startsWith(item.path + "/")) ||
+            location.pathname === item.path;
           return (
             <Link
               key={item.path}
@@ -60,7 +86,6 @@ export function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: 
         })}
       </nav>
 
-      {/* Footer */}
       <div className="border-t border-sidebar-border p-2">
         <div className="flex items-center gap-2 px-1">
           <Avatar className="h-5 w-5">
@@ -69,17 +94,15 @@ export function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: 
             </AvatarFallback>
           </Avatar>
           {!collapsed && (
-            <span className="text-[12px] text-sidebar-foreground truncate flex-1">
-              {profile?.full_name || "User"}
-            </span>
+            <div className="flex flex-col flex-1 min-w-0">
+              <span className="text-[12px] text-sidebar-foreground truncate">
+                {profile?.full_name || "User"}
+              </span>
+              {role && <span className="text-[10px] text-muted-foreground capitalize">{role}</span>}
+            </div>
           )}
           {!collapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={signOut}
-              className="text-sidebar-foreground hover:bg-sidebar-accent h-6 w-6"
-            >
+            <Button variant="ghost" size="icon" onClick={signOut} className="text-sidebar-foreground hover:bg-sidebar-accent h-6 w-6">
               <LogOut className="h-3 w-3" />
             </Button>
           )}
@@ -98,3 +121,6 @@ export function AppSidebar() {
     </aside>
   );
 }
+
+// Backward compat for existing imports
+export const navItems = NAV_BY_ROLE.creator;
