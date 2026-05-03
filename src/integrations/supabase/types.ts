@@ -93,6 +93,39 @@ export type Database = {
           },
         ]
       }
+      brands: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          owner_user_id: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          owner_user_id?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          owner_user_id?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       bugs: {
         Row: {
           actual_behavior: string | null
@@ -154,6 +187,97 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_participants: {
+        Row: {
+          campaign_id: string
+          creator_id: string
+          id: string
+          joined_at: string
+        }
+        Insert: {
+          campaign_id: string
+          creator_id: string
+          id?: string
+          joined_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          creator_id?: string
+          id?: string
+          joined_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_participants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          badges: string[]
+          brand_id: string | null
+          budget_remaining: number
+          budget_total: number
+          category: Database["public"]["Enums"]["campaign_category"]
+          created_at: string
+          description: string | null
+          id: string
+          instructions: string | null
+          payout_per_1m_views: number
+          platforms: string[]
+          status: Database["public"]["Enums"]["campaign_status"]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          badges?: string[]
+          brand_id?: string | null
+          budget_remaining?: number
+          budget_total?: number
+          category?: Database["public"]["Enums"]["campaign_category"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructions?: string | null
+          payout_per_1m_views?: number
+          platforms?: string[]
+          status?: Database["public"]["Enums"]["campaign_status"]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          badges?: string[]
+          brand_id?: string | null
+          budget_remaining?: number
+          budget_total?: number
+          category?: Database["public"]["Enums"]["campaign_category"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          instructions?: string | null
+          payout_per_1m_views?: number
+          platforms?: string[]
+          status?: Database["public"]["Enums"]["campaign_status"]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
             referencedColumns: ["id"]
           },
         ]
@@ -234,6 +358,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      earnings: {
+        Row: {
+          amount: number
+          created_at: string
+          creator_id: string
+          id: string
+          notes: string | null
+          submission_id: string | null
+          type: Database["public"]["Enums"]["earning_type"]
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          creator_id: string
+          id?: string
+          notes?: string | null
+          submission_id?: string | null
+          type?: Database["public"]["Enums"]["earning_type"]
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          creator_id?: string
+          id?: string
+          notes?: string | null
+          submission_id?: string | null
+          type?: Database["public"]["Enums"]["earning_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "earnings_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invitations: {
         Row: {
@@ -361,6 +523,140 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          user_id: string
+          uses_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          user_id: string
+          uses_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          uses_count?: number
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          code: string
+          commission_rate: number
+          created_at: string
+          id: string
+          referred_user_id: string
+          referrer_id: string
+        }
+        Insert: {
+          code: string
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          referred_user_id: string
+          referrer_id: string
+        }
+        Update: {
+          code?: string
+          commission_rate?: number
+          created_at?: string
+          id?: string
+          referred_user_id?: string
+          referrer_id?: string
+        }
+        Relationships: []
+      }
+      social_accounts: {
+        Row: {
+          created_at: string
+          handle: string
+          id: string
+          platform: Database["public"]["Enums"]["social_platform"]
+          profile_url: string | null
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          created_at?: string
+          handle: string
+          id?: string
+          platform: Database["public"]["Enums"]["social_platform"]
+          profile_url?: string | null
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          created_at?: string
+          handle?: string
+          id?: string
+          platform?: Database["public"]["Enums"]["social_platform"]
+          profile_url?: string | null
+          user_id?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
+      submissions: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          creator_id: string
+          id: string
+          manual_views: number
+          platform: Database["public"]["Enums"]["social_platform"]
+          post_url: string
+          reject_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["submission_status"]
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          creator_id: string
+          id?: string
+          manual_views?: number
+          platform: Database["public"]["Enums"]["social_platform"]
+          post_url: string
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          creator_id?: string
+          id?: string
+          manual_views?: number
+          platform?: Database["public"]["Enums"]["social_platform"]
+          post_url?: string
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -376,6 +672,45 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawal_requests: {
+        Row: {
+          amount: number
+          created_at: string
+          creator_id: string
+          id: string
+          method: Database["public"]["Enums"]["withdrawal_method"]
+          notes: string | null
+          payout_details: Json
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["withdrawal_status"]
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          creator_id: string
+          id?: string
+          method: Database["public"]["Enums"]["withdrawal_method"]
+          notes?: string | null
+          payout_details?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          creator_id?: string
+          id?: string
+          method?: Database["public"]["Enums"]["withdrawal_method"]
+          notes?: string | null
+          payout_details?: Json
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
         }
         Relationships: []
       }
@@ -403,7 +738,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "brand" | "creator"
       bug_severity: "critical" | "high" | "medium" | "low"
       bug_status:
         | "new"
@@ -412,6 +747,19 @@ export type Database = {
         | "testing"
         | "resolved"
         | "closed"
+      campaign_category:
+        | "music"
+        | "clipping"
+        | "gaming"
+        | "logo"
+        | "ugc"
+        | "other"
+      campaign_status: "draft" | "active" | "paused" | "ended"
+      earning_type: "campaign" | "referral"
+      social_platform: "tiktok" | "instagram" | "youtube" | "x"
+      submission_status: "pending" | "approved" | "rejected"
+      withdrawal_method: "paypal" | "usdt" | "bank"
+      withdrawal_status: "pending" | "approved" | "paid" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -539,7 +887,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "brand", "creator"],
       bug_severity: ["critical", "high", "medium", "low"],
       bug_status: [
         "new",
@@ -549,6 +897,20 @@ export const Constants = {
         "resolved",
         "closed",
       ],
+      campaign_category: [
+        "music",
+        "clipping",
+        "gaming",
+        "logo",
+        "ugc",
+        "other",
+      ],
+      campaign_status: ["draft", "active", "paused", "ended"],
+      earning_type: ["campaign", "referral"],
+      social_platform: ["tiktok", "instagram", "youtube", "x"],
+      submission_status: ["pending", "approved", "rejected"],
+      withdrawal_method: ["paypal", "usdt", "bank"],
+      withdrawal_status: ["pending", "approved", "paid", "rejected"],
     },
   },
 } as const
