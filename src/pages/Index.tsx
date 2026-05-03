@@ -1,13 +1,11 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, roleHomePath } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import Landing from "./Landing";
 
 const Index = () => {
-  const { user, loading } = useAuth();
-
+  const { user, role, loading } = useAuth();
   if (loading) return null;
-  if (user) return <Navigate to="/dashboard" replace />;
-
+  if (user) return <Navigate to={roleHomePath(role)} replace />;
   return <Landing />;
 };
 
