@@ -21,7 +21,7 @@ export default function AdminBrands() {
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
-    const { data } = await supabase.from("brands").select("*, profiles!brands_owner_user_id_fkey(full_name)").order("created_at", { ascending: false });
+    const { data } = await supabase.from("brands").select("*").order("created_at", { ascending: false });
     setRows(data ?? []);
     setLoading(false);
   };
@@ -75,7 +75,7 @@ export default function AdminBrands() {
                 <tr key={r.id} className="border-t border-border">
                   <td className="p-3 font-medium">{r.name}</td>
                   <td className="p-3"><a href={r.website} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground">{r.website}</a></td>
-                  <td className="p-3">{r.profiles?.full_name ?? <span className="text-muted-foreground">unassigned</span>}</td>
+                  <td className="p-3">{r.owner_user_id ? <span className="text-muted-foreground font-mono text-[11px]">{String(r.owner_user_id).slice(0, 8)}…</span> : <span className="text-muted-foreground">unassigned</span>}</td>
                   <td className="p-3 text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</td>
                 </tr>
               ))}
