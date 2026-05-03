@@ -162,7 +162,7 @@ export default function Auth() {
         </Tabs>
 
         <p className="text-left text-[11px] text-muted-foreground pt-2">
-          © {new Date().getFullYear()} Triage
+          © {new Date().getFullYear()} Clipper
         </p>
       </div>
     </div>
