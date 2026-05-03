@@ -30,7 +30,7 @@ export default function Auth() {
     );
   }
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to="/" replace />; // Index handles role-based redirect
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
@@ -81,9 +81,9 @@ export default function Auth() {
         <div className="flex flex-col items-start gap-3">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <StackedLogo size={16} />
-            <span className="text-[14px] font-bold text-foreground tracking-[0.08em] uppercase">Triage</span>
+            <span className="text-[14px] font-bold text-foreground tracking-[0.08em] uppercase">Clipper</span>
           </Link>
-          <p className="text-[13px] text-muted-foreground">Track, prioritize, and resolve bugs</p>
+          <p className="text-[13px] text-muted-foreground">Creator marketing marketplace</p>
         </div>
 
         {/* Google */}
@@ -162,7 +162,7 @@ export default function Auth() {
         </Tabs>
 
         <p className="text-left text-[11px] text-muted-foreground pt-2">
-          © {new Date().getFullYear()} Triage
+          © {new Date().getFullYear()} Clipper
         </p>
       </div>
     </div>
