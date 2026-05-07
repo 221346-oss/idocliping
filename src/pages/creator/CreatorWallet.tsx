@@ -7,7 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Wallet as WalletIcon, Share2, Copy } from "lucide-react";
+import { Loader2, Wallet as WalletIcon, Share2, Copy, Receipt, Users } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/EmptyState";
+import { TableSkeleton } from "@/components/Skeletons";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
