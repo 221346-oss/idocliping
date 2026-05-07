@@ -32,6 +32,7 @@ function WalletTab() {
   const [method, setMethod] = useState<"paypal" | "usdt" | "bank">("paypal");
   const [detail, setDetail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     if (!user) return;
@@ -43,6 +44,7 @@ function WalletTab() {
     const pendingPaid = (reqs ?? []).filter((r: any) => r.status !== "rejected").reduce((a: number, b: any) => a + Number(b.amount), 0);
     setBalance(earned - pendingPaid);
     setRequests(reqs ?? []);
+    setLoading(false);
   };
 
   useEffect(() => { load(); }, [user]);
