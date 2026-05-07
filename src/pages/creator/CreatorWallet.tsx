@@ -66,10 +66,23 @@ function WalletTab() {
     setAmount(""); setDetail(""); load();
   };
 
+  if (loading) {
+    return (
+      <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 space-y-4">
+          <div className="border border-border rounded-md p-4 space-y-2"><Skeleton className="h-3 w-28" /><Skeleton className="h-8 w-32" /><Skeleton className="h-3 w-36" /></div>
+          <div className="border border-border rounded-md p-4 space-y-3"><Skeleton className="h-4 w-32" /><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /><Skeleton className="h-8 w-full" /><Skeleton className="h-9 w-full" /></div>
+        </div>
+        <div className="lg:col-span-2"><TableSkeleton rows={4} cols={4} /></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
       <div className="lg:col-span-1 space-y-4">
-        <div className="border border-border rounded-md p-4">
+        <div className="border border-border rounded-md p-4 relative overflow-hidden">
+          <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 animate-float" />
           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Available balance</div>
           <div className="text-[28px] font-semibold mt-1">${balance.toFixed(2)}</div>
           <div className="text-[11px] text-muted-foreground mt-2">Minimum withdrawal: ${MIN_WITHDRAWAL}</div>
@@ -101,7 +114,14 @@ function WalletTab() {
       <div className="lg:col-span-2">
         <div className="border border-border rounded-md overflow-hidden">
           <div className="px-4 h-11 flex items-center border-b border-border"><h3 className="text-[13px] font-medium">History</h3></div>
-          {requests.length === 0 ? <div className="p-6 text-center text-[13px] text-muted-foreground">No withdrawal requests yet.</div> :
+          {requests.length === 0 ? (
+            <EmptyState
+              icon={Receipt}
+              title="No withdrawals yet"
+              description="When your balance crosses the minimum threshold, request a payout and track it here."
+              className="py-10"
+            />
+          ) :
           <table className="w-full text-[13px]">
             <thead className="bg-muted/30 text-muted-foreground text-[11px] uppercase tracking-wide">
               <tr><th className="text-left p-3">Date</th><th className="text-left p-3">Method</th><th className="text-right p-3">Amount</th><th className="text-left p-3">Status</th></tr>
