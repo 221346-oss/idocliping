@@ -6,7 +6,9 @@ import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Inbox } from "lucide-react";
+import { StatGridSkeleton, TableSkeleton } from "@/components/Skeletons";
+import { EmptyState } from "@/components/EmptyState";
 
 export default function CreatorDashboard() {
   const { user, profile } = useAuth();
@@ -43,9 +45,12 @@ export default function CreatorDashboard() {
       />
       <div className="p-6 space-y-6">
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-        ) : (
           <>
+            <StatGridSkeleton />
+            <TableSkeleton rows={5} cols={3} />
+          </>
+        ) : (
+          <div className="space-y-6 animate-fade-in">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <StatCard label="Total earnings" value={`$${(campaignEarn + referralEarn).toFixed(2)}`} />
               <StatCard label="Campaign balance" value={`$${campaignEarn.toFixed(2)}`} />
@@ -59,9 +64,14 @@ export default function CreatorDashboard() {
                 <Link to="/creator/submissions" className="text-[12px] text-muted-foreground hover:text-foreground">View all</Link>
               </div>
               {submissions.length === 0 ? (
-                <div className="px-4 py-8 text-center text-[13px] text-muted-foreground">
-                  No submissions yet. <Link to="/creator/campaigns" className="text-foreground underline">Browse campaigns</Link>
-                </div>
+                <EmptyState
+                  icon={Inbox}
+                  title="Nothing here yet"
+                  description="Submit your first clip to start earning. Browse active campaigns and pick one that matches your style."
+                  actionLabel="Browse campaigns"
+                  actionTo="/creator/campaigns"
+                  className="py-12"
+                />
               ) : (
                 <ul>
                   {submissions.map((s) => (
@@ -78,7 +88,7 @@ export default function CreatorDashboard() {
                 </ul>
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
     </AppLayout>
