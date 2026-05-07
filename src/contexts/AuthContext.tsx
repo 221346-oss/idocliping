@@ -126,6 +126,6 @@ export const roleHomePath = (role: AppRole | null): string => {
     case "brand": return "/brand";
     case "creator":
     case "user":
-    default: return "/creator";
+    default: return "/creator/campaigns";
   }
 };

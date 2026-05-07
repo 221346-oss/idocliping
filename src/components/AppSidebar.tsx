@@ -27,16 +27,14 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
   creator: [
-    { icon: LayoutDashboard, label: "Overview", path: "/creator" },
-    { icon: Sparkles, label: "Marketplace", path: "/creator/campaigns" },
+    { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
     { icon: ListChecks, label: "Submissions", path: "/creator/submissions" },
     { icon: Wallet, label: "Wallet", path: "/creator/wallet" },
-    { icon: Share2, label: "Referrals", path: "/creator/referrals" },
     { icon: Briefcase, label: "Socials", path: "/creator/social" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
   user: [
-    { icon: LayoutDashboard, label: "Overview", path: "/creator" },
+    { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
 };
