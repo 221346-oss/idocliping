@@ -41,20 +41,17 @@ export default function CreatorCampaignDetail() {
 
   useEffect(() => { load(); }, [id, user]);
 
-  const handleJoin = async () => {
-    if (!user || !id) return;
-    const { error } = await supabase.from("campaign_participants").insert({ campaign_id: id, creator_id: user.id });
-    if (error) return toast({ title: "Could not join", description: error.message, variant: "destructive" });
-    toast({ title: "Joined campaign" });
-    setJoined(true);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !id) return;
     const parsed = submitSchema.safeParse({ platform, post_url: postUrl });
     if (!parsed.success) return toast({ title: "Invalid input", description: parsed.error.issues[0].message, variant: "destructive" });
     setSubmitting(true);
+    // Auto-join if not already
+    if (!joined) {
+      await supabase.from("campaign_participants").insert({ campaign_id: id, creator_id: user.id });
+      setJoined(true);
+    }
     const { error } = await supabase.from("submissions").insert({
       campaign_id: id, creator_id: user.id, platform: parsed.data.platform, post_url: parsed.data.post_url,
     });
@@ -95,35 +92,33 @@ export default function CreatorCampaignDetail() {
             <div className="flex justify-between text-[13px]"><span className="text-muted-foreground">Budget left</span><span className="font-medium">${Number(campaign.budget_remaining).toFixed(0)}</span></div>
             <div className="flex justify-between text-[13px]"><span className="text-muted-foreground">Category</span><span className="font-medium capitalize">{campaign.category}</span></div>
             <div className="flex justify-between text-[13px]"><span className="text-muted-foreground">Platforms</span><span className="font-medium">{(campaign.platforms ?? []).join(", ") || "—"}</span></div>
-            {!joined && <Button className="w-full" onClick={handleJoin}>Join campaign</Button>}
             {joined && <div className="text-[12px] text-success text-center">✓ Joined</div>}
           </div>
 
-          {joined && (
-            <form onSubmit={handleSubmit} className="border border-border rounded-md p-4 space-y-3">
-              <h3 className="text-[13px] font-medium">Submit a post</h3>
-              <div className="space-y-1">
-                <Label className="text-[12px]">Platform</Label>
-                <Select value={platform} onValueChange={setPlatform}>
-                  <SelectTrigger className="h-8 text-[13px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tiktok">TikTok</SelectItem>
-                    <SelectItem value="instagram">Instagram</SelectItem>
-                    <SelectItem value="youtube">YouTube</SelectItem>
-                    <SelectItem value="x">X (Twitter)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[12px]">Post URL</Label>
-                <Input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} placeholder="https://..." className="h-8 text-[13px]" required />
-              </div>
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
-                Submit for review
-              </Button>
-            </form>
-          )}
+          <form onSubmit={handleSubmit} className="border border-border rounded-md p-4 space-y-3">
+            <h3 className="text-[13px] font-medium">Submit a post</h3>
+            <p className="text-[11px] text-muted-foreground">Submitting auto-joins this campaign.</p>
+            <div className="space-y-1">
+              <Label className="text-[12px]">Platform</Label>
+              <Select value={platform} onValueChange={setPlatform}>
+                <SelectTrigger className="h-8 text-[13px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tiktok">TikTok</SelectItem>
+                  <SelectItem value="instagram">Instagram</SelectItem>
+                  <SelectItem value="youtube">YouTube</SelectItem>
+                  <SelectItem value="x">X (Twitter)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[12px]">Post URL</Label>
+              <Input value={postUrl} onChange={(e) => setPostUrl(e.target.value)} placeholder="https://..." className="h-8 text-[13px]" required />
+            </div>
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
+              Submit for review
+            </Button>
+          </form>
         </div>
       </div>
     </AppLayout>
