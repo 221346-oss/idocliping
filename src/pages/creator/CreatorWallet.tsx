@@ -174,21 +174,29 @@ function ReferralsTab() {
 
   const link = `${window.location.origin}/auth?ref=${code}`;
 
-  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
+  if (loading) return (
+    <div className="p-6 space-y-6">
+      <Skeleton className="h-4 w-80" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {[0,1,2].map(i => <div key={i} className="border border-border rounded-md p-4 space-y-2"><Skeleton className="h-3 w-24" /><Skeleton className="h-7 w-32" /></div>)}
+      </div>
+      <Skeleton className="h-20 w-full" />
+    </div>
+  );
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-fade-in">
       <p className="text-[13px] text-muted-foreground">Invite creators and earn 5% commission on their earnings.</p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="border border-border rounded-md p-4">
+        <div className="border border-border rounded-md p-4 transition-colors hover:border-primary/40">
           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Your code</div>
           <div className="text-[22px] font-mono mt-1">{code}</div>
         </div>
-        <div className="border border-border rounded-md p-4">
+        <div className="border border-border rounded-md p-4 transition-colors hover:border-primary/40">
           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Referred users</div>
           <div className="text-[22px] font-semibold mt-1">{referred.length}</div>
         </div>
-        <div className="border border-border rounded-md p-4">
+        <div className="border border-border rounded-md p-4 transition-colors hover:border-primary/40">
           <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Commission earned</div>
           <div className="text-[22px] font-semibold mt-1">${earnings.toFixed(2)}</div>
         </div>
@@ -198,11 +206,20 @@ function ReferralsTab() {
         <div className="text-[12px] text-muted-foreground">Share this link</div>
         <div className="flex gap-2">
           <Input readOnly value={link} className="h-8 text-[13px] font-mono" />
-          <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(link); toast({ title: "Copied!" }); }}>
+          <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(link); toast({ title: "Copied!" }); }} className="transition-transform hover:scale-105">
             <Copy className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
+
+      {referred.length === 0 && (
+        <EmptyState
+          icon={Users}
+          title="No referrals yet"
+          description="Share your link with fellow creators. You'll earn 5% on every dollar they make — for life."
+          className="py-8"
+        />
+      )}
     </div>
   );
 }
