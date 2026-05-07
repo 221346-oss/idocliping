@@ -3,8 +3,11 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
-import { Loader2, Megaphone } from "lucide-react";
+import { Film } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
+import { TableSkeleton } from "@/components/Skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type SubRow = {
   id: string;
