@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
-import { Film } from "lucide-react";
+import { Film, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
 import { TableSkeleton } from "@/components/Skeletons";
@@ -77,11 +77,20 @@ export default function CreatorSubmissions() {
 
         <div className="flex-1 overflow-auto">
           {loading ? (
-            <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-          ) : campaignList.length === 0 ? (
-            <div className="text-center text-[13px] text-muted-foreground py-12 px-6">
-              You haven't submitted any posts yet. <Link to="/creator/campaigns" className="underline">Browse campaigns</Link>.
+            <div className="flex flex-col md:flex-row h-full">
+              <div className="md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-border p-1.5 space-y-1">
+                {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-7 w-full" />)}
+              </div>
+              <div className="flex-1 p-6 space-y-6"><Skeleton className="h-12 w-full" /><Skeleton className="h-56 w-full sm:w-72" /><TableSkeleton rows={4} cols={5} /></div>
             </div>
+          ) : campaignList.length === 0 ? (
+            <EmptyState
+              icon={Film}
+              title="Your submissions will appear here"
+              description="Once you submit a clip to a campaign, you'll be able to track its views, status, and earnings right here."
+              actionLabel="Find a campaign"
+              actionTo="/creator/campaigns"
+            />
           ) : (
             <div className="flex flex-col md:flex-row h-full">
               {/* Sub-sidebar: per-campaign tabs */}
