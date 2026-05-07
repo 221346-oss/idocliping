@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, SearchX } from "lucide-react";
+import { DetailPageSkeleton } from "@/components/Skeletons";
+import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
@@ -61,8 +63,12 @@ export default function CreatorCampaignDetail() {
     setPostUrl("");
   };
 
-  if (loading) return <AppLayout><div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div></AppLayout>;
-  if (!campaign) return <AppLayout><div className="p-6">Campaign not found.</div></AppLayout>;
+  if (loading) return <AppLayout><DetailPageSkeleton /></AppLayout>;
+  if (!campaign) return (
+    <AppLayout>
+      <EmptyState icon={SearchX} title="Campaign not found" description="This campaign may have ended or been removed." actionLabel="Back to Explore" actionTo="/creator/campaigns" />
+    </AppLayout>
+  );
 
   return (
     <AppLayout>
