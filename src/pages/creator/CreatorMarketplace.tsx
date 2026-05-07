@@ -7,7 +7,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Compass } from "lucide-react";
+import { CampaignGridSkeleton } from "@/components/Skeletons";
+import { EmptyState } from "@/components/EmptyState";
 
 const CATEGORIES = ["all", "music", "logo", "clipping", "ugc"];
 const PLATFORMS = ["tiktok", "instagram", "youtube", "x"];
@@ -116,17 +118,25 @@ export default function CreatorMarketplace() {
 
       <div className="p-6 pt-2">
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          <CampaignGridSkeleton count={8} />
         ) : filtered.length === 0 ? (
-          <div className="text-center text-[13px] text-muted-foreground py-12">No campaigns match your filters.</div>
+          <EmptyState
+            icon={Compass}
+            title={campaigns.length === 0 ? "No campaigns live yet" : "No matches found"}
+            description={campaigns.length === 0
+              ? "New campaigns drop regularly. Check back soon — or follow your favorite brands to get notified."
+              : "Try clearing a filter or switching categories to discover more campaigns."}
+            actionLabel={campaigns.length === 0 ? undefined : "Reset filters"}
+            onAction={campaigns.length === 0 ? undefined : () => { setCategory("all"); setPlatforms([...PLATFORMS]); }}
+          />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
             {filtered.map((c) => {
               const used = Number(c.budget_total) > 0
                 ? Math.min(100, Math.round(((Number(c.budget_total) - Number(c.budget_remaining)) / Number(c.budget_total)) * 100))
                 : 0;
               return (
-                <div key={c.id} className="border border-border rounded-md bg-card overflow-hidden flex flex-col">
+                <div key={c.id} className="border border-border rounded-md bg-card overflow-hidden flex flex-col transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 animate-scale-in">
                   <div className="p-3">
                     <div className="flex gap-3">
                       <div className="w-24 h-24 shrink-0 bg-muted rounded relative overflow-hidden">
