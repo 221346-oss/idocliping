@@ -30,9 +30,9 @@ export function EmptyState({ icon: Icon, title, description, actionLabel, action
       {(actionLabel && (actionTo || onAction)) && (
         <div className="mt-5">
           {actionTo ? (
-            <Link to={actionTo}><Button size="sm" className="hover-scale">{actionLabel}</Button></Link>
+            <Link to={actionTo}><Button size="sm" className="transition-transform hover:scale-105">{actionLabel}</Button></Link>
           ) : (
-            <Button size="sm" onClick={onAction} className="hover-scale">{actionLabel}</Button>
+            <Button size="sm" onClick={onAction} className="transition-transform hover:scale-105">{actionLabel}</Button>
           )}
         </div>
       )}
