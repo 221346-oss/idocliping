@@ -136,7 +136,7 @@ export default function CreatorMarketplace() {
                 ? Math.min(100, Math.round(((Number(c.budget_total) - Number(c.budget_remaining)) / Number(c.budget_total)) * 100))
                 : 0;
               return (
-                <div key={c.id} className="border border-border rounded-md bg-card overflow-hidden flex flex-col">
+                <div key={c.id} className="border border-border rounded-md bg-card overflow-hidden flex flex-col transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 animate-scale-in">
                   <div className="p-3">
                     <div className="flex gap-3">
                       <div className="w-24 h-24 shrink-0 bg-muted rounded relative overflow-hidden">
