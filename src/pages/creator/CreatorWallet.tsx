@@ -22,6 +22,9 @@ export default function CreatorWallet() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [balance, setBalance] = useState(0);
+  const [totalEarned, setTotalEarned] = useState(0);
+  const [totalWithdrawn, setTotalWithdrawn] = useState(0);
+  const [pendingPayouts, setPendingPayouts] = useState(0);
   const [requests, setRequests] = useState<any[]>([]);
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState<"paypal" | "usdt" | "bank">("paypal");
@@ -36,6 +39,12 @@ export default function CreatorWallet() {
     ]);
     const earned = (earnings ?? []).reduce((a: number, b: any) => a + Number(b.amount), 0);
     const pendingPaid = (reqs ?? []).filter((r: any) => r.status !== "rejected").reduce((a: number, b: any) => a + Number(b.amount), 0);
+    const withdrawn = (reqs ?? []).filter((r: any) => r.status === "paid").reduce((a: number, b: any) => a + Number(b.amount), 0);
+    const pending = (reqs ?? []).filter((r: any) => r.status === "pending" || r.status === "approved").reduce((a: number, b: any) => a + Number(b.amount), 0);
+    
+    setTotalEarned(earned);
+    setTotalWithdrawn(withdrawn);
+    setPendingPayouts(pending);
     setBalance(earned - pendingPaid);
     setRequests(reqs ?? []);
   };
@@ -64,10 +73,20 @@ export default function CreatorWallet() {
       <PageHeader title="Wallet" description="Request withdrawals and track payment history." />
       <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-4">
-          <div className="border border-border rounded-md p-4">
-            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Available balance</div>
-            <div className="text-[28px] font-semibold mt-1">${balance.toFixed(2)}</div>
-            <div className="text-[11px] text-muted-foreground mt-2">Minimum withdrawal: ${MIN_WITHDRAWAL}</div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="border border-border rounded-md p-4 col-span-2 bg-primary/5">
+              <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Available balance</div>
+              <div className="text-[28px] font-semibold mt-1">${balance.toFixed(2)}</div>
+              <div className="text-[11px] text-muted-foreground mt-2">Minimum withdrawal: ${MIN_WITHDRAWAL}</div>
+            </div>
+            <div className="border border-border rounded-md p-4">
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Pending</div>
+              <div className="text-[18px] font-semibold mt-1">${pendingPayouts.toFixed(2)}</div>
+            </div>
+            <div className="border border-border rounded-md p-4">
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Withdrawn</div>
+              <div className="text-[18px] font-semibold mt-1">${totalWithdrawn.toFixed(2)}</div>
+            </div>
           </div>
           <form onSubmit={submit} className="border border-border rounded-md p-4 space-y-3">
             <h3 className="text-[13px] font-medium">Request withdrawal</h3>
