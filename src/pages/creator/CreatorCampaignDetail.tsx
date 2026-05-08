@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
@@ -21,6 +21,7 @@ const submitSchema = z.object({
 
 export default function CreatorCampaignDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [campaign, setCampaign] = useState<any>(null);
@@ -61,6 +62,7 @@ export default function CreatorCampaignDetail() {
     if (error) return toast({ title: "Submission failed", description: error.message, variant: "destructive" });
     toast({ title: "Submitted!", description: "Admin will verify your post shortly." });
     setPostUrl("");
+    navigate(`/creator/submissions/${id}`);
   };
 
   if (loading) return <AppLayout><DetailPageSkeleton /></AppLayout>;

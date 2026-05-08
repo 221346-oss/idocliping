@@ -5,7 +5,7 @@ const statusConfig: Record<Enums<"bug_status">, { label: string; dotClass: strin
   new: { label: "New", dotClass: "bg-info" },
   assigned: { label: "Assigned", dotClass: "bg-primary" },
   in_progress: { label: "In Progress", dotClass: "bg-warning" },
-  testing: { label: "Testing", dotClass: "bg-[hsl(280,60%,55%)]" },
+  testing: { label: "Testing", dotClass: "bg-[hsl(0,0%,52%)]" },
   resolved: { label: "Resolved", dotClass: "bg-success" },
   closed: { label: "Closed", dotClass: "bg-muted-foreground" },
 };

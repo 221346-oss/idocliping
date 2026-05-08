@@ -7,10 +7,6 @@ import { useEffect, useState } from "react";
 
 import { StackedLogo } from "@/components/StackedLogo";
 
-/** Apply slate accent on mount */
-const SLATE_HSL = "215 16% 47%";
-const SLATE_DARK = "215 14% 55%";
-
 const LOGO_VARIANT = 1;
 const CUBE_SIZE = 840;
 const CUBE_OFFSET_X = -140;
@@ -32,17 +28,7 @@ const Landing = () => {
   }, []);
 
   const isDark = theme === "dark";
-  const diagonalLineColor = isDark ? "hsl(240 4% 26%" : "hsl(240 4% 80%";
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const isDark = theme === "dark";
-    const hsl = isDark ? SLATE_DARK : SLATE_HSL;
-    root.style.setProperty("--primary", hsl);
-    root.style.setProperty("--ring", hsl);
-    root.style.setProperty("--sidebar-primary", hsl);
-    root.style.setProperty("--sidebar-ring", hsl);
-  }, [theme]);
+  const diagonalLineColor = isDark ? "hsl(0 0% 26%)" : "hsl(0 0% 80%)";
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">

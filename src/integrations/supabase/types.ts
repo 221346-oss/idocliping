@@ -657,6 +657,50 @@ export type Database = {
           },
         ]
       }
+      submission_appeals: {
+        Row: {
+          admin_note: string
+          created_at: string
+          creator_id: string
+          id: string
+          message: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["submission_appeal_status"]
+          submission_id: string
+        }
+        Insert: {
+          admin_note?: string
+          created_at?: string
+          creator_id: string
+          id?: string
+          message: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["submission_appeal_status"]
+          submission_id: string
+        }
+        Update: {
+          admin_note?: string
+          created_at?: string
+          creator_id?: string
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["submission_appeal_status"]
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_appeals_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -757,6 +801,7 @@ export type Database = {
       campaign_status: "draft" | "active" | "paused" | "ended"
       earning_type: "campaign" | "referral"
       social_platform: "tiktok" | "instagram" | "youtube" | "x"
+      submission_appeal_status: "pending" | "reviewed" | "closed"
       submission_status: "pending" | "approved" | "rejected"
       withdrawal_method: "paypal" | "usdt" | "bank"
       withdrawal_status: "pending" | "approved" | "paid" | "rejected"
@@ -908,6 +953,7 @@ export const Constants = {
       campaign_status: ["draft", "active", "paused", "ended"],
       earning_type: ["campaign", "referral"],
       social_platform: ["tiktok", "instagram", "youtube", "x"],
+      submission_appeal_status: ["pending", "reviewed", "closed"],
       submission_status: ["pending", "approved", "rejected"],
       withdrawal_method: ["paypal", "usdt", "bank"],
       withdrawal_status: ["pending", "approved", "paid", "rejected"],

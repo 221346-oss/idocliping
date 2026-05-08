@@ -18,17 +18,22 @@ import {
 type BugRow = Tables<"bugs">;
 
 const STATUS_COLORS: Record<string, string> = {
-  new: "hsl(199, 89%, 48%)", assigned: "hsl(234, 55%, 60%)",
-  in_progress: "hsl(38, 92%, 50%)", testing: "hsl(280, 60%, 55%)",
-  resolved: "hsl(142, 70%, 40%)", closed: "hsl(0, 0%, 50%)",
+  new: "hsl(0, 0%, 60%)",
+  assigned: "hsl(var(--primary))",
+  in_progress: "hsl(var(--warning))",
+  testing: "hsl(0, 0%, 52%)",
+  resolved: "hsl(var(--success))",
+  closed: "hsl(0, 0%, 42%)",
 };
 const STATUS_LABELS: Record<string, string> = {
   new: "New", assigned: "Assigned", in_progress: "In Progress",
   testing: "Testing", resolved: "Resolved", closed: "Closed",
 };
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "hsl(0, 72%, 51%)", high: "hsl(25, 95%, 53%)",
-  medium: "hsl(38, 92%, 50%)", low: "hsl(142, 70%, 40%)",
+  critical: "hsl(0, 72%, 51%)",
+  high: "hsl(25, 95%, 53%)",
+  medium: "hsl(38, 92%, 50%)",
+  low: "hsl(var(--success))",
 };
 const SEVERITY_LABELS: Record<string, string> = {
   critical: "Critical", high: "High", medium: "Medium", low: "Low",
@@ -75,7 +80,7 @@ export default function Analytics() {
     bugs.forEach(b => { const key = format(parseISO(b.created_at), "MMM dd"); if (key in days) days[key]++; });
     return Object.entries(days).map(([date, count]) => ({ date, count }));
   }, [bugs]);
-  const trendChartConfig: ChartConfig = { count: { label: "Bugs Created", color: "hsl(234, 55%, 60%)" } };
+  const trendChartConfig: ChartConfig = { count: { label: "Bugs Created", color: "hsl(var(--primary))" } };
 
   const areaData = useMemo(() => {
     const resolvedStatuses = new Set(["resolved", "closed"]);
@@ -88,7 +93,10 @@ export default function Analytics() {
     }
     return result;
   }, [bugs]);
-  const areaChartConfig: ChartConfig = { open: { label: "Open", color: "hsl(38, 92%, 50%)" }, resolved: { label: "Resolved", color: "hsl(142, 70%, 40%)" } };
+  const areaChartConfig: ChartConfig = {
+    open: { label: "Open", color: "hsl(var(--warning))" },
+    resolved: { label: "Resolved", color: "hsl(var(--success))" },
+  };
 
   const stackedData = useMemo(() => {
     return Object.entries(STATUS_LABELS).map(([statusKey, statusLabel]) => {
@@ -124,7 +132,15 @@ export default function Analytics() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          <NeonPatternDefs colors={[...Object.values(STATUS_COLORS), ...Object.values(SEVERITY_COLORS), "hsl(38, 92%, 50%)", "hsl(142, 70%, 40%)"]} />
+          <NeonPatternDefs
+            colors={[
+              ...Object.values(STATUS_COLORS),
+              ...Object.values(SEVERITY_COLORS),
+              "hsl(var(--warning))",
+              "hsl(var(--success))",
+              "hsl(var(--primary))",
+            ]}
+          />
           <div className="p-4 md:p-6 space-y-6 max-w-[1400px]">
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-md overflow-hidden">
@@ -184,7 +200,7 @@ export default function Analytics() {
                     <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={4} stroke="hsl(var(--muted-foreground))" />
                     <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line type="monotone" dataKey="count" stroke="hsl(234, 55%, 60%)" strokeWidth={1.5} dot={{ r: 2 }} />
+                    <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={1.5} dot={{ r: 2 }} />
                   </LineChart>
                 </ChartContainer>
               </div>
@@ -199,8 +215,8 @@ export default function Analytics() {
                     <XAxis dataKey="date" tick={{ fontSize: 10 }} interval={4} stroke="hsl(var(--muted-foreground))" />
                     <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Area type="monotone" dataKey="open" stackId="1" stroke="hsl(38, 92%, 50%)" fill={`url(#${neonPatternId("hsl(38, 92%, 50%)")})`} fillOpacity={1} strokeWidth={1.5} />
-                    <Area type="monotone" dataKey="resolved" stackId="1" stroke="hsl(142, 70%, 40%)" fill={`url(#${neonPatternId("hsl(142, 70%, 40%)")})`} fillOpacity={1} strokeWidth={1.5} />
+                    <Area type="monotone" dataKey="open" stackId="1" stroke="hsl(var(--warning))" fill={`url(#${neonPatternId("hsl(var(--warning))")})`} fillOpacity={1} strokeWidth={1.5} />
+                    <Area type="monotone" dataKey="resolved" stackId="1" stroke="hsl(var(--success))" fill={`url(#${neonPatternId("hsl(var(--success))")})`} fillOpacity={1} strokeWidth={1.5} />
                   </AreaChart>
                 </ChartContainer>
               </div>

@@ -5,14 +5,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Compass } from "lucide-react";
 import { CampaignGridSkeleton } from "@/components/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
+import { cn } from "@/lib/utils";
 
-const CATEGORIES = ["all", "music", "logo", "clipping", "ugc"];
-const PLATFORMS = ["tiktok", "instagram", "youtube", "x"];
+const CATEGORIES = ["all", "music", "logo", "clipping", "ugc"] as const;
+const PLATFORMS = ["tiktok", "instagram", "youtube", "x"] as const;
+
+const PLATFORM_LABEL: Record<(typeof PLATFORMS)[number], string> = {
+  tiktok: "TikTok",
+  instagram: "Instagram",
+  youtube: "YouTube",
+  x: "X",
+};
 
 export default function CreatorMarketplace() {
   const { user } = useAuth();
@@ -31,7 +38,6 @@ export default function CreatorMarketplace() {
         .eq("status", "active")
         .order("created_at", { ascending: false });
       setCampaigns(data ?? []);
-      // counts
       if (data && data.length) {
         const ids = data.map((c: any) => c.id);
         const { data: parts } = await supabase
@@ -47,14 +53,14 @@ export default function CreatorMarketplace() {
   }, []);
 
   const togglePlatform = (p: string) => {
-    setPlatforms((prev) => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+    setPlatforms((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
   };
 
   const filtered = useMemo(() => {
     let list = campaigns.filter((c) => {
       if (category !== "all" && c.category?.toLowerCase() !== category) return false;
       const cp = (c.platforms ?? []) as string[];
-      if (cp.length && !cp.some((p) => platforms.includes(p.toLowerCase()))) return false;
+      if (cp.length && !cp.some((plat) => platforms.includes(plat.toLowerCase()))) return false;
       return true;
     });
     if (sort === "newest") list = [...list].sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
@@ -75,84 +81,120 @@ export default function CreatorMarketplace() {
         description="Active campaigns you can join right now."
         actions={
           <div className="flex items-center gap-2">
-            <span className="text-[12px] text-muted-foreground">Sort by</span>
-            <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="h-8 text-[12px] w-[130px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="payout">Highest payout</SelectItem>
-                <SelectItem value="budget">Biggest budget</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] text-muted-foreground hidden sm:inline">Sort</span>
+              <Select value={sort} onValueChange={setSort}>
+                <SelectTrigger className="h-8 text-[12px] w-[130px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="payout">Highest payout</SelectItem>
+                  <SelectItem value="budget">Biggest budget</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         }
       />
 
-      <div className="px-6 pt-4 space-y-3">
-        <div className="flex gap-1 border-b border-border">
+      <div className="px-6 pt-4">
+        <div className="flex flex-wrap items-center gap-x-1 gap-y-1 border-b border-border pb-2">
           {CATEGORIES.map((c) => (
             <button
               key={c}
+              type="button"
               onClick={() => setCategory(c)}
-              className={`px-3 h-8 text-[12px] capitalize border-b-2 -mb-px transition-colors ${
-                category === c ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
+              className={cn(
+                "px-2.5 h-7 text-[11px] capitalize rounded-md border border-transparent -mb-px transition-colors",
+                category === c
+                  ? "border-primary/50 bg-primary/10 text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+              )}
             >
               {c}
             </button>
           ))}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-4 pt-1 pb-2">
-          {PLATFORMS.map((p) => (
-            <label key={p} className="flex items-center gap-1.5 cursor-pointer">
-              <Checkbox checked={platforms.includes(p)} onCheckedChange={() => togglePlatform(p)} />
-              <span className="text-[12px] capitalize">{p === "x" ? "X" : p}</span>
-            </label>
-          ))}
-          <span className="text-[12px] text-muted-foreground ml-auto">
+          <span className="h-4 w-px bg-border mx-0.5 shrink-0 hidden sm:block" aria-hidden />
+          <span className="w-full sm:w-auto sm:ml-0 text-[10px] uppercase tracking-wide text-muted-foreground sm:hidden basis-full pt-1">
+            Platforms
+          </span>
+          {PLATFORMS.map((p) => {
+            const on = platforms.includes(p);
+            return (
+              <button
+                key={p}
+                type="button"
+                onClick={() => togglePlatform(p)}
+                className={cn(
+                  "px-2 h-7 text-[11px] rounded-full border transition-colors shrink-0",
+                  on
+                    ? "border-primary/60 bg-primary/10 text-foreground"
+                    : "border-border text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground",
+                )}
+              >
+                {PLATFORM_LABEL[p]}
+              </button>
+            );
+          })}
+          <span className="text-[12px] text-muted-foreground ml-auto whitespace-nowrap">
             {filtered.length} of {campaigns.length} campaigns
           </span>
         </div>
       </div>
 
-      <div className="p-6 pt-2">
+      <div className="p-6 pt-4">
         {loading ? (
           <CampaignGridSkeleton count={8} />
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Compass}
             title={campaigns.length === 0 ? "No campaigns live yet" : "No matches found"}
-            description={campaigns.length === 0
-              ? "New campaigns drop regularly. Check back soon — or follow your favorite brands to get notified."
-              : "Try clearing a filter or switching categories to discover more campaigns."}
+            description={
+              campaigns.length === 0
+                ? "New campaigns drop regularly. Check back soon — or follow your favorite brands to get notified."
+                : "Try clearing a filter or switching categories to discover more campaigns."
+            }
             actionLabel={campaigns.length === 0 ? undefined : "Reset filters"}
-            onAction={campaigns.length === 0 ? undefined : () => { setCategory("all"); setPlatforms([...PLATFORMS]); }}
+            onAction={
+              campaigns.length === 0 ? undefined : () => { setCategory("all"); setPlatforms([...PLATFORMS]); }
+            }
           />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
             {filtered.map((c) => {
-              const used = Number(c.budget_total) > 0
-                ? Math.min(100, Math.round(((Number(c.budget_total) - Number(c.budget_remaining)) / Number(c.budget_total)) * 100))
-                : 0;
+              const used =
+                Number(c.budget_total) > 0
+                  ? Math.min(
+                      100,
+                      Math.round(
+                        ((Number(c.budget_total) - Number(c.budget_remaining)) / Number(c.budget_total)) * 100,
+                      ),
+                    )
+                  : 0;
               return (
-                <div key={c.id} className="border border-border rounded-md bg-card overflow-hidden flex flex-col transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 animate-scale-in">
+                <div
+                  key={c.id}
+                  className="border border-border rounded-md bg-card overflow-hidden flex flex-col transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 animate-scale-in"
+                >
                   <div className="p-3">
                     <div className="flex gap-3">
                       <div className="w-24 h-24 shrink-0 bg-muted rounded relative overflow-hidden">
                         {c.thumbnail_url ? (
                           <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground uppercase tracking-wide">{c.category}</div>
+                          <div className="w-full h-full flex items-center justify-center text-[9px] text-muted-foreground uppercase tracking-wide px-1 text-center">
+                            {c.category}
+                          </div>
                         )}
-                        <div className="absolute bottom-1 left-1 flex gap-1">
+                        <div className="absolute bottom-1 left-1 flex gap-1 items-start max-w-[calc(100%-8px)] pointer-events-none">
                           {c.category && (
-                            <span className="text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-primary text-primary-foreground rounded font-medium">
+                            <span className="text-[6.5px] leading-tight uppercase tracking-wider px-1 py-[1px] rounded-sm font-medium bg-background/90 text-muted-foreground border border-border/90">
                               {c.category}
                             </span>
                           )}
                           {isNew(c) && (
-                            <span className="text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-success text-success-foreground rounded font-medium">
+                            <span className="text-[6.5px] leading-tight uppercase tracking-wider px-1 py-[1px] rounded-sm font-medium bg-primary/25 text-primary border border-primary/50">
                               New
                             </span>
                           )}
@@ -161,12 +203,21 @@ export default function CreatorMarketplace() {
                       <div className="flex-1 min-w-0 space-y-2">
                         <h3 className="text-[14px] font-semibold leading-tight line-clamp-2">{c.title}</h3>
                         <div className="space-y-1 text-[11px]">
-                          <div className="flex justify-between"><span className="text-muted-foreground">Creators</span><span className="font-medium">{participantCounts[c.id] ?? 0}</span></div>
-                          <div className="flex justify-between"><span className="text-muted-foreground">Budget</span><span className="font-medium">${Number(c.budget_total).toFixed(0)}</span></div>
-                          <div className="flex justify-between"><span className="text-muted-foreground">Budget Used</span><span className="font-medium">{used}%</span></div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Creators</span>
+                            <span className="font-medium">{participantCounts[c.id] ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Budget</span>
+                            <span className="font-medium">${Number(c.budget_total).toFixed(0)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Budget Used</span>
+                            <span className="font-medium">{used}%</span>
+                          </div>
                         </div>
                         <div className="h-1 bg-muted rounded overflow-hidden">
-                          <div className="h-full bg-success" style={{ width: `${used}%` }} />
+                          <div className="h-full bg-primary" style={{ width: `${used}%` }} />
                         </div>
                       </div>
                     </div>
@@ -177,7 +228,9 @@ export default function CreatorMarketplace() {
                       <div className="text-[15px] font-semibold">${Number(c.payout_per_1m_views).toFixed(2)}</div>
                     </div>
                     <Link to={`/creator/campaigns/${c.id}`}>
-                      <Button size="sm" className="h-8 text-[12px]">Details</Button>
+                      <Button size="sm" className="h-8 text-[12px]">
+                        Details
+                      </Button>
                     </Link>
                   </div>
                 </div>

@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<string, string> = {
   new: "hsl(var(--info))",
   assigned: "hsl(var(--primary))",
   in_progress: "hsl(var(--warning))",
-  testing: "hsl(280, 60%, 55%)",
+  testing: "hsl(0, 0%, 52%)",
   resolved: "hsl(var(--success))",
   closed: "hsl(var(--muted-foreground))",
 };
