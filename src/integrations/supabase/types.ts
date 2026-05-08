@@ -604,6 +604,50 @@ export type Database = {
         }
         Relationships: []
       }
+      submission_appeals: {
+        Row: {
+          admin_note: string
+          created_at: string
+          creator_id: string
+          id: string
+          message: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["submission_appeal_status"]
+          submission_id: string
+        }
+        Insert: {
+          admin_note?: string
+          created_at?: string
+          creator_id: string
+          id?: string
+          message: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["submission_appeal_status"]
+          submission_id: string
+        }
+        Update: {
+          admin_note?: string
+          created_at?: string
+          creator_id?: string
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["submission_appeal_status"]
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submission_appeals_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       submissions: {
         Row: {
           campaign_id: string
@@ -653,50 +697,6 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      submission_appeals: {
-        Row: {
-          admin_note: string
-          created_at: string
-          creator_id: string
-          id: string
-          message: string
-          resolved_at: string | null
-          resolved_by: string | null
-          status: Database["public"]["Enums"]["submission_appeal_status"]
-          submission_id: string
-        }
-        Insert: {
-          admin_note?: string
-          created_at?: string
-          creator_id: string
-          id?: string
-          message: string
-          resolved_at?: string | null
-          resolved_by?: string | null
-          status?: Database["public"]["Enums"]["submission_appeal_status"]
-          submission_id: string
-        }
-        Update: {
-          admin_note?: string
-          created_at?: string
-          creator_id?: string
-          id?: string
-          message?: string
-          resolved_at?: string | null
-          resolved_by?: string | null
-          status?: Database["public"]["Enums"]["submission_appeal_status"]
-          submission_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "submission_appeals_submission_id_fkey"
-            columns: ["submission_id"]
-            isOneToOne: false
-            referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
         ]
