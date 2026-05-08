@@ -52,6 +52,24 @@ export type Database = {
           },
         ]
       }
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       attachments: {
         Row: {
           bug_id: string
@@ -222,51 +240,90 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          allowed_niches_pages: string[] | null
           badges: string[]
           brand_id: string | null
           budget_remaining: number
           budget_total: number
           category: Database["public"]["Enums"]["campaign_category"]
+          community_link: string | null
+          content_requirements: string | null
           created_at: string
           description: string | null
+          example_ads: string[] | null
           id: string
           instructions: string | null
+          max_earnings_per_creator: number | null
+          max_earnings_per_post: number | null
+          max_submissions_per_account: number | null
+          not_allowed: string[] | null
           payout_per_1m_views: number
           platforms: string[]
+          requirements: Json | null
+          requirements_allowed: string[] | null
+          requirements_not_allowed: string[] | null
+          song_link: string | null
+          sounds: Json | null
           status: Database["public"]["Enums"]["campaign_status"]
           thumbnail_url: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          allowed_niches_pages?: string[] | null
           badges?: string[]
           brand_id?: string | null
           budget_remaining?: number
           budget_total?: number
           category?: Database["public"]["Enums"]["campaign_category"]
+          community_link?: string | null
+          content_requirements?: string | null
           created_at?: string
           description?: string | null
+          example_ads?: string[] | null
           id?: string
           instructions?: string | null
+          max_earnings_per_creator?: number | null
+          max_earnings_per_post?: number | null
+          max_submissions_per_account?: number | null
+          not_allowed?: string[] | null
           payout_per_1m_views?: number
           platforms?: string[]
+          requirements?: Json | null
+          requirements_allowed?: string[] | null
+          requirements_not_allowed?: string[] | null
+          song_link?: string | null
+          sounds?: Json | null
           status?: Database["public"]["Enums"]["campaign_status"]
           thumbnail_url?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          allowed_niches_pages?: string[] | null
           badges?: string[]
           brand_id?: string | null
           budget_remaining?: number
           budget_total?: number
           category?: Database["public"]["Enums"]["campaign_category"]
+          community_link?: string | null
+          content_requirements?: string | null
           created_at?: string
           description?: string | null
+          example_ads?: string[] | null
           id?: string
           instructions?: string | null
+          max_earnings_per_creator?: number | null
+          max_earnings_per_post?: number | null
+          max_submissions_per_account?: number | null
+          not_allowed?: string[] | null
           payout_per_1m_views?: number
           platforms?: string[]
+          requirements?: Json | null
+          requirements_allowed?: string[] | null
+          requirements_not_allowed?: string[] | null
+          song_link?: string | null
+          sounds?: Json | null
           status?: Database["public"]["Enums"]["campaign_status"]
           thumbnail_url?: string | null
           title?: string
@@ -359,6 +416,59 @@ export type Database = {
         }
         Relationships: []
       }
+      cookie_preferences: {
+        Row: {
+          analytics_enabled: boolean
+          browser_key: string
+          consent_accepted: boolean
+          marketing_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          analytics_enabled?: boolean
+          browser_key: string
+          consent_accepted?: boolean
+          marketing_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          analytics_enabled?: boolean
+          browser_key?: string
+          consent_accepted?: boolean
+          marketing_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      creator_badge_overrides: {
+        Row: {
+          admin_note: string
+          creator_id: string
+          tier_order: number
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string
+          creator_id: string
+          tier_order: number
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string
+          creator_id?: string
+          tier_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_badge_overrides_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       earnings: {
         Row: {
           amount: number
@@ -427,6 +537,39 @@ export type Database = {
         }
         Relationships: []
       }
+      leaderboard_badge_tiers: {
+        Row: {
+          id: string
+          perks: Json
+          rank_from: number
+          rank_to: number
+          slug: string
+          tier_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          perks?: Json
+          rank_from: number
+          rank_to: number
+          slug: string
+          tier_order: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          perks?: Json
+          rank_from?: number
+          rank_to?: number
+          slug?: string
+          tier_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           created_at: string
@@ -463,6 +606,33 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      platform_rules: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          order: number
+          rule_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          order?: number
+          rule_text?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          order?: number
+          rule_text?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -763,6 +933,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_cookie_preferences: {
+        Args: { p_browser_key: string }
+        Returns: {
+          analytics_enabled: boolean
+          consent_accepted: boolean
+          marketing_enabled: boolean
+        }[]
+      }
       get_team_members: {
         Args: never
         Returns: {
@@ -779,6 +957,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      upsert_cookie_preferences: {
+        Args: {
+          p_analytics: boolean
+          p_browser_key: string
+          p_consent_accepted: boolean
+          p_marketing: boolean
+        }
+        Returns: undefined
       }
     }
     Enums: {
