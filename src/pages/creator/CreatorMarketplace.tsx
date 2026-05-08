@@ -1,21 +1,26 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
-import { Loader2, Search, Filter } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Compass } from "lucide-react";
+import { CampaignGridSkeleton } from "@/components/Skeletons";
+import { EmptyState } from "@/components/EmptyState";
+
+const CATEGORIES = ["all", "music", "logo", "clipping", "ugc"];
+const PLATFORMS = ["tiktok", "instagram", "youtube", "x"];
 
 export default function CreatorMarketplace() {
+  const { user } = useAuth();
   const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
-
-  // Filter States
-  const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
-  const [platform, setPlatform] = useState("all");
+  const [platforms, setPlatforms] = useState<string[]>([...PLATFORMS]);
   const [sort, setSort] = useState("newest");
 
   useEffect(() => {
@@ -26,141 +31,158 @@ export default function CreatorMarketplace() {
         .eq("status", "active")
         .order("created_at", { ascending: false });
       setCampaigns(data ?? []);
+      // counts
+      if (data && data.length) {
+        const ids = data.map((c: any) => c.id);
+        const { data: parts } = await supabase
+          .from("campaign_participants")
+          .select("campaign_id")
+          .in("campaign_id", ids);
+        const counts: Record<string, number> = {};
+        (parts ?? []).forEach((p: any) => { counts[p.campaign_id] = (counts[p.campaign_id] ?? 0) + 1; });
+        setParticipantCounts(counts);
+      }
       setLoading(false);
     })();
   }, []);
 
-  const filteredCampaigns = useMemo(() => {
-    let result = [...campaigns];
+  const togglePlatform = (p: string) => {
+    setPlatforms((prev) => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+  };
 
-    // Search
-    if (search.trim() !== "") {
-      const q = search.toLowerCase();
-      result = result.filter(c => 
-        c.title.toLowerCase().includes(q) || 
-        c.brands?.name?.toLowerCase().includes(q) ||
-        (c.description || "").toLowerCase().includes(q)
-      );
-    }
+  const filtered = useMemo(() => {
+    let list = campaigns.filter((c) => {
+      if (category !== "all" && c.category?.toLowerCase() !== category) return false;
+      const cp = (c.platforms ?? []) as string[];
+      if (cp.length && !cp.some((p) => platforms.includes(p.toLowerCase()))) return false;
+      return true;
+    });
+    if (sort === "newest") list = [...list].sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
+    if (sort === "payout") list = [...list].sort((a, b) => Number(b.payout_per_1m_views) - Number(a.payout_per_1m_views));
+    if (sort === "budget") list = [...list].sort((a, b) => Number(b.budget_remaining) - Number(a.budget_remaining));
+    return list;
+  }, [campaigns, category, platforms, sort]);
 
-    // Category
-    if (category !== "all") {
-      result = result.filter(c => c.category === category);
-    }
-
-    // Platform
-    if (platform !== "all") {
-      result = result.filter(c => c.platforms?.includes(platform));
-    }
-
-    // Sort
-    if (sort === "newest") {
-      result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    } else if (sort === "high_payout") {
-      result.sort((a, b) => Number(b.payout_per_1m_views) - Number(a.payout_per_1m_views));
-    } else if (sort === "trending") {
-      // In absence of live view metrics in this table, proxy trending by biggest remaining budget
-      result.sort((a, b) => Number(b.budget_remaining) - Number(a.budget_remaining));
-    }
-
-    return result;
-  }, [campaigns, search, category, platform, sort]);
+  const isNew = (c: any) => {
+    const created = +new Date(c.created_at);
+    return Date.now() - created < 1000 * 60 * 60 * 24 * 7;
+  };
 
   return (
     <AppLayout>
-      <PageHeader title="Marketplace" description="Active campaigns you can join right now." />
-      
-      {/* Filters & Search */}
-      <div className="px-6 py-4 border-b border-border bg-card/50 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search campaigns or brands..." 
-            className="pl-9 h-9 text-[13px] bg-background"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+      <PageHeader
+        title="Explore"
+        description="Active campaigns you can join right now."
+        actions={
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] text-muted-foreground">Sort by</span>
+            <Select value={sort} onValueChange={setSort}>
+              <SelectTrigger className="h-8 text-[12px] w-[130px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="payout">Highest payout</SelectItem>
+                <SelectItem value="budget">Biggest budget</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        }
+      />
+
+      <div className="px-6 pt-4 space-y-3">
+        <div className="flex gap-1 border-b border-border">
+          {CATEGORIES.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`px-3 h-8 text-[12px] capitalize border-b-2 -mb-px transition-colors ${
+                category === c ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
         </div>
-        
-        <div className="flex w-full md:w-auto items-center gap-3 overflow-x-auto pb-1 md:pb-0">
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger className="h-9 w-[130px] text-[13px] bg-background"><SelectValue placeholder="Category" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="gaming">Gaming</SelectItem>
-              <SelectItem value="music">Music</SelectItem>
-              <SelectItem value="clipping">Clipping</SelectItem>
-              <SelectItem value="logo">Logo</SelectItem>
-              <SelectItem value="ugc">UGC</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
 
-          <Select value={platform} onValueChange={setPlatform}>
-            <SelectTrigger className="h-9 w-[130px] text-[13px] bg-background"><SelectValue placeholder="Platform" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Platforms</SelectItem>
-              <SelectItem value="tiktok">TikTok</SelectItem>
-              <SelectItem value="instagram">Instagram</SelectItem>
-              <SelectItem value="youtube">YouTube</SelectItem>
-              <SelectItem value="x">X (Twitter)</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={sort} onValueChange={setSort}>
-            <SelectTrigger className="h-9 w-[130px] text-[13px] bg-background"><SelectValue placeholder="Sort" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="trending">Trending</SelectItem>
-              <SelectItem value="high_payout">High Payout</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap items-center gap-4 pt-1 pb-2">
+          {PLATFORMS.map((p) => (
+            <label key={p} className="flex items-center gap-1.5 cursor-pointer">
+              <Checkbox checked={platforms.includes(p)} onCheckedChange={() => togglePlatform(p)} />
+              <span className="text-[12px] capitalize">{p === "x" ? "X" : p}</span>
+            </label>
+          ))}
+          <span className="text-[12px] text-muted-foreground ml-auto">
+            {filtered.length} of {campaigns.length} campaigns
+          </span>
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-6 pt-2">
         {loading ? (
-          <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-        ) : filteredCampaigns.length === 0 ? (
-          <div className="text-center text-[13px] text-muted-foreground py-12">No campaigns found matching your criteria.</div>
+          <CampaignGridSkeleton count={8} />
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            icon={Compass}
+            title={campaigns.length === 0 ? "No campaigns live yet" : "No matches found"}
+            description={campaigns.length === 0
+              ? "New campaigns drop regularly. Check back soon — or follow your favorite brands to get notified."
+              : "Try clearing a filter or switching categories to discover more campaigns."}
+            actionLabel={campaigns.length === 0 ? undefined : "Reset filters"}
+            onAction={campaigns.length === 0 ? undefined : () => { setCategory("all"); setPlatforms([...PLATFORMS]); }}
+          />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCampaigns.map((c) => (
-              <Link key={c.id} to={`/creator/campaigns/${c.id}`} className="group border border-border rounded-md overflow-hidden bg-card hover:border-foreground/40 transition-colors">
-                <div className="aspect-video bg-muted relative">
-                  {c.thumbnail_url ? (
-                    <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[11px] text-muted-foreground uppercase tracking-wide">{c.category}</div>
-                  )}
-                  {(c.badges ?? []).length > 0 && (
-                    <div className="absolute top-2 left-2 flex gap-1">
-                      {c.badges.map((b: string) => (
-                        <span key={b} className="text-[10px] uppercase tracking-wide px-1.5 py-0.5 bg-foreground text-background rounded">{b}</span>
-                      ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
+            {filtered.map((c) => {
+              const used = Number(c.budget_total) > 0
+                ? Math.min(100, Math.round(((Number(c.budget_total) - Number(c.budget_remaining)) / Number(c.budget_total)) * 100))
+                : 0;
+              return (
+                <div key={c.id} className="border border-border rounded-md bg-card overflow-hidden flex flex-col transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 animate-scale-in">
+                  <div className="p-3">
+                    <div className="flex gap-3">
+                      <div className="w-24 h-24 shrink-0 bg-muted rounded relative overflow-hidden">
+                        {c.thumbnail_url ? (
+                          <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground uppercase tracking-wide">{c.category}</div>
+                        )}
+                        <div className="absolute bottom-1 left-1 flex gap-1">
+                          {c.category && (
+                            <span className="text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-primary text-primary-foreground rounded font-medium">
+                              {c.category}
+                            </span>
+                          )}
+                          {isNew(c) && (
+                            <span className="text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-success text-success-foreground rounded font-medium">
+                              New
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <h3 className="text-[14px] font-semibold leading-tight line-clamp-2">{c.title}</h3>
+                        <div className="space-y-1 text-[11px]">
+                          <div className="flex justify-between"><span className="text-muted-foreground">Creators</span><span className="font-medium">{participantCounts[c.id] ?? 0}</span></div>
+                          <div className="flex justify-between"><span className="text-muted-foreground">Budget</span><span className="font-medium">${Number(c.budget_total).toFixed(0)}</span></div>
+                          <div className="flex justify-between"><span className="text-muted-foreground">Budget Used</span><span className="font-medium">{used}%</span></div>
+                        </div>
+                        <div className="h-1 bg-muted rounded overflow-hidden">
+                          <div className="h-full bg-success" style={{ width: `${used}%` }} />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-                <div className="p-3 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{c.category}</span>
-                    {c.brands?.name && <span className="text-[10px] text-muted-foreground truncate">· {c.brands.name}</span>}
                   </div>
-                  <h3 className="text-[14px] font-medium text-foreground line-clamp-2">{c.title}</h3>
-                  <div className="flex items-center justify-between text-[12px]">
-                    <span className="text-foreground font-medium">${Number(c.payout_per_1m_views).toFixed(2)} / 1M views</span>
-                    <span className="text-muted-foreground">${Number(c.budget_remaining).toFixed(0)} left</span>
-                  </div>
-                  {(c.platforms ?? []).length > 0 && (
-                    <div className="flex gap-1 flex-wrap">
-                      {c.platforms.map((p: string) => (
-                        <span key={p} className="text-[10px] px-1.5 py-0.5 border border-border rounded uppercase tracking-wide text-muted-foreground">{p}</span>
-                      ))}
+                  <div className="border-t border-border p-3 flex items-center justify-between mt-auto">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Rate per 1M Views</div>
+                      <div className="text-[15px] font-semibold">${Number(c.payout_per_1m_views).toFixed(2)}</div>
                     </div>
-                  )}
+                    <Link to={`/creator/campaigns/${c.id}`}>
+                      <Button size="sm" className="h-8 text-[12px]">Details</Button>
+                    </Link>
+                  </div>
                 </div>
-              </Link>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
