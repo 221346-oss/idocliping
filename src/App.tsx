@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RoleRoute } from "@/components/RoleRoute";
+import { GeneralRulesGate } from "@/components/GeneralRulesGate";
 
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
@@ -21,6 +22,8 @@ import BugDetail from "./pages/BugDetail";
 import BugList from "./pages/BugList";
 import AdminBrands from "./pages/admin/AdminBrands";
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
+import AdminRulesManager from "./pages/admin/AdminRulesManager";
+import AdminBadges from "./pages/admin/AdminBadges";
 import AdminSubmissions from "./pages/admin/AdminSubmissions";
 import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -33,6 +36,7 @@ import CreatorSubmissions from "./pages/creator/CreatorSubmissions";
 import CreatorWallet from "./pages/creator/CreatorWallet";
 import CreatorReferrals from "./pages/creator/CreatorReferrals";
 import CreatorSocial from "./pages/creator/CreatorSocial";
+import CreatorLeaderboard from "./pages/creator/CreatorLeaderboard";
 
 // Brand
 import BrandDashboard from "./pages/brand/BrandDashboard";
@@ -48,6 +52,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <GeneralRulesGate />
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/" element={<Index />} />
@@ -59,6 +64,8 @@ const App = () => (
               <Route path="/admin" element={<RoleRoute roles={["admin"]}><Dashboard /></RoleRoute>} />
               <Route path="/admin/brands" element={<RoleRoute roles={["admin"]}><AdminBrands /></RoleRoute>} />
               <Route path="/admin/campaigns" element={<RoleRoute roles={["admin"]}><AdminCampaigns /></RoleRoute>} />
+              <Route path="/admin/rules" element={<RoleRoute roles={["admin"]}><AdminRulesManager /></RoleRoute>} />
+              <Route path="/admin/badges" element={<RoleRoute roles={["admin"]}><AdminBadges /></RoleRoute>} />
               <Route path="/admin/submissions" element={<RoleRoute roles={["admin"]}><AdminSubmissions /></RoleRoute>} />
               <Route path="/admin/withdrawals" element={<RoleRoute roles={["admin"]}><AdminWithdrawals /></RoleRoute>} />
               <Route path="/admin/users" element={<RoleRoute roles={["admin"]}><AdminUsers /></RoleRoute>} />
@@ -73,6 +80,8 @@ const App = () => (
               <Route path="/creator" element={<RoleRoute roles={["creator", "user"]}><CreatorMarketplace /></RoleRoute>} />
               <Route path="/creator/campaigns" element={<RoleRoute roles={["creator", "user"]}><CreatorMarketplace /></RoleRoute>} />
               <Route path="/creator/campaigns/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorCampaignDetail /></RoleRoute>} />
+              <Route path="/creator/leaderboard/profile/:creatorId" element={<RoleRoute roles={["creator", "user"]}><CreatorLeaderboard /></RoleRoute>} />
+              <Route path="/creator/leaderboard" element={<RoleRoute roles={["creator", "user"]}><CreatorLeaderboard /></RoleRoute>} />
               <Route path="/creator/submissions" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
               <Route path="/creator/submissions/:campaignId" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
               <Route path="/creator/wallet" element={<RoleRoute roles={["creator", "user"]}><CreatorWallet /></RoleRoute>} />

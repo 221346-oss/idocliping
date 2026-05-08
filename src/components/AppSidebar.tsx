@@ -1,4 +1,4 @@
-import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks } from "lucide-react";
+import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, Medal } from "lucide-react";
 import { StackedLogo } from "./StackedLogo";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,8 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Building2, label: "Brands", path: "/admin/brands" },
     { icon: Megaphone, label: "Campaigns", path: "/admin/campaigns" },
     { icon: FileCheck, label: "Submissions", path: "/admin/submissions" },
+    { icon: FileCheck, label: "Rules Manager", path: "/admin/rules" },
+    { icon: Medal, label: "Leaderboard badges", path: "/admin/badges" },
     { icon: Wallet, label: "Withdrawals", path: "/admin/withdrawals" },
     { icon: Users, label: "Users", path: "/admin/users" },
     { icon: BarChart3, label: "Analytics", path: "/analytics" },
@@ -28,6 +30,7 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
   ],
   creator: [
     { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
+    { icon: Trophy, label: "Leaderboard", path: "/creator/leaderboard" },
     { icon: ListChecks, label: "Submissions", path: "/creator/submissions" },
     { icon: Wallet, label: "Wallet", path: "/creator/wallet" },
     { icon: Briefcase, label: "Socials", path: "/creator/social" },
@@ -35,6 +38,7 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
   ],
   user: [
     { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
+    { icon: Trophy, label: "Leaderboard", path: "/creator/leaderboard" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
 };
@@ -120,5 +124,5 @@ export function AppSidebar() {
   );
 }
 
-// Backward compat for existing imports
+// Backward compat for existing imports (mirror creator nav)
 export const navItems = NAV_BY_ROLE.creator;

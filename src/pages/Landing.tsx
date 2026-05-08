@@ -6,6 +6,56 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { StackedLogo } from "@/components/StackedLogo";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+/** Stable key sent to Supabase (`cookie_preferences.browser_key`). Old builds used consent-only localStorage keys below — migrated once. */
+const BROWSER_KEY_STORAGE = "iclip_cookie_browser_key";
+const LEGACY_COOKIE_CONSENT_KEY = "iclip_cookie_consent";
+const LEGACY_COOKIE_PREFS_KEY = "iclip_cookie_preferences";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function getOrCreateBrowserKey(): string {
+  try {
+    let k = localStorage.getItem(BROWSER_KEY_STORAGE);
+    if (!k || !UUID_RE.test(k)) {
+      k = crypto.randomUUID();
+      localStorage.setItem(BROWSER_KEY_STORAGE, k);
+    }
+    return k;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
+async function fetchConsentRow(browserKey: string) {
+  const { data, error } = await (supabase as any).rpc("get_cookie_preferences", {
+    p_browser_key: browserKey,
+  });
+  if (error) throw error;
+  const row = Array.isArray(data) ? data[0] : null;
+  return row as { consent_accepted?: boolean; analytics_enabled?: boolean; marketing_enabled?: boolean } | null;
+}
+
+async function persistConsentToSupabase(
+  browserKey: string,
+  consentAccepted: boolean,
+  analytics: boolean,
+  marketing: boolean,
+) {
+  const { error } = await (supabase as any).rpc("upsert_cookie_preferences", {
+    p_browser_key: browserKey,
+    p_consent_accepted: consentAccepted,
+    p_analytics: analytics,
+    p_marketing: marketing,
+  });
+  if (error) throw error;
+}
 
 const LOGO_VARIANT = 1;
 const CUBE_SIZE = 840;
@@ -14,6 +64,13 @@ const CUBE_OFFSET_Y = -80;
 
 const Landing = () => {
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+  const [consentHydrated, setConsentHydrated] = useState(false);
+  const [hasConsent, setHasConsent] = useState(false);
+  const [prefsOpen, setPrefsOpen] = useState(false);
+  const [analyticsOn, setAnalyticsOn] = useState(false);
+  const [marketingOn, setMarketingOn] = useState(false);
+  const [consentSaving, setConsentSaving] = useState(false);
   const [cubeZoom, setCubeZoom] = useState(() => {
     const w = window.innerWidth;
     return w < 1024 ? 270 : 360;
@@ -27,11 +84,124 @@ const Landing = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const browserKey = getOrCreateBrowserKey();
+        const row = await fetchConsentRow(browserKey);
+
+        if (!cancelled && row?.consent_accepted) {
+          setHasConsent(true);
+          setAnalyticsOn(!!row.analytics_enabled);
+          setMarketingOn(!!row.marketing_enabled);
+          return;
+        }
+
+        // One-time migration from older localStorage-only keys
+        if (!cancelled && localStorage.getItem(LEGACY_COOKIE_CONSENT_KEY) === "accepted") {
+          let analytics = true;
+          let marketing = true;
+          try {
+            const raw = localStorage.getItem(LEGACY_COOKIE_PREFS_KEY);
+            if (raw) {
+              const p = JSON.parse(raw) as { analytics?: boolean; marketing?: boolean };
+              analytics = !!p.analytics;
+              marketing = !!p.marketing;
+            }
+          } catch {
+            /* keep defaults */
+          }
+          await persistConsentToSupabase(browserKey, true, analytics, marketing);
+          localStorage.removeItem(LEGACY_COOKIE_CONSENT_KEY);
+          localStorage.removeItem(LEGACY_COOKIE_PREFS_KEY);
+          if (!cancelled) {
+            setHasConsent(true);
+            setAnalyticsOn(analytics);
+            setMarketingOn(marketing);
+          }
+        }
+      } catch (e) {
+        console.error("Cookie consent load failed", e);
+        if (!cancelled) {
+          toast({
+            title: "Could not load cookie preferences",
+            description: "Run supabase/manual/004_cookie_preferences.sql in Supabase. Banner may reappear until fixed.",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        if (!cancelled) setConsentHydrated(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [toast]);
+
+  const openPrefs = async () => {
+    try {
+      const browserKey = getOrCreateBrowserKey();
+      const row = await fetchConsentRow(browserKey);
+      if (row) {
+        setAnalyticsOn(!!row.analytics_enabled);
+        setMarketingOn(!!row.marketing_enabled);
+      } else {
+        setAnalyticsOn(false);
+        setMarketingOn(false);
+      }
+    } catch {
+      setAnalyticsOn(false);
+      setMarketingOn(false);
+    }
+    setPrefsOpen(true);
+  };
+
+  const acceptAll = async () => {
+    setConsentSaving(true);
+    try {
+      const browserKey = getOrCreateBrowserKey();
+      await persistConsentToSupabase(browserKey, true, true, true);
+      setAnalyticsOn(true);
+      setMarketingOn(true);
+      setHasConsent(true);
+      setPrefsOpen(false);
+    } catch (e) {
+      console.error(e);
+      toast({
+        title: "Could not save consent",
+        description: "Run supabase/manual/004_cookie_preferences.sql and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setConsentSaving(false);
+    }
+  };
+
+  const savePrefs = async () => {
+    setConsentSaving(true);
+    try {
+      const browserKey = getOrCreateBrowserKey();
+      await persistConsentToSupabase(browserKey, true, analyticsOn, marketingOn);
+      setHasConsent(true);
+      setPrefsOpen(false);
+    } catch (e) {
+      console.error(e);
+      toast({
+        title: "Could not save preferences",
+        description: "Run supabase/manual/004_cookie_preferences.sql and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setConsentSaving(false);
+    }
+  };
+
   const isDark = theme === "dark";
   const diagonalLineColor = isDark ? "hsl(0 0% 26%)" : "hsl(0 0% 80%)";
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden pb-24">
       {/* Nav */}
       <nav className="fixed top-0 z-50 w-full bg-background border-b border-border px-6">
         <div className="mx-auto flex h-[56px] max-w-[1200px] items-center justify-between">
@@ -365,6 +535,83 @@ const Landing = () => {
           <span className="text-[12px] text-muted-foreground">© {new Date().getFullYear()}</span>
         </div>
       </div>
+
+      {/* Cookie consent banner */}
+      {consentHydrated && !hasConsent && (
+        <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-border bg-background/95 backdrop-blur">
+          <div className="mx-auto max-w-[1200px] px-6 py-4 flex items-center justify-between gap-4">
+            <p className="text-[13px] text-muted-foreground max-w-[760px]">
+              We use cookies to improve your experience. By continuing, you agree to our Cookie Policy.
+            </p>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="default" onClick={() => void acceptAll()} disabled={consentSaving}>
+                Accept All
+              </Button>
+              <Button variant="outline" onClick={() => void openPrefs()} disabled={consentSaving}>
+                Manage Preferences
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cookie preferences modal */}
+      {prefsOpen && !hasConsent && consentHydrated && (
+        <div
+          className="fixed inset-0 z-[70] bg-black/80 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div className="w-full max-w-lg border border-border bg-background p-6 rounded-md shadow-lg">
+            <div className="flex items-start justify-between gap-4">
+              <div className="text-center flex-1">
+                <div className="flex items-center justify-center">
+                  <div className="text-destructive">
+                    <StackedLogo size={20} />
+                  </div>
+                </div>
+                <h2 className="mt-3 text-[16px] font-semibold text-foreground">Cookie Preferences</h2>
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  Choose which cookies we can use. Necessary cookies are always enabled.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label className="text-[13px] font-medium">Necessary Cookies</Label>
+                  <div className="text-[12px] text-muted-foreground">Required for core functionality</div>
+                </div>
+                <Switch checked disabled />
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label className="text-[13px] font-medium">Analytics Cookies</Label>
+                  <div className="text-[12px] text-muted-foreground">Help us understand usage</div>
+                </div>
+                <Switch checked={analyticsOn} onCheckedChange={setAnalyticsOn} />
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5">
+                  <Label className="text-[13px] font-medium">Marketing Cookies</Label>
+                  <div className="text-[12px] text-muted-foreground">Used for personalized offers</div>
+                </div>
+                <Switch checked={marketingOn} onCheckedChange={setMarketingOn} />
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <Button className="w-full" onClick={() => void savePrefs()} disabled={consentSaving}>
+                Save Preferences
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

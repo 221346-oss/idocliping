@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
-import { Film, Megaphone } from "lucide-react";
+import { Film, Megaphone, ArrowLeft, Trash2, Loader2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
 import { TableSkeleton } from "@/components/Skeletons";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -20,6 +21,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { submissionStatusBadgeClass, submissionStatusLabel } from "@/lib/submission-status";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { detectSocialPlatformFromUrl } from "@/lib/detect-post-platform";
+import { cn } from "@/lib/utils";
 
 type AppealRow = Pick<
   Tables<"submission_appeals">,
@@ -36,8 +41,15 @@ type SubRow = {
   created_at: string;
   reject_reason: string | null;
   earnings?: { amount: number }[];
-  campaigns?: { id: string; title: string; thumbnail_url: string | null; status: string; category: string };
+  campaigns?: { id: string; title: string; thumbnail_url: string | null; status: string; category: string; platforms?: string[] };
   submission_appeals?: AppealRow[] | null;
+};
+
+const PLATFORM_LABEL: Record<string, string> = {
+  tiktok: "TikTok",
+  instagram: "Instagram",
+  youtube: "YouTube",
+  x: "X",
 };
 
 export default function CreatorSubmissions() {
@@ -55,7 +67,7 @@ export default function CreatorSubmissions() {
     const { data, error } = await supabase
       .from("submissions")
       .select(
-        "*, earnings(amount), campaigns(id, title, thumbnail_url, status, category), submission_appeals(id, status, message, admin_note, created_at)",
+        "*, earnings(amount), campaigns(id, title, thumbnail_url, status, category, platforms), submission_appeals(id, status, message, admin_note, created_at)",
       )
       .eq("creator_id", user.id)
       .order("created_at", { ascending: false });
@@ -68,7 +80,7 @@ export default function CreatorSubmissions() {
       if (missingTable) {
         const { data: fallback } = await supabase
           .from("submissions")
-          .select("*, earnings(amount), campaigns(id, title, thumbnail_url, status, category)")
+          .select("*, earnings(amount), campaigns(id, title, thumbnail_url, status, category, platforms)")
           .eq("creator_id", user.id)
           .order("created_at", { ascending: false });
         setRows((fallback ?? []) as SubRow[]);
@@ -204,6 +216,7 @@ export default function CreatorSubmissions() {
                     payoutStatus={payoutStatus}
                     earningsForCampaign={earningsForCampaign}
                     onAppealSubmitted={loadRows}
+                    onReload={() => loadRows()}
                   />
                 )}
               </div>
@@ -220,12 +233,15 @@ function CampaignSubmissionsView({
   payoutStatus,
   earningsForCampaign,
   onAppealSubmitted,
+  onReload,
 }: {
   active: { campaign: any; submissions: SubRow[] };
   payoutStatus: (subs: SubRow[], status: string) => { label: string; tone: "success" | "warning" };
   earningsForCampaign: (subs: SubRow[]) => number;
   onAppealSubmitted: () => void | Promise<void>;
+  onReload: () => void | Promise<void>;
 }) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const { campaign, submissions } = active;
@@ -236,6 +252,22 @@ function CampaignSubmissionsView({
   const [appealFor, setAppealFor] = useState<SubRow | null>(null);
   const [appealText, setAppealText] = useState("");
   const [appealSending, setAppealSending] = useState(false);
+
+  const supportedPlatforms = ((campaign.platforms ?? []) as string[]).filter(Boolean);
+  const [submitOpen, setSubmitOpen] = useState(false);
+  const [postUrlDraft, setPostUrlDraft] = useState("");
+  const [pendingPlatform, setPendingPlatform] = useState<string | null>(null);
+  const [submitBusy, setSubmitBusy] = useState(false);
+
+  const [confirmSubmitOpen, setConfirmSubmitOpen] = useState(false);
+
+  const [deleteTarget, setDeleteTarget] = useState<SubRow | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+
+  const heroImage =
+    typeof campaign.thumbnail_url === "string" && campaign.thumbnail_url.trim()
+      ? campaign.thumbnail_url.trim()
+      : "/marketing-campaign-banner-fallback.svg";
 
   const sendAppeal = async () => {
     if (!user || !appealFor || !appealText.trim()) return;
@@ -269,6 +301,111 @@ function CampaignSubmissionsView({
     return withNote[0] ?? null;
   };
 
+  const openSubmitModal = () => {
+    setPostUrlDraft("");
+    setPendingPlatform(null);
+    setSubmitOpen(true);
+  };
+
+  const validateUrlForSubmit = (): { platform: "tiktok" | "instagram" | "youtube" | "x"; url: string } | null => {
+    const raw = postUrlDraft.trim();
+    if (!raw) {
+      toast({ title: "URL required", variant: "destructive" });
+      return null;
+    }
+    try {
+      // eslint-disable-next-line no-new
+      new URL(raw);
+    } catch {
+      toast({ title: "Invalid URL", description: "Paste a full link including https://", variant: "destructive" });
+      return null;
+    }
+    const detected = detectSocialPlatformFromUrl(raw);
+    if (!detected) {
+      toast({
+        title: "Could not detect platform",
+        description: "Use a TikTok, Instagram, YouTube, or X post URL.",
+        variant: "destructive",
+      });
+      return null;
+    }
+    if (supportedPlatforms.length && !supportedPlatforms.some((p) => String(p).toLowerCase() === detected)) {
+      toast({
+        title: "Platform not accepted",
+        description: `This campaign does not accept ${PLATFORM_LABEL[detected]} posts.`,
+        variant: "destructive",
+      });
+      return null;
+    }
+    return { platform: detected, url: raw };
+  };
+
+  const handleSubmitIntent = () => {
+    const ok = validateUrlForSubmit();
+    if (!ok) return;
+    setPendingPlatform(ok.platform);
+    setConfirmSubmitOpen(true);
+  };
+
+  const finalizeSubmit = async () => {
+    if (!user) return;
+    const ok = validateUrlForSubmit();
+    if (!ok) return;
+    setSubmitBusy(true);
+    try {
+      const { data: part } = await supabase
+        .from("campaign_participants")
+        .select("id")
+        .eq("campaign_id", campaign.id)
+        .eq("creator_id", user.id)
+        .maybeSingle();
+      if (!part) {
+        await supabase.from("campaign_participants").insert({ campaign_id: campaign.id, creator_id: user.id });
+      }
+
+      const { error } = await supabase.from("submissions").insert({
+        campaign_id: campaign.id,
+        creator_id: user.id,
+        platform: ok.platform,
+        post_url: ok.url,
+      });
+      if (error) throw error;
+      toast({ title: "Submitted!", description: "Admin will verify your post shortly." });
+      setConfirmSubmitOpen(false);
+      setSubmitOpen(false);
+      setPostUrlDraft("");
+      await onReload();
+    } catch (e: unknown) {
+      toast({
+        title: "Submission failed",
+        description: e instanceof Error ? e.message : "Try again",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitBusy(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!user || !deleteTarget) return;
+    setDeleteBusy(true);
+    const { error } = await supabase.from("submissions").delete().eq("id", deleteTarget.id).eq("creator_id", user.id);
+    setDeleteBusy(false);
+    setDeleteTarget(null);
+    if (error) {
+      return toast({
+        title: "Could not delete",
+        description:
+          error.message?.includes("policy") || error.code === "42501"
+            ? "Run supabase/manual/003_creator_delete_own_pending_submission.sql in Supabase, then try again."
+            : error.message,
+        variant: "destructive",
+      });
+    }
+    toast({ title: "Submission removed" });
+    await onReload();
+  };
+
   return (
     <div className="space-y-6">
       <div className="rounded-md bg-muted/40 border border-border p-3 text-[12px] text-foreground">
@@ -278,44 +415,52 @@ function CampaignSubmissionsView({
         <span className="text-destructive"> Ineligible</span> means it was declined — see the reason below.
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="border border-border rounded-md overflow-hidden bg-card">
-          <div className="aspect-video bg-muted relative">
-            {campaign.thumbnail_url ? (
-              <img src={campaign.thumbnail_url} alt={campaign.title} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground uppercase tracking-wide">
-                {campaign.category}
-              </div>
-            )}
-            {campaign.category && (
-              <span className="absolute bottom-2 left-2 text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-muted text-muted-foreground border border-border rounded font-medium">
-                {campaign.category}
-              </span>
-            )}
+      <div className="relative w-full rounded-lg overflow-hidden border border-border min-h-[176px] sm:min-h-[220px] max-h-[320px]">
+        <img src={heroImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/58" />
+
+        <div className="relative z-10 flex flex-col gap-5 p-5 sm:p-7 min-h-[176px] sm:min-h-[220px]">
+          <div className="flex items-start justify-between gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0 border-border bg-background/80 backdrop-blur-sm"
+              onClick={() => navigate("/creator/campaigns")}
+            >
+              <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back to campaigns
+            </Button>
+            <Button type="button" variant="destructive" size="sm" className="shadow-sm shrink-0" onClick={openSubmitModal}>
+              Submit a post
+            </Button>
           </div>
-          <div className="p-4 space-y-3">
-            <h3 className="text-[14px] font-semibold">{campaign.title}</h3>
-            <div className="bg-muted/40 rounded-md p-3 text-center space-y-1">
-              <div className="text-[11px] text-muted-foreground">Your Earnings</div>
-              <div className="text-[22px] font-bold">${earnings.toFixed(2)}</div>
-              <div className={cn("text-[12px] font-medium", tone === "success" ? "text-primary" : "text-warning")}>
-                {label}
+
+          <div className="flex flex-1 items-center justify-center px-4">
+            <div className="max-w-[min(100%,620px)] w-full px-6 py-2.5 rounded-full bg-black/72 border border-white/25 backdrop-blur-sm">
+              <div className="text-center space-y-1">
+                <h2 className="text-[clamp(17px,2.8vw,22px)] font-semibold text-white tracking-tight leading-snug">{campaign.title}</h2>
+                <div className="bg-white/15 rounded-full px-3 py-3 text-center mt-3">
+                  <div className="text-[11px] text-white/85">Your earnings</div>
+                  <div className="text-[22px] font-bold text-white">${earnings.toFixed(2)}</div>
+                  <div className={cn("text-[12px] font-medium", tone === "success" ? "text-primary" : "text-warning")}>
+                    {label}
+                  </div>
+                </div>
+                <p className="text-[11px] text-white/85 pt-3">
+                  {ended
+                    ? tone === "success"
+                      ? "Campaign has ended."
+                      : "Campaign has ended. Payout is being processed."
+                    : "Campaign is active. Submissions move through admin review."}
+                </p>
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground text-center">
-              {ended
-                ? tone === "success"
-                  ? "Campaign has ended. Earnings have been paid out."
-                  : "Campaign has ended. Payout is being processed."
-                : "Campaign is active. Submissions move through admin review."}
-            </p>
           </div>
         </div>
       </div>
 
       <div className="border border-border rounded-md overflow-hidden">
-        <div className="px-4 h-11 flex items-center border-b border-border">
+        <div className="px-4 h-11 flex items-center justify-between gap-4 border-b border-border">
           <h3 className="text-[13px] font-medium">Posts ({submissions.length})</h3>
         </div>
         <div className="overflow-x-auto">
@@ -327,7 +472,7 @@ function CampaignSubmissionsView({
                 <th className="text-right p-3">Views</th>
                 <th className="text-right p-3">Earned</th>
                 <th className="text-left p-3">Status</th>
-                <th className="text-left p-3 w-[120px]"> </th>
+                <th className="text-right p-3 w-[112px]">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -373,12 +518,26 @@ function CampaignSubmissionsView({
                         {submissionStatusLabel(s.status)}
                       </span>
                     </td>
-                    <td className="p-3">
-                      {s.status === "rejected" && !pendingAppeal(s) && (
-                        <Button type="button" variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => setAppealFor(s)}>
-                          Appeal
-                        </Button>
-                      )}
+                    <td className="p-3 text-right space-x-1">
+                      <div className="inline-flex justify-end gap-1 flex-wrap">
+                        {s.status === "rejected" && !pendingAppeal(s) && (
+                          <Button type="button" variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => setAppealFor(s)}>
+                            Appeal
+                          </Button>
+                        )}
+                        {s.status === "pending" && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="h-7 text-[11px] px-2"
+                            title="Withdraw submission before review"
+                            onClick={() => setDeleteTarget(s)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -387,6 +546,96 @@ function CampaignSubmissionsView({
           </table>
         </div>
       </div>
+
+      <Dialog
+        open={submitOpen}
+        onOpenChange={(o) => {
+          setSubmitOpen(o);
+          if (!o) {
+            setPostUrlDraft("");
+            setPendingPlatform(null);
+            setConfirmSubmitOpen(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md [&>button]:hidden">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-[15px]">Submit Your Content</DialogTitle>
+            <DialogDescription className="sr-only">
+              Paste a post URL from a supported platform. Submitting joins this campaign.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label className="text-[12px]">Post URL</Label>
+            <Textarea
+              value={postUrlDraft}
+              onChange={(e) => setPostUrlDraft(e.target.value)}
+              placeholder="Paste your content URL here…"
+              className="min-h-[108px] text-[13px] resize-none"
+              onBlur={() => {
+                const d = detectSocialPlatformFromUrl(postUrlDraft);
+                setPendingPlatform(d);
+              }}
+            />
+            <div className="flex gap-2 text-[11px] text-muted-foreground items-start pt-1">
+              <Info className="h-4 w-4 shrink-0" />
+              <span>Views after submission count toward earnings; submit as soon as you post.</span>
+            </div>
+          </div>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 sm:justify-between">
+            <Button type="button" variant="outline" size="sm" onClick={() => setSubmitOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" variant="destructive" size="sm" onClick={() => void handleSubmitIntent()}>
+              Submit for review
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmSubmitOpen} onOpenChange={setConfirmSubmitOpen}>
+        <DialogContent className="sm:max-w-md [&>button]:hidden">
+          <DialogHeader>
+            <DialogTitle className="text-[15px]">Confirm submission</DialogTitle>
+            <DialogDescription className="text-[13px] text-left">
+              Detected{" "}
+              <span className="text-foreground font-medium">{pendingPlatform ? PLATFORM_LABEL[pendingPlatform] : "platform"}</span>{" "}
+              from this URL. Proceed?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" size="sm" disabled={submitBusy} onClick={() => setConfirmSubmitOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" variant="destructive" size="sm" disabled={submitBusy} onClick={() => void finalizeSubmit()}>
+              {submitBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this submission?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This only works while the post is still pending review. You can submit a corrected link afterward.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteBusy}>Cancel</AlertDialogCancel>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={deleteBusy}
+              className="h-9"
+              onClick={() => void confirmDelete()}
+            >
+              {deleteBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog open={!!appealFor} onOpenChange={(o) => !o && setAppealFor(null)}>
         <DialogContent className="sm:max-w-md">
