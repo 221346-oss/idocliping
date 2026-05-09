@@ -1,4 +1,3 @@
-// Manually extended (support tickets, cosmetics, app_settings, RPC). If you run `supabase gen types`, merge these tables/functions back in.
 export type Json =
   | string
   | number
@@ -441,6 +440,39 @@ export type Database = {
         }
         Relationships: []
       }
+      cosmetic_items: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          is_active: boolean
+          name: string
+          rank_reward_condition: Json | null
+          type: Database["public"]["Enums"]["cosmetic_item_type"]
+          unlock_type: Database["public"]["Enums"]["cosmetic_unlock_type"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          name: string
+          rank_reward_condition?: Json | null
+          type: Database["public"]["Enums"]["cosmetic_item_type"]
+          unlock_type?: Database["public"]["Enums"]["cosmetic_unlock_type"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          name?: string
+          rank_reward_condition?: Json | null
+          type?: Database["public"]["Enums"]["cosmetic_item_type"]
+          unlock_type?: Database["public"]["Enums"]["cosmetic_unlock_type"]
+        }
+        Relationships: []
+      }
       creator_badge_overrides: {
         Row: {
           admin_note: string
@@ -464,6 +496,126 @@ export type Database = {
           {
             foreignKeyName: "creator_badge_overrides_creator_id_fkey"
             columns: ["creator_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      creator_cosmetics: {
+        Row: {
+          cosmetic_id: string
+          id: string
+          unlocked_at: string
+          unlocked_reason: string
+          user_id: string
+        }
+        Insert: {
+          cosmetic_id: string
+          id?: string
+          unlocked_at?: string
+          unlocked_reason?: string
+          user_id: string
+        }
+        Update: {
+          cosmetic_id?: string
+          id?: string
+          unlocked_at?: string
+          unlocked_reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_cosmetics_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_cosmetics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      creator_leaderboard_points: {
+        Row: {
+          month_bucket_start: string | null
+          points_all_time: number
+          points_month: number
+          points_week: number
+          updated_at: string
+          user_id: string
+          week_bucket_start: string | null
+        }
+        Insert: {
+          month_bucket_start?: string | null
+          points_all_time?: number
+          points_month?: number
+          points_week?: number
+          updated_at?: string
+          user_id: string
+          week_bucket_start?: string | null
+        }
+        Update: {
+          month_bucket_start?: string | null
+          points_all_time?: number
+          points_month?: number
+          points_week?: number
+          updated_at?: string
+          user_id?: string
+          week_bucket_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_leaderboard_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      creator_profile_settings: {
+        Row: {
+          equipped_avatar_id: string | null
+          equipped_banner_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          equipped_avatar_id?: string | null
+          equipped_banner_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          equipped_avatar_id?: string | null
+          equipped_banner_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_profile_settings_equipped_avatar_id_fkey"
+            columns: ["equipped_avatar_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_profile_settings_equipped_banner_id_fkey"
+            columns: ["equipped_banner_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_profile_settings_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
@@ -872,6 +1024,120 @@ export type Database = {
           },
         ]
       }
+      support_tickets: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          internal_notes: string
+          priority: Database["public"]["Enums"]["support_ticket_priority"]
+          status: Database["public"]["Enums"]["support_ticket_status"]
+          subject: string
+          ticket_number: string | null
+          type: Database["public"]["Enums"]["support_ticket_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          internal_notes?: string
+          priority?: Database["public"]["Enums"]["support_ticket_priority"]
+          status?: Database["public"]["Enums"]["support_ticket_status"]
+          subject: string
+          ticket_number?: string | null
+          type?: Database["public"]["Enums"]["support_ticket_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          internal_notes?: string
+          priority?: Database["public"]["Enums"]["support_ticket_priority"]
+          status?: Database["public"]["Enums"]["support_ticket_status"]
+          subject?: string
+          ticket_number?: string | null
+          type?: Database["public"]["Enums"]["support_ticket_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      ticket_attachments: {
+        Row: {
+          file_url: string
+          id: string
+          ticket_id: string
+          uploaded_at: string
+        }
+        Insert: {
+          file_url: string
+          id?: string
+          ticket_id: string
+          uploaded_at?: string
+        }
+        Update: {
+          file_url?: string
+          id?: string
+          ticket_id?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_attachments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_internal: boolean
+          message: string
+          sender_role: string
+          ticket_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          message: string
+          sender_role: string
+          ticket_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          message?: string
+          sender_role?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -929,273 +1195,6 @@ export type Database = {
         }
         Relationships: []
       }
-      app_settings: {
-        Row: {
-          key: string
-          updated_at: string
-          value: string
-        }
-        Insert: {
-          key: string
-          updated_at?: string
-          value?: string
-        }
-        Update: {
-          key?: string
-          updated_at?: string
-          value?: string
-        }
-        Relationships: []
-      }
-      cosmetic_items: {
-        Row: {
-          created_at: string
-          id: string
-          image_url: string
-          is_active: boolean
-          name: string
-          rank_reward_condition: Json | null
-          type: "avatar" | "banner"
-          unlock_type: "default" | "rank_reward" | "admin_grant"
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          image_url: string
-          is_active?: boolean
-          name: string
-          rank_reward_condition?: Json | null
-          type: "avatar" | "banner"
-          unlock_type: "default" | "rank_reward" | "admin_grant"
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          image_url?: string
-          is_active?: boolean
-          name?: string
-          rank_reward_condition?: Json | null
-          type?: "avatar" | "banner"
-          unlock_type?: "default" | "rank_reward" | "admin_grant"
-        }
-        Relationships: []
-      }
-      creator_cosmetics: {
-        Row: {
-          cosmetic_id: string
-          id: string
-          unlocked_at: string
-          unlocked_reason: string
-          user_id: string
-        }
-        Insert: {
-          cosmetic_id: string
-          id?: string
-          unlocked_at?: string
-          unlocked_reason?: string
-          user_id: string
-        }
-        Update: {
-          cosmetic_id?: string
-          id?: string
-          unlocked_at?: string
-          unlocked_reason?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "creator_cosmetics_cosmetic_id_fkey"
-            columns: ["cosmetic_id"]
-            isOneToOne: false
-            referencedRelation: "cosmetic_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "creator_cosmetics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      creator_leaderboard_points: {
-        Row: {
-          month_bucket_start: string | null
-          points_all_time: number
-          points_month: number
-          points_week: number
-          updated_at: string
-          user_id: string
-          week_bucket_start: string | null
-        }
-        Insert: {
-          month_bucket_start?: string | null
-          points_all_time?: number
-          points_month?: number
-          points_week?: number
-          updated_at?: string
-          user_id: string
-          week_bucket_start?: string | null
-        }
-        Update: {
-          month_bucket_start?: string | null
-          points_all_time?: number
-          points_month?: number
-          points_week?: number
-          updated_at?: string
-          user_id?: string
-          week_bucket_start?: string | null
-        }
-        Relationships: []
-      }
-      creator_profile_settings: {
-        Row: {
-          equipped_avatar_id: string | null
-          equipped_banner_id: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          equipped_avatar_id?: string | null
-          equipped_banner_id?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          equipped_avatar_id?: string | null
-          equipped_banner_id?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      support_tickets: {
-        Row: {
-          created_at: string
-          description: string
-          id: string
-          internal_notes: string
-          priority: "low" | "medium" | "high"
-          status: "open" | "in_progress" | "resolved" | "closed"
-          subject: string
-          ticket_number: string
-          type:
-            | "bug_report"
-            | "payment_issue"
-            | "campaign_dispute"
-            | "account_issue"
-            | "submission_issue"
-            | "feature_request"
-            | "other"
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          id?: string
-          internal_notes?: string
-          priority?: "low" | "medium" | "high"
-          status?: "open" | "in_progress" | "resolved" | "closed"
-          subject: string
-          ticket_number?: string
-          type?:
-            | "bug_report"
-            | "payment_issue"
-            | "campaign_dispute"
-            | "account_issue"
-            | "submission_issue"
-            | "feature_request"
-            | "other"
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          id?: string
-          internal_notes?: string
-          priority?: "low" | "medium" | "high"
-          status?: "open" | "in_progress" | "resolved" | "closed"
-          subject?: string
-          ticket_number?: string
-          type?:
-            | "bug_report"
-            | "payment_issue"
-            | "campaign_dispute"
-            | "account_issue"
-            | "submission_issue"
-            | "feature_request"
-            | "other"
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      ticket_attachments: {
-        Row: {
-          file_url: string
-          id: string
-          ticket_id: string
-          uploaded_at: string
-        }
-        Insert: {
-          file_url: string
-          id?: string
-          ticket_id: string
-          uploaded_at?: string
-        }
-        Update: {
-          file_url?: string
-          ticket_id?: string
-          uploaded_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ticket_attachments_ticket_id_fkey"
-            columns: ["ticket_id"]
-            isOneToOne: false
-            referencedRelation: "support_tickets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ticket_messages: {
-        Row: {
-          created_at: string
-          id: string
-          is_internal: boolean
-          message: string
-          sender_role: string
-          ticket_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_internal?: boolean
-          message: string
-          sender_role: string
-          ticket_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_internal?: boolean
-          message?: string
-          sender_role?: string
-          ticket_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ticket_messages_ticket_id_fkey"
-            columns: ["ticket_id"]
-            isOneToOne: false
-            referencedRelation: "support_tickets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -1209,10 +1208,6 @@ export type Database = {
           marketing_enabled: boolean
         }[]
       }
-      grant_rank_reward_cosmetics: {
-        Args: { p_period: string; p_ref?: string }
-        Returns: Json
-      }
       get_team_members: {
         Args: never
         Returns: {
@@ -1222,6 +1217,10 @@ export type Database = {
           role: string
           user_id: string
         }[]
+      }
+      grant_rank_reward_cosmetics: {
+        Args: { p_period: string; p_ref?: string }
+        Returns: Json
       }
       has_role: {
         Args: {
@@ -1250,8 +1249,6 @@ export type Database = {
         | "testing"
         | "resolved"
         | "closed"
-      cosmetic_item_type: "avatar" | "banner"
-      cosmetic_unlock_type: "default" | "rank_reward" | "admin_grant"
       campaign_category:
         | "music"
         | "clipping"
@@ -1261,6 +1258,8 @@ export type Database = {
         | "other"
         | "anime"
       campaign_status: "draft" | "active" | "paused" | "ended"
+      cosmetic_item_type: "avatar" | "banner"
+      cosmetic_unlock_type: "default" | "rank_reward" | "admin_grant"
       earning_type: "campaign" | "referral"
       social_platform: "tiktok" | "instagram" | "youtube" | "x"
       submission_appeal_status: "pending" | "reviewed" | "closed"
@@ -1423,9 +1422,9 @@ export const Constants = {
         "other",
         "anime",
       ],
+      campaign_status: ["draft", "active", "paused", "ended"],
       cosmetic_item_type: ["avatar", "banner"],
       cosmetic_unlock_type: ["default", "rank_reward", "admin_grant"],
-      campaign_status: ["draft", "active", "paused", "ended"],
       earning_type: ["campaign", "referral"],
       social_platform: ["tiktok", "instagram", "youtube", "x"],
       submission_appeal_status: ["pending", "reviewed", "closed"],
