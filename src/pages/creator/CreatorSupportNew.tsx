@@ -123,7 +123,7 @@ export default function CreatorSupportNew() {
           <div className="space-y-1">
             <Label className="text-[12px]">Ticket type</Label>
             <Select value={type} onValueChange={(v) => setType(v as TicketType)}>
-              <SelectTrigger className="h-9 text-[13px]">
+              <SelectTrigger className="h-9 text-[13px]" type="button">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -146,7 +146,7 @@ export default function CreatorSupportNew() {
           <div className="space-y-1">
             <Label className="text-[12px]">Priority (optional)</Label>
             <Select value={priority} onValueChange={(v) => setPriority(v as TicketPriority)}>
-              <SelectTrigger className="h-9 text-[13px]">
+              <SelectTrigger className="h-9 text-[13px]" type="button">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

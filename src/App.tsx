@@ -42,6 +42,7 @@ import CreatorLeaderboard from "./pages/creator/CreatorLeaderboard";
 import CreatorSupportList from "./pages/creator/CreatorSupportList";
 import CreatorSupportNew from "./pages/creator/CreatorSupportNew";
 import CreatorSupportDetail from "./pages/creator/CreatorSupportDetail";
+import CreatorProfile from "./pages/creator/CreatorProfile";
 
 // Brand
 import BrandDashboard from "./pages/brand/BrandDashboard";
@@ -96,6 +97,7 @@ const App = () => (
               <Route path="/creator/support" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportList /></RoleRoute>} />
               <Route path="/creator/support/new" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportNew /></RoleRoute>} />
               <Route path="/creator/support/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportDetail /></RoleRoute>} />
+              <Route path="/profile/:username" element={<ProtectedRoute><CreatorProfile /></ProtectedRoute>} />
 
               {/* Brand */}
               <Route path="/brand" element={<RoleRoute roles={["brand"]}><BrandDashboard /></RoleRoute>} />

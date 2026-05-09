@@ -83,7 +83,7 @@ export function SettingsAppearanceTab() {
     if (!user) return;
     setSaving(true);
     try {
-      await supabase.from("creator_profile_settings").upsert(
+      const { error } = await supabase.from("creator_profile_settings").upsert(
         {
           user_id: user.id,
           equipped_avatar_id: draftAvatar,
@@ -92,11 +92,12 @@ export function SettingsAppearanceTab() {
         },
         { onConflict: "user_id" },
       );
+      if (error) throw error;
       setEquippedAvatar(draftAvatar);
       setEquippedBanner(draftBanner);
       toast({ title: "Appearance saved" });
     } catch (e: unknown) {
-      toast({ title: "Save failed", description: e instanceof Error ? e.message : "", variant: "destructive" });
+      toast({ title: "Save failed", description: e instanceof Error ? e.message : String(e), variant: "destructive" });
     } finally {
       setSaving(false);
     }
