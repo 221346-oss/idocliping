@@ -25,6 +25,14 @@ export function ProfileRightCard({ profile, isOwnProfile }: ProfileRightCardProp
     setTimeout(() => setCopiedId(false), 2000);
   };
 
+  const initials = (profile.displayName || profile.usernameLabel || "U")
+    .split(/\s+/)
+    .map((s) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   const platformRows = Object.entries(profile.platformViewTotals)
     .filter(([, v]) => v > 0)
     .sort((a, b) => b[1] - a[1]);
