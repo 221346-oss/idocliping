@@ -1,4 +1,4 @@
-import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, Medal } from "lucide-react";
+import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, Medal, LifeBuoy, Ticket, Palette } from "lucide-react";
 import { StackedLogo } from "./StackedLogo";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,8 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Medal, label: "Leaderboard badges", path: "/admin/badges" },
     { icon: Wallet, label: "Withdrawals", path: "/admin/withdrawals" },
     { icon: Users, label: "Users", path: "/admin/users" },
+    { icon: Ticket, label: "Tickets", path: "/admin/tickets" },
+    { icon: Palette, label: "Cosmetics", path: "/admin/cosmetics" },
     { icon: BarChart3, label: "Analytics", path: "/analytics" },
     { icon: Bug, label: "Bug Tracker", path: "/bugs" },
     { icon: Settings, label: "Settings", path: "/settings" },
@@ -32,6 +34,7 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
     { icon: Trophy, label: "Leaderboard", path: "/creator/leaderboard" },
     { icon: ListChecks, label: "Submissions", path: "/creator/submissions" },
+    { icon: LifeBuoy, label: "Support", path: "/creator/support" },
     { icon: Wallet, label: "Wallet", path: "/creator/wallet" },
     { icon: Briefcase, label: "Socials", path: "/creator/social" },
     { icon: Settings, label: "Settings", path: "/settings" },
@@ -39,6 +42,7 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
   user: [
     { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
     { icon: Trophy, label: "Leaderboard", path: "/creator/leaderboard" },
+    { icon: LifeBuoy, label: "Support", path: "/creator/support" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
 };

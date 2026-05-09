@@ -13,8 +13,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import {
   User, Building2, Users, Bell, Settings as SettingsIcon,
-  Mail, Trash2, Shield, Send, AlertTriangle, Loader2, Camera
+  Mail, Trash2, Shield, Send, AlertTriangle, Loader2, Camera, Palette
 } from "lucide-react";
+import { SettingsAppearanceTab } from "./SettingsAppearance";
 
 // ─── Profile Tab ────────────────────────────────────────────────────────────────
 
@@ -413,6 +414,9 @@ function GeneralTab() {
 // ─── Main Settings Page ─────────────────────────────────────────────────────────
 
 export default function Settings() {
+  const { role } = useAuth();
+  const showAppearance = role === "creator" || role === "user";
+
   return (
     <AppLayout>
       <div className="flex flex-col h-full">
@@ -427,6 +431,11 @@ export default function Settings() {
                 <TabsTrigger value="profile" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
                   <User className="h-3.5 w-3.5" /> Profile
                 </TabsTrigger>
+                {showAppearance ? (
+                  <TabsTrigger value="appearance" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
+                    <Palette className="h-3.5 w-3.5" /> Appearance
+                  </TabsTrigger>
+                ) : null}
                 <TabsTrigger value="company" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
                   <Building2 className="h-3.5 w-3.5" /> Company
                 </TabsTrigger>
@@ -444,6 +453,9 @@ export default function Settings() {
 
             <div className="flex-1 min-w-0">
               <TabsContent value="profile" className="m-0"><ProfileTab /></TabsContent>
+              {showAppearance ? (
+                <TabsContent value="appearance" className="m-0"><SettingsAppearanceTab /></TabsContent>
+              ) : null}
               <TabsContent value="company" className="m-0"><CompanyTab /></TabsContent>
               <TabsContent value="team" className="m-0"><TeamTab /></TabsContent>
               <TabsContent value="email" className="m-0"><EmailTab /></TabsContent>

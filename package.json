@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "gen:types": "supabase gen types typescript --project-id xupstpxwjnkvkyevnrto --schema public > src/integrations/supabase/types.remote.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
