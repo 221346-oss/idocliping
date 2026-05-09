@@ -32,7 +32,7 @@ export function ProfileStats({ profile }: ProfileStatsProps) {
   return (
     <div className="space-y-6">
       {/* Key Statistics */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-4">
           <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Total Submissions</p>
           <p className="text-3xl font-bold text-white">{profile.statistics.totalSubmissions}</p>
@@ -70,10 +70,10 @@ export function ProfileStats({ profile }: ProfileStatsProps) {
       </div>
 
       {/* Platform Distribution */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
           <h3 className="text-sm font-semibold text-white mb-4">Platform Distribution</h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
                 data={platformData}
@@ -95,7 +95,7 @@ export function ProfileStats({ profile }: ProfileStatsProps) {
 
         <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
           <h3 className="text-sm font-semibold text-white mb-4">Submission Status</h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
                 data={statusData}

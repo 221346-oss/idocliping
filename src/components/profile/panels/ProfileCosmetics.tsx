@@ -56,7 +56,7 @@ export function ProfileCosmetics({ profile, onEdit }: ProfileCosmeticsProps) {
             {typeLabels[type]}
           </h4>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {groupedCosmetics[type].map((cosmetic) => (
               <div
                 key={cosmetic.id}

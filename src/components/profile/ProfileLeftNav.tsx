@@ -21,7 +21,7 @@ const navItems: Array<{ id: PanelType; label: string; ownProfileOnly?: boolean }
 
 export function ProfileLeftNav({ activePanel, setActivePanel, isOwnProfile }: ProfileLeftNavProps) {
   return (
-    <nav className="bg-slate-900/50 rounded-lg border border-slate-800 p-2 space-y-1">
+    <nav className="bg-slate-900/50 rounded-lg border border-slate-800 p-2 space-y-1 md:space-y-0 md:flex md:flex-wrap md:gap-1">
       {navItems.map((item) => {
         if (item.ownProfileOnly && !isOwnProfile) {
           return null;
@@ -31,7 +31,7 @@ export function ProfileLeftNav({ activePanel, setActivePanel, isOwnProfile }: Pr
             key={item.id}
             onClick={() => setActivePanel(item.id)}
             className={cn(
-              "w-full text-left px-3 py-2 rounded text-sm font-medium transition-colors",
+              "w-full md:flex-1 md:min-w-fit text-left px-3 py-2 rounded text-sm font-medium transition-colors",
               activePanel === item.id
                 ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/40"
                 : "text-slate-300 hover:text-white hover:bg-slate-800/50"

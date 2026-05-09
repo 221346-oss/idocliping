@@ -61,9 +61,10 @@ export default function CreatorProfile() {
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
         <ProfileHeader />
         
-        <div className="flex gap-6 px-6 py-6 max-w-7xl mx-auto">
+        {/* Desktop Layout (3-column) */}
+        <div className="hidden lg:flex gap-6 px-6 py-6 max-w-7xl mx-auto">
           {/* Left Navigation - 22% */}
-          <div className="w-[22%] min-w-max">
+          <div className="w-[22%] min-w-fit">
             <ProfileLeftNav 
               activePanel={activePanel} 
               setActivePanel={setActivePanel}
@@ -77,7 +78,56 @@ export default function CreatorProfile() {
           </div>
 
           {/* Right Profile Card - 28% */}
-          <div className="w-[28%] min-w-max">
+          <div className="w-[28%] min-w-fit">
+            <ProfileRightCard 
+              profile={creatorProfile}
+              isOwnProfile={isOwnProfile}
+              onEditClick={() => setShowEditModal(true)}
+            />
+          </div>
+        </div>
+
+        {/* Tablet Layout (2-column) */}
+        <div className="hidden md:flex lg:hidden gap-4 px-4 py-6 max-w-4xl mx-auto">
+          {/* Left Navigation */}
+          <div className="w-32 flex-shrink-0">
+            <ProfileLeftNav 
+              activePanel={activePanel} 
+              setActivePanel={setActivePanel}
+              isOwnProfile={isOwnProfile}
+            />
+          </div>
+
+          {/* Right Column */}
+          <div className="flex-1 space-y-4">
+            <div>
+              {renderPanel()}
+            </div>
+            <div className="sticky bottom-0">
+              <ProfileRightCard 
+                profile={creatorProfile}
+                isOwnProfile={isOwnProfile}
+                onEditClick={() => setShowEditModal(true)}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Layout (stacked) */}
+        <div className="md:hidden px-4 py-6 space-y-4">
+          <div className="sticky top-16 z-30 bg-slate-950/90 backdrop-blur pb-2">
+            <ProfileLeftNav 
+              activePanel={activePanel} 
+              setActivePanel={setActivePanel}
+              isOwnProfile={isOwnProfile}
+            />
+          </div>
+
+          <div>
+            {renderPanel()}
+          </div>
+
+          <div>
             <ProfileRightCard 
               profile={creatorProfile}
               isOwnProfile={isOwnProfile}
