@@ -162,7 +162,12 @@ export function LeaderboardProfilePanel({
 
   if (!entry) {
     return (
-      <div className={cn("rounded-xl border border-dashed border-border bg-muted/20 flex flex-col items-center justify-center text-center px-6 py-16", className)}>
+      <div
+        className={cn(
+          "rounded-xl border border-dashed border-border bg-muted/20 flex flex-col items-center justify-center text-center px-6 py-16 w-full min-w-0 max-w-full",
+          className,
+        )}
+      >
         <p className="text-[13px] text-muted-foreground max-w-[220px]">Click on a creator to view their profile</p>
       </div>
     );
@@ -176,7 +181,13 @@ export function LeaderboardProfilePanel({
   const avatar = entry.avatarUrl;
 
   return (
-    <div className={cn("rounded-xl border border-border bg-card overflow-hidden flex flex-col", compact ? "max-h-[70vh]" : "", className)}>
+    <div
+      className={cn(
+        "rounded-xl border border-border bg-card overflow-hidden flex flex-col w-full min-w-0 max-w-full",
+        compact ? "max-h-[70vh]" : "",
+        className,
+      )}
+    >
       <div className="relative h-[120px] bg-muted shrink-0">
         {banner ? (
           <img src={banner} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -201,12 +212,12 @@ export function LeaderboardProfilePanel({
               <EarningsTierBadge tier={entry.tier} compact />
             </div>
             {memberSince ? <p className="text-[11px] text-muted-foreground mt-0.5">Member since {memberSince}</p> : null}
-            <Link 
-              to={`/profile/${entry.displayName}`} 
+            <Link
+              to={`/profile/${entry.creatorId}`}
               className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-medium text-primary hover:underline transition-all"
             >
               <ExternalLink className="h-3 w-3" />
-              View Full Profile
+              View full profile
             </Link>
           </div>
         </div>

@@ -12,7 +12,6 @@ import type { Enums } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
 import { nextUtcMondayReset, nextUtcMonthReset, formatResetCountdown, type PeriodFilter } from "@/lib/leaderboard-compute";
 import { maskUsernameMiddle } from "@/lib/username-mask";
-import { formatViewCount } from "@/lib/format-views";
 import {
   fetchSubmissionsForScope,
   fetchLifetimeEarningsByCreator,
@@ -27,6 +26,70 @@ import { tierRingClass } from "@/components/leaderboard/tierStyles";
 import { LeaderboardRowsSkeleton } from "@/components/leaderboard/LeaderboardSkeletons";
 import { LeaderboardProfilePanel, type PanelEntry } from "@/components/leaderboard/LeaderboardProfilePanel";
 import { ExternalLink, Info } from "lucide-react";
+import type { EarningsTier } from "@/lib/leaderboard-compute";
+
+/** Avatar (left) + wide banner strip (right) — name + tier on banner overlay */
+function LeaderboardCreatorStrip({
+  avatarUrl,
+  bannerUrl,
+  displayName,
+  tier,
+  subtitle,
+}: {
+  avatarUrl: string | null;
+  bannerUrl: string | null;
+  displayName: string;
+  tier: EarningsTier;
+  subtitle?: string | null;
+}) {
+  const masked = maskUsernameMiddle(displayName || "Creator");
+  return (
+    <div className="flex items-stretch gap-2.5 min-w-0 py-0.5">
+      <div
+        className={cn(
+          "h-14 w-14 shrink-0 rounded-full overflow-hidden bg-muted border-2 border-border shadow-sm",
+          tierRingClass(tier),
+        )}
+      >
+        {avatarUrl ? (
+          <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center text-[14px] font-semibold text-muted-foreground">{masked.slice(0, 1)}</div>
+        )}
+      </div>
+      <div className="relative flex-1 min-w-0 rounded-md border border-border/70 overflow-hidden min-h-[56px] bg-muted/50">
+        {bannerUrl ? (
+          <>
+            <img src={bannerUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/20" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-r from-muted via-muted/70 to-muted/40" />
+        )}
+        <div className="relative z-10 flex h-full min-h-[56px] items-center justify-between gap-2 px-3">
+          <div className="min-w-0 flex-1">
+            <div className="font-semibold text-[13px] md:text-[14px] text-foreground truncate drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">{masked}</div>
+            {subtitle ? (
+              <div
+                className={cn(
+                  "text-[10px] mt-0.5 truncate",
+                  bannerUrl
+                    ? "text-foreground/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.75)]"
+                    : "text-muted-foreground",
+                )}
+              >
+                {subtitle}
+              </div>
+            ) : null}
+          </div>
+          <div className="shrink-0">
+            <EarningsTierBadge tier={tier} compact />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const PLATFORM_LABEL: Record<string, string> = {
   tiktok: "TikTok",
@@ -287,9 +350,10 @@ export default function CreatorLeaderboard() {
             <span>{filterHint} Points = ⌊views/1000⌋ + 50 per approved post in period + campaign bonuses in lifetime totals. Tier badge uses all-time earnings.</span>
           </p>
 
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:items-start">
-            {/* Left ~65% */}
-            <div className="w-full lg:w-[65%] lg:flex-shrink-0 min-w-0 space-y-3">
+          {/* 2:1 grid keeps both panels in view — no horizontal overflow from % widths + gap */}
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6 lg:gap-6 items-start min-w-0 w-full max-w-full overflow-x-hidden">
+            {/* Left: Rank | Creator | Points */}
+            <div className="min-w-0 max-w-full space-y-3">
               {loading ? (
                 <LeaderboardRowsSkeleton rows={10} />
               ) : top100.length === 0 ? (
@@ -297,128 +361,98 @@ export default function CreatorLeaderboard() {
                   No ranked creators for these filters yet.
                 </div>
               ) : (
-                <div className="rounded-lg border border-border overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-[13px] min-w-[720px]">
-                      <thead className="bg-muted/40 text-muted-foreground text-[10px] uppercase tracking-wide border-b border-border">
-                        <tr>
-                          <th className="text-left p-2 w-12 font-bold">Rank</th>
-                          <th className="text-left p-2 font-bold">Creator</th>
-                          <th className="text-left p-2 font-bold">Tier</th>
-                          <th className="text-right p-2 font-bold">Submissions</th>
-                          <th className="text-right p-2 font-bold hidden sm:table-cell">Views</th>
-                          <th className="text-right p-2 font-bold">Points</th>
+                <div className="rounded-lg border border-border overflow-hidden bg-card/30">
+                  <table className="w-full table-fixed text-[13px] border-collapse">
+                    <thead className="bg-muted/50 text-muted-foreground text-[10px] uppercase tracking-[0.12em] border-b border-border">
+                      <tr>
+                        <th className="text-left p-3 w-[88px] font-bold align-bottom">Rank</th>
+                        <th className="text-left p-3 font-bold align-bottom">Creator</th>
+                        <th className="text-right p-3 w-[104px] md:w-[120px] font-bold align-bottom">Points</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {top100.map((e) => (
+                        <tr
+                          key={e.creatorId}
+                          className={cn(
+                            "border-t border-border cursor-pointer transition-colors hover:bg-muted/35",
+                            rankRowTint(e.rank),
+                            e.rank === 1 && "ring-1 ring-inset ring-warning/35 shadow-[inset_0_0_24px_hsl(var(--warning)/0.08)]",
+                            user?.id === e.creatorId && "ring-1 ring-inset ring-primary/30",
+                          )}
+                          onMouseEnter={() => isMd && setHoverId(e.creatorId)}
+                          onMouseLeave={() => isMd && setHoverId(null)}
+                          onClick={() => {
+                            setLockId(e.creatorId);
+                            if (!isMd) setMobileSheetOpen(true);
+                          }}
+                        >
+                          <td className="p-3 align-middle w-[88px]">
+                            <RankTrophy rank={e.rank} className="scale-110 origin-left" />
+                          </td>
+                          <td className="p-3 align-middle min-w-0">
+                            <LeaderboardCreatorStrip
+                              avatarUrl={e.avatarUrl}
+                              bannerUrl={e.bannerUrl}
+                              displayName={e.displayName}
+                              tier={e.tier}
+                            />
+                          </td>
+                          <td className="p-3 align-middle text-right">
+                            <span className="text-lg md:text-xl font-bold tabular-nums text-foreground">{Math.round(e.points)}</span>
+                          </td>
                         </tr>
-                      </thead>
+                      ))}
+                    </tbody>
+                    {user ? (
                       <tbody>
-                        {top100.map((e) => (
-                          <tr
-                            key={e.creatorId}
-                            className={cn(
-                              "border-t border-border cursor-pointer transition-colors hover:bg-muted/30",
-                              rankRowTint(e.rank),
-                              user?.id === e.creatorId && "ring-1 ring-inset ring-primary/25",
+                        <tr className="border-t-2 border-border bg-muted/30">
+                          <td colSpan={3} className="px-3 py-1.5">
+                            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">You</span>
+                          </td>
+                        </tr>
+                        <tr
+                          className={cn(
+                            "border-t border-border bg-muted/40 hover:bg-muted/45",
+                            userRank === 1 && "ring-1 ring-inset ring-warning/25",
+                          )}
+                        >
+                          <td className="p-3 align-middle w-[88px]">
+                            {userRank && userRank <= 100 ? (
+                              <RankTrophy rank={userRank} className="scale-110 origin-left" />
+                            ) : (
+                              <Badge variant="outline" className="text-[10px] font-mono font-normal w-fit px-1.5 py-0.5">
+                                &lt; 100
+                              </Badge>
                             )}
-                            onMouseEnter={() => isMd && setHoverId(e.creatorId)}
-                            onMouseLeave={() => isMd && setHoverId(null)}
-                            onClick={() => {
-                              setLockId(e.creatorId);
-                              if (!isMd) setMobileSheetOpen(true);
-                            }}
-                          >
-                            <td className="p-2.5 align-middle">
-                              <RankTrophy rank={e.rank} />
-                            </td>
-                            <td className="p-2.5 align-middle">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <div
-                                  className={cn(
-                                    "h-10 w-10 rounded-full overflow-hidden shrink-0 bg-muted",
-                                    tierRingClass(e.tier),
-                                  )}
-                                >
-                                  {e.avatarUrl ? (
-                                    <img src={e.avatarUrl} alt="" className="h-full w-full object-cover" />
-                                  ) : (
-                                    <div className="h-full w-full flex items-center justify-center text-[11px] text-muted-foreground">
-                                      {maskUsernameMiddle(e.displayName).slice(0, 1)}
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="font-medium truncate">{maskUsernameMiddle(e.displayName)}</div>
-                                  {e.bannerUrl ? (
-                                    <div className="mt-1 h-[18px] w-16 rounded overflow-hidden border border-border/60">
-                                      <img src={e.bannerUrl} alt="" className="h-full w-full object-cover" />
-                                    </div>
-                                  ) : null}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="p-2.5 align-middle">
-                              <EarningsTierBadge tier={e.tier} compact />
-                            </td>
-                            <td className="p-2.5 text-right tabular-nums text-muted-foreground">{e.submissions}</td>
-                            <td className="p-2.5 text-right tabular-nums text-muted-foreground hidden sm:table-cell">
-                              {formatViewCount(e.views)}
-                            </td>
-                            <td className="p-2.5 text-right font-semibold tabular-nums">{Math.round(e.points)}</td>
-                          </tr>
-                        ))}
+                          </td>
+                          <td className="p-3 align-middle min-w-0">
+                            <LeaderboardCreatorStrip
+                              avatarUrl={userEntry?.avatarUrl ?? profile?.avatar_url ?? null}
+                              bannerUrl={userEntry?.bannerUrl ?? null}
+                              displayName={userEntry?.displayName ?? profile?.full_name ?? "You"}
+                              tier={userEntry?.tier ?? "rookie"}
+                              subtitle={notOnBoard ? "Not on leaderboard" : undefined}
+                            />
+                          </td>
+                          <td className="p-3 align-middle text-right">
+                            <div className="flex flex-col items-end gap-0.5">
+                              <span className="text-lg md:text-xl font-bold tabular-nums">{userEntry ? Math.round(userEntry.points) : 0}</span>
+                              <span className="text-[9px] uppercase tracking-wide text-muted-foreground">This period</span>
+                            </div>
+                          </td>
+                        </tr>
                       </tbody>
-                      {user ? (
-                        <tbody>
-                          <tr className="border-t-2 border-border bg-muted/25">
-                            <td colSpan={6} className="p-1.5 px-2">
-                              <span className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">You</span>
-                            </td>
-                          </tr>
-                          <tr className="bg-muted/35 border-t border-border">
-                            <td className="p-2.5 align-middle">
-                              {userRank && userRank <= 100 ? (
-                                <RankTrophy rank={userRank} />
-                              ) : (
-                                <Badge variant="outline" className="text-[9px] font-normal">
-                                  &lt; 100
-                                </Badge>
-                              )}
-                            </td>
-                            <td className="p-2.5">
-                              <div className="flex items-center gap-2">
-                                <div className="h-10 w-10 rounded-full bg-muted overflow-hidden ring-2 ring-primary/40 shrink-0">
-                                  {(userEntry?.avatarUrl ?? profile?.avatar_url) ? (
-                                    <img src={userEntry?.avatarUrl ?? profile?.avatar_url ?? ""} alt="" className="h-full w-full object-cover" />
-                                  ) : (
-                                    <div className="h-full w-full flex items-center justify-center text-[11px]">Me</div>
-                                  )}
-                                </div>
-                                <div>
-                                  <div className="font-medium">{maskUsernameMiddle(userEntry?.displayName ?? profile?.full_name ?? "")}</div>
-                                  {notOnBoard ? (
-                                    <span className="text-[10px] text-muted-foreground">Not on leaderboard</span>
-                                  ) : null}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="p-2.5">
-                              {userEntry ? <EarningsTierBadge tier={userEntry.tier} compact /> : <span className="text-muted-foreground">—</span>}
-                            </td>
-                            <td className="p-2.5 text-right tabular-nums">{userEntry?.submissions ?? 0}</td>
-                            <td className="p-2.5 text-right tabular-nums hidden sm:table-cell">{userEntry ? formatViewCount(userEntry.views) : "—"}</td>
-                            <td className="p-2.5 text-right font-semibold">{userEntry ? Math.round(userEntry.points) : 0}</td>
-                          </tr>
-                        </tbody>
-                      ) : null}
-                    </table>
-                  </div>
+                    ) : null}
+                  </table>
                 </div>
               )}
             </div>
 
-            {/* Right ~35% sticky desktop */}
-            <div className="hidden lg:block w-full lg:w-[35%] lg:flex-shrink-0 lg:sticky lg:top-4 lg:self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
+            {/* Right: profile preview — constrained to grid cell */}
+            <aside className="hidden lg:block min-w-0 max-w-full lg:sticky lg:top-4 lg:self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden">
               <LeaderboardProfilePanel entry={panelEntry} />
-            </div>
+            </aside>
           </div>
         </div>
       </div>

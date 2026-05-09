@@ -16,28 +16,56 @@ END $$;
 
 
 -- ─── Support tickets ─────────────────────────────────────────────────────────
-CREATE TYPE public.support_ticket_type AS ENUM (
-  'bug_report',
-  'payment_issue',
-  'campaign_dispute',
-  'account_issue',
-  'submission_issue',
-  'feature_request',
-  'other'
-);
+-- Idempotent: skip CREATE TYPE if enum already exists (safe to re-run whole file).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'public' AND t.typname = 'support_ticket_type'
+  ) THEN
+    CREATE TYPE public.support_ticket_type AS ENUM (
+      'bug_report',
+      'payment_issue',
+      'campaign_dispute',
+      'account_issue',
+      'submission_issue',
+      'feature_request',
+      'other'
+    );
+  END IF;
+END $$;
 
-CREATE TYPE public.support_ticket_status AS ENUM (
-  'open',
-  'in_progress',
-  'resolved',
-  'closed'
-);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'public' AND t.typname = 'support_ticket_status'
+  ) THEN
+    CREATE TYPE public.support_ticket_status AS ENUM (
+      'open',
+      'in_progress',
+      'resolved',
+      'closed'
+    );
+  END IF;
+END $$;
 
-CREATE TYPE public.support_ticket_priority AS ENUM (
-  'low',
-  'medium',
-  'high'
-);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'public' AND t.typname = 'support_ticket_priority'
+  ) THEN
+    CREATE TYPE public.support_ticket_priority AS ENUM (
+      'low',
+      'medium',
+      'high'
+    );
+  END IF;
+END $$;
 
 CREATE SEQUENCE IF NOT EXISTS public.support_ticket_number_seq START WITH 1 INCREMENT BY 1;
 
@@ -174,9 +202,27 @@ CREATE POLICY "ticket_messages_insert_admin"
 
 
 -- ─── Cosmetics ────────────────────────────────────────────────────────────────
-CREATE TYPE public.cosmetic_item_type AS ENUM ('avatar', 'banner');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'public' AND t.typname = 'cosmetic_item_type'
+  ) THEN
+    CREATE TYPE public.cosmetic_item_type AS ENUM ('avatar', 'banner');
+  END IF;
+END $$;
 
-CREATE TYPE public.cosmetic_unlock_type AS ENUM ('default', 'rank_reward', 'admin_grant');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'public' AND t.typname = 'cosmetic_unlock_type'
+  ) THEN
+    CREATE TYPE public.cosmetic_unlock_type AS ENUM ('default', 'rank_reward', 'admin_grant');
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS public.cosmetic_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

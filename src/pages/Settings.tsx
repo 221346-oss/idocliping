@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -413,9 +414,35 @@ function GeneralTab() {
 
 // ─── Main Settings Page ─────────────────────────────────────────────────────────
 
+const SETTINGS_TABS = ["profile", "appearance", "company", "team", "email", "general"] as const;
+type SettingsTab = (typeof SETTINGS_TABS)[number];
+
 export default function Settings() {
   const { role } = useAuth();
   const showAppearance = role === "creator" || role === "user";
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const tab = useMemo((): SettingsTab => {
+    const raw = searchParams.get("tab");
+    if (raw === "appearance" && !showAppearance) return "profile";
+    if (raw && (SETTINGS_TABS as readonly string[]).includes(raw)) return raw as SettingsTab;
+    return "profile";
+  }, [searchParams, showAppearance]);
+
+  const onTabChange = useCallback(
+    (value: string) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value === "profile") next.delete("tab");
+          else next.set("tab", value);
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
 
   return (
     <AppLayout>
@@ -425,7 +452,7 @@ export default function Settings() {
         </div>
 
         <div className="flex-1 overflow-auto">
-          <Tabs defaultValue="profile" className="flex flex-col md:flex-row h-full">
+          <Tabs value={tab} onValueChange={onTabChange} className="flex flex-col md:flex-row h-full">
             <div className="md:w-44 shrink-0 border-b md:border-b-0 md:border-r border-border">
               <TabsList className="flex md:flex-col items-stretch w-full bg-transparent h-auto p-1.5 gap-px">
                 <TabsTrigger value="profile" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">

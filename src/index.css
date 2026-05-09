@@ -124,6 +124,8 @@
 
   html {
     background-color: hsl(0 0% 100%);
+    /* ~browser 110% zoom: larger UI site-wide (Chromium / Safari / Edge; Firefox 126+) */
+    zoom: 1.1;
   }
 
   html.dark {

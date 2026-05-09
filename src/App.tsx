@@ -29,6 +29,7 @@ import AdminWithdrawals from "./pages/admin/AdminWithdrawals";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminCosmetics from "./pages/admin/AdminCosmetics";
+import AdminCreatorProfiles from "./pages/admin/AdminCreatorProfiles";
 
 // Creator
 
@@ -40,6 +41,7 @@ import CreatorReferrals from "./pages/creator/CreatorReferrals";
 import CreatorSocial from "./pages/creator/CreatorSocial";
 import CreatorLeaderboard from "./pages/creator/CreatorLeaderboard";
 import CreatorProfile from "./pages/creator/CreatorProfile";
+import CreatorProfileEdit from "./pages/creator/CreatorProfileEdit";
 import CreatorSupportList from "./pages/creator/CreatorSupportList";
 import CreatorSupportNew from "./pages/creator/CreatorSupportNew";
 import CreatorSupportDetail from "./pages/creator/CreatorSupportDetail";
@@ -78,6 +80,7 @@ const App = () => (
               <Route path="/admin/users" element={<RoleRoute roles={["admin"]}><AdminUsers /></RoleRoute>} />
               <Route path="/admin/tickets" element={<RoleRoute roles={["admin"]}><AdminTickets /></RoleRoute>} />
               <Route path="/admin/cosmetics" element={<RoleRoute roles={["admin"]}><AdminCosmetics /></RoleRoute>} />
+              <Route path="/admin/creator-profiles" element={<RoleRoute roles={["admin"]}><AdminCreatorProfiles /></RoleRoute>} />
               <Route path="/analytics" element={<RoleRoute roles={["admin"]}><Analytics /></RoleRoute>} />
 
               {/* Bug tracker — admin-only internal tool */}
@@ -91,6 +94,7 @@ const App = () => (
               <Route path="/creator/campaigns/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorCampaignDetail /></RoleRoute>} />
               <Route path="/creator/leaderboard" element={<RoleRoute roles={["creator", "user"]}><CreatorLeaderboard /></RoleRoute>} />
               <Route path="/creator/profile/me" element={<RoleRoute roles={["creator", "user"]}><CreatorProfile /></RoleRoute>} />
+              <Route path="/creator/profile/edit" element={<RoleRoute roles={["creator", "user"]}><CreatorProfileEdit /></RoleRoute>} />
               <Route path="/creator/profile/:username" element={<ProtectedRoute><CreatorProfile /></ProtectedRoute>} />
               <Route path="/creator/submissions" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
               <Route path="/creator/submissions/:campaignId" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
@@ -100,6 +104,7 @@ const App = () => (
               <Route path="/creator/support" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportList /></RoleRoute>} />
               <Route path="/creator/support/new" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportNew /></RoleRoute>} />
               <Route path="/creator/support/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportDetail /></RoleRoute>} />
+              <Route path="/profile/me" element={<RoleRoute roles={["creator", "user"]}><CreatorProfile /></RoleRoute>} />
               <Route path="/profile/:username" element={<ProtectedRoute><CreatorProfile /></ProtectedRoute>} />
 
               {/* Brand */}

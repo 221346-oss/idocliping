@@ -10,6 +10,7 @@ import { SUPPORT_STATUS_LABEL, SUPPORT_TICKET_TYPE_LABEL } from "@/lib/support-t
 import { formatDistanceToNow } from "date-fns";
 import { LifeBuoy, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
 
 type Row = {
   id: string;
@@ -65,12 +66,14 @@ export default function CreatorSupportList() {
           {loading ? (
             <TicketRowsSkeleton rows={5} />
           ) : rows.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border py-12 text-center text-[13px] text-muted-foreground">
-              No tickets yet.{" "}
-              <Link to="/creator/support/new" className="text-primary underline">
-                Submit your first ticket
-              </Link>
-            </div>
+            <EmptyState
+              icon={LifeBuoy}
+              title="No tickets yet"
+              description="When you need help with payouts, campaigns, or your account, open a ticket — we typically respond within 24–48 hours."
+              actionLabel="Submit a ticket"
+              actionTo="/creator/support/new"
+              className="py-10"
+            />
           ) : (
             <ul className="space-y-2">
               {rows.map((t) => (
