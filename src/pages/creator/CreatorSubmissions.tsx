@@ -24,7 +24,6 @@ import type { Tables } from "@/integrations/supabase/types";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { detectSocialPlatformFromUrl } from "@/lib/detect-post-platform";
-import { cn } from "@/lib/utils";
 
 type AppealRow = Pick<
   Tables<"submission_appeals">,
