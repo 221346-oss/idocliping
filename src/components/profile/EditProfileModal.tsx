@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { CreatorProfile } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
+import { Sparkles } from "lucide-react";
 
 interface EditProfileModalProps {
   open: boolean;
@@ -43,119 +44,113 @@ export function EditProfileModal({ open, onOpenChange, profile }: EditProfileMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-slate-900 border-slate-800">
-        <DialogHeader>
-          <DialogTitle className="text-white">Edit Profile</DialogTitle>
+      <DialogContent className="max-w-xl bg-card border-border rounded-md shadow-2xl">
+        <DialogHeader className="border-b border-border pb-3 mb-4">
+          <DialogTitle className="text-[15px] font-bold text-foreground">Edit Profile</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-800">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="cosmetics">Cosmetics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 h-9 rounded-md">
+            <TabsTrigger value="general" className="text-[12px] h-7 data-[state=active]:bg-background">General</TabsTrigger>
+            <TabsTrigger value="cosmetics" className="text-[12px] h-7 data-[state=active]:bg-background">Cosmetics</TabsTrigger>
           </TabsList>
 
           {/* General Tab */}
-          <TabsContent value="general" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label className="text-slate-300">Display Name</Label>
+          <TabsContent value="general" className="space-y-4 mt-6">
+            <div className="space-y-1.5">
+              <Label className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Display Name</Label>
               <Input
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="h-9 bg-muted/30 border-border text-[13px] text-foreground focus-visible:ring-primary/20"
                 placeholder="Your display name"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-slate-300">Bio</Label>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Bio</Label>
               <Textarea
                 value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="bg-slate-800 border-slate-700 text-white resize-none"
+                onChange={(e) => setBio(e.target.value.slice(0, 200))}
+                className="bg-muted/30 border-border text-[13px] text-foreground resize-none focus-visible:ring-primary/20"
                 placeholder="Tell us about yourself"
-                rows={4}
+                rows={3}
               />
-              <p className="text-xs text-slate-500">{bio.length}/500 characters</p>
+              <p className="text-[10px] text-muted-foreground text-right">{bio.length}/200</p>
             </div>
 
-            <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
-              <h4 className="text-sm font-semibold text-white mb-3">Account Info</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Username</span>
-                  <span className="text-white font-mono">@{profile.username}</span>
+            <div className="bg-muted/10 border border-border rounded-md p-3 space-y-2">
+              <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Account Details</h4>
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-[12px]">
+                  <span className="text-muted-foreground">Username</span>
+                  <span className="text-foreground font-mono">@{profile.username}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Joined</span>
-                  <span className="text-white">{profile.joinedDate.toLocaleDateString()}</span>
+                <div className="flex justify-between items-center text-[12px]">
+                  <span className="text-muted-foreground">Member Since</span>
+                  <span className="text-foreground">{profile.joinedDate.toLocaleDateString()}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Level</span>
-                  <span className="text-yellow-400 font-bold">{profile.level}</span>
+                <div className="flex justify-between items-center text-[12px]">
+                  <span className="text-muted-foreground">Trust Level</span>
+                  <span className="text-primary font-bold">{profile.level}</span>
                 </div>
               </div>
             </div>
           </TabsContent>
 
           {/* Cosmetics Tab */}
-          <TabsContent value="cosmetics" className="space-y-4 mt-4">
-            <div className="space-y-4">
+          <TabsContent value="cosmetics" className="space-y-4 mt-6">
+            <div className="space-y-5">
               {Object.entries(cosmeticsByType).map(([type, cosmetics]) => (
-                <div key={type}>
-                  <Label className="text-slate-300 capitalize mb-2 block">
+                <div key={type} className="space-y-2">
+                  <Label className="text-[11px] text-muted-foreground uppercase tracking-widest font-semibold">
                     {type.replace("_", " ")}
                   </Label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     <button
                       onClick={() => setSelectedCosmetics({ ...selectedCosmetics, [type]: "" })}
-                      className={`p-3 rounded-lg border-2 text-center transition-colors ${
+                      className={`p-2 rounded-md border transition-all flex flex-col items-center justify-center gap-1 ${
                         !selectedCosmetics[type]
-                          ? "border-yellow-500/50 bg-yellow-500/10"
-                          : "border-slate-700 bg-slate-800 hover:border-slate-600"
+                          ? "border-primary bg-primary/5 text-primary shadow-sm"
+                          : "border-border bg-muted/20 hover:bg-muted/40"
                       }`}
                     >
-                      <span className="text-xl">✨</span>
-                      <p className="text-xs text-slate-400 mt-1">None</p>
+                      <Sparkles className="h-4 w-4 opacity-50" />
+                      <p className="text-[10px] font-medium">None</p>
                     </button>
                     {cosmetics.map((cosmetic) => (
                       <button
                         key={cosmetic.id}
                         onClick={() => setSelectedCosmetics({ ...selectedCosmetics, [type]: cosmetic.id })}
-                        className={`p-3 rounded-lg border-2 text-center transition-colors ${
+                        className={`p-2 rounded-md border transition-all flex flex-col items-center justify-center gap-1 ${
                           selectedCosmetics[type] === cosmetic.id
-                            ? "border-yellow-500/50 bg-yellow-500/10"
-                            : "border-slate-700 bg-slate-800 hover:border-slate-600"
+                            ? "border-primary bg-primary/5 text-primary shadow-sm"
+                            : "border-border bg-muted/20 hover:bg-muted/40"
                         }`}
                       >
-                        <span className="text-xl">{cosmetic.icon}</span>
-                        <p className="text-xs text-slate-400 mt-1">{cosmetic.name}</p>
+                        <span className="text-lg">{cosmetic.icon}</span>
+                        <p className="text-[10px] font-medium truncate w-full">{cosmetic.name}</p>
                       </button>
                     ))}
                   </div>
                 </div>
               ))}
             </div>
-
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-              <p className="text-xs text-blue-400">
-                💡 Tip: You can change equipped cosmetics anytime. Check the Achievements tab to unlock more!
-              </p>
-            </div>
           </TabsContent>
         </Tabs>
 
         {/* Footer */}
-        <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-slate-800">
+        <div className="flex gap-2 justify-end mt-6 pt-4 border-t border-border">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="border-slate-700 text-slate-300 hover:text-white"
+            className="h-8 text-[12px] text-muted-foreground hover:bg-muted"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSave}
-            className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 border border-yellow-500/40"
+            className="h-8 text-[12px] px-4"
           >
             Save Changes
           </Button>

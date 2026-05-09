@@ -72,6 +72,8 @@ export interface CreatorProfile {
     totalViews: number;
     averageEngagement: number;
     completionRate: number;
+    bestRank: string;
+    activeStreak: number;
   };
 }
 
@@ -256,6 +258,8 @@ export function generateMockCreatorProfile(username: string): CreatorProfile {
       totalViews: 12450000,
       averageEngagement: 7.8,
       completionRate: 86.2,
+      bestRank: "#3 Weekly",
+      activeStreak: 3,
     },
   };
 }

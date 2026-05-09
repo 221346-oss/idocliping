@@ -1,4 +1,14 @@
 import { cn } from "@/lib/utils";
+import { 
+  LayoutDashboard, 
+  BarChart3, 
+  Target, 
+  Send, 
+  Trophy, 
+  Palette, 
+  ShieldCheck, 
+  Bookmark 
+} from "lucide-react";
 
 type PanelType = "overview" | "stats" | "campaigns" | "submissions" | "achievements" | "cosmetics" | "honor" | "saved";
 
@@ -8,39 +18,41 @@ interface ProfileLeftNavProps {
   isOwnProfile: boolean;
 }
 
-const navItems: Array<{ id: PanelType; label: string; ownProfileOnly?: boolean }> = [
-  { id: "overview", label: "Overview" },
-  { id: "stats", label: "Stats" },
-  { id: "campaigns", label: "Campaigns" },
-  { id: "submissions", label: "Submissions" },
-  { id: "achievements", label: "Achievements" },
-  { id: "cosmetics", label: "Cosmetics", ownProfileOnly: true },
-  { id: "honor", label: "Honor Score" },
-  { id: "saved", label: "Saved" },
+const navItems: Array<{ id: PanelType; label: string; icon: any; ownProfileOnly?: boolean }> = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "stats", label: "Stats", icon: BarChart3 },
+  { id: "campaigns", label: "Campaigns", icon: Target },
+  { id: "submissions", label: "Submissions", icon: Send },
+  { id: "achievements", label: "Achievements", icon: Trophy },
+  { id: "cosmetics", label: "Cosmetics", icon: Palette, ownProfileOnly: true },
+  { id: "honor", label: "Honor Score", icon: ShieldCheck },
+  { id: "saved", label: "Saved", icon: Bookmark, ownProfileOnly: true },
 ];
 
 export function ProfileLeftNav({ activePanel, setActivePanel, isOwnProfile }: ProfileLeftNavProps) {
   return (
-    <nav className="bg-slate-900/50 rounded-lg border border-slate-800 p-2 space-y-1 md:space-y-0 md:flex md:flex-wrap md:gap-1">
+    <div className="flex flex-col items-stretch w-full bg-transparent h-auto p-1.5 gap-px">
       {navItems.map((item) => {
-        if (item.ownProfileOnly && !isOwnProfile) {
-          return null;
-        }
+        if (item.ownProfileOnly && !isOwnProfile) return null;
+        const Icon = item.icon;
+        const isActive = activePanel === item.id;
+        
         return (
           <button
             key={item.id}
             onClick={() => setActivePanel(item.id)}
             className={cn(
-              "w-full md:flex-1 md:min-w-fit text-left px-3 py-2 rounded text-sm font-medium transition-colors",
-              activePanel === item.id
-                ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/40"
-                : "text-slate-300 hover:text-white hover:bg-slate-800/50"
+              "flex items-center justify-start gap-1.5 text-[12px] h-7 px-2 w-full transition-colors rounded-sm",
+              isActive
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
             )}
           >
-            {item.label}
+            <Icon className="h-3.5 w-3.5 shrink-0" />
+            <span>{item.label}</span>
           </button>
         );
       })}
-    </nav>
+    </div>
   );
 }

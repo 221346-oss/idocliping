@@ -37,12 +37,14 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: LifeBuoy, label: "Support", path: "/creator/support" },
     { icon: Wallet, label: "Wallet", path: "/creator/wallet" },
     { icon: Briefcase, label: "Socials", path: "/creator/social" },
+    { icon: Users, label: "My Profile", path: "/profile/me" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
   user: [
     { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
     { icon: Trophy, label: "Leaderboard", path: "/creator/leaderboard" },
     { icon: LifeBuoy, label: "Support", path: "/creator/support" },
+    { icon: Users, label: "My Profile", path: "/profile/me" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
 };

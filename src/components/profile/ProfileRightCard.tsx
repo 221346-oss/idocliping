@@ -12,19 +12,11 @@ interface ProfileRightCardProps {
 }
 
 const rankColors: Record<string, string> = {
-  rookie: "bg-slate-600",
-  challenger: "bg-blue-600",
-  pro: "bg-purple-600",
-  elite: "bg-orange-600",
-  legend: "bg-yellow-600",
-};
-
-const rankEmojis: Record<string, string> = {
-  rookie: "🌱",
-  challenger: "⚔️",
-  pro: "🎖️",
-  elite: "👑",
-  legend: "🏆",
+  rookie: "bg-muted text-muted-foreground",
+  challenger: "bg-info/20 text-info border-info/40",
+  pro: "bg-secondary/20 text-secondary border-secondary/40",
+  elite: "bg-warning/20 text-warning border-warning/40",
+  legend: "bg-destructive/20 text-destructive border-destructive/40",
 };
 
 export function ProfileRightCard({ profile, isOwnProfile, onEditClick }: ProfileRightCardProps) {
@@ -41,110 +33,83 @@ export function ProfileRightCard({ profile, isOwnProfile, onEditClick }: Profile
     .sort(([, a], [, b]) => b - a);
 
   return (
-    <div className="sticky top-20 space-y-4">
+    <div className="space-y-4">
       {/* Profile Card */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg border border-yellow-500/20 p-4 space-y-4">
-        {/* Avatar and Header */}
+      <div className="bg-card rounded-md border border-border p-4 space-y-4">
         <div className="flex flex-col items-center space-y-3">
-          <div className="relative">
+          <div className="relative group">
             <img
               src={profile.avatar}
               alt={profile.displayName}
-              className="w-24 h-24 rounded-lg border-2 border-yellow-500/50"
+              className="w-20 h-20 rounded-md border border-border bg-muted/30"
             />
-            <div className={cn("absolute -bottom-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center border-2 border-slate-800", rankColors[profile.rank])}>
-              <span className="text-lg">{rankEmojis[profile.rank]}</span>
+            <div className={cn("absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded text-[10px] font-bold border border-background shadow-sm", rankColors[profile.rank])}>
+              {profile.rank.toUpperCase()}
             </div>
           </div>
 
           <div className="text-center">
-            <h2 className="text-lg font-bold text-white">{profile.displayName}</h2>
-            <p className="text-xs text-slate-400">@{profile.username}</p>
+            <h2 className="text-[14px] font-bold text-foreground leading-tight">{profile.displayName}</h2>
+            <p className="text-[11px] text-muted-foreground">@{profile.username}</p>
           </div>
 
-          {/* Level and Rank */}
-          <div className="flex gap-2">
-            <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/40">
+          <div className="flex gap-1.5">
+            <Badge variant="outline" className="h-5 px-1.5 text-[10px] bg-primary/5 text-primary border-primary/20">
               Lv. {profile.level}
-            </Badge>
-            <Badge className={cn("text-white", rankColors[profile.rank])}>
-              {profile.rank.charAt(0).toUpperCase() + profile.rank.slice(1)}
             </Badge>
           </div>
         </div>
 
-        {/* ID Copy Section */}
-        <div className="bg-slate-900/50 rounded p-3 flex items-center gap-2">
-          <div className="flex-1">
-            <p className="text-xs text-slate-400">UID</p>
-            <p className="text-sm font-mono text-white">{profile.id.slice(0, 12)}...</p>
+        {/* UID Section */}
+        <div className="bg-muted/30 rounded border border-border p-2 flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">UID</p>
+            <p className="text-[11px] font-mono text-foreground truncate">{profile.id}</p>
           </div>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handleCopyId}
-            className="text-slate-400 hover:text-yellow-400"
+            className="h-6 w-6 text-muted-foreground hover:text-primary transition-colors"
           >
-            {copiedId ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Copy className="w-4 h-4" />
-            )}
+            {copiedId ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
           </Button>
         </div>
 
-        {/* Stats Grid */}
+        {/* Mini Stats Grid */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-slate-900/50 rounded p-2">
-            <p className="text-xs text-slate-400">Honor Score</p>
-            <p className="text-base font-bold text-yellow-400">{profile.honorScore.toLocaleString()}</p>
-          </div>
-          <div className="bg-slate-900/50 rounded p-2">
-            <p className="text-xs text-slate-400">Level</p>
-            <p className="text-base font-bold text-white">{profile.level}</p>
-          </div>
-          <div className="bg-slate-900/50 rounded p-2">
-            <p className="text-xs text-slate-400">Joined</p>
-            <p className="text-base font-bold text-white">{profile.joinedDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}</p>
-          </div>
-          <div className="bg-slate-900/50 rounded p-2">
-            <p className="text-xs text-slate-400">Earnings</p>
-            <p className="text-base font-bold text-green-400">${profile.totalEarnings.toLocaleString()}</p>
-          </div>
+          {[
+            { label: "Honor", value: profile.honorScore, color: "text-primary" },
+            { label: "Level", value: profile.level },
+            { label: "Joined", value: profile.joinedDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }) },
+            { label: "Earnings", value: `$${profile.totalEarnings}`, color: "text-success" },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-muted/30 rounded p-2 border border-border/50">
+              <p className="text-[10px] text-muted-foreground uppercase">{stat.label}</p>
+              <p className={cn("text-[13px] font-bold mt-0.5 truncate", stat.color || "text-foreground")}>{stat.value}</p>
+            </div>
+          ))}
         </div>
 
         {/* Platforms */}
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-slate-300">Platforms</p>
-          <div className="space-y-1">
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1">Platforms</p>
+          <div className="space-y-px bg-border rounded-sm overflow-hidden border border-border">
             {platformCounts.map(([platform, count]) => (
-              <div key={platform} className="flex items-center justify-between bg-slate-900/50 rounded px-2 py-1">
-                <span className="text-xs text-slate-400 capitalize">{platform}</span>
-                <span className="text-xs font-semibold text-white">{(count / 1000).toFixed(1)}k</span>
+              <div key={platform} className="flex items-center justify-between bg-background px-2 py-1.5">
+                <span className="text-[11px] text-muted-foreground capitalize">{platform}</span>
+                <span className="text-[11px] font-medium text-foreground">{(count / 1000).toFixed(1)}k</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Badges */}
-        {profile.badges.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-slate-300">Badges</p>
-            <div className="flex flex-wrap gap-1">
-              {profile.badges.map((badge) => (
-                <Badge key={badge} variant="outline" className="border-yellow-500/40 text-yellow-400 capitalize">
-                  {badge.replace(/-/g, " ")}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Edit Button */}
         {isOwnProfile && (
           <Button
             onClick={onEditClick}
-            className="w-full bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 border border-yellow-500/40"
+            variant="outline"
+            className="w-full h-8 text-[12px] border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50"
           >
             Edit Profile
           </Button>

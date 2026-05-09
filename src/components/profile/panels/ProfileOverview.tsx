@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Share2, TrendingUp } from "lucide-react";
+import { TrendingUp, DollarSign, Target, CheckCircle, Trophy, Flame } from "lucide-react";
 import { CreatorProfile } from "@/lib/mockData";
 
 interface ProfileOverviewProps {
@@ -7,53 +7,59 @@ interface ProfileOverviewProps {
 
 export function ProfileOverview({ profile }: ProfileOverviewProps) {
   const overviewStats = [
-    {
-      label: "Total Views",
-      value: (profile.statistics.totalViews / 1000000).toFixed(1) + "M",
-      icon: TrendingUp,
-      color: "text-blue-400",
-    },
-    {
-      label: "Avg. Engagement",
-      value: profile.statistics.averageEngagement.toFixed(1) + "%",
-      icon: Heart,
-      color: "text-red-400",
-    },
-    {
-      label: "Completion Rate",
-      value: profile.statistics.completionRate.toFixed(1) + "%",
-      icon: MessageCircle,
-      color: "text-green-400",
-    },
-    {
-      label: "Total Earnings",
-      value: "$" + profile.totalEarnings.toLocaleString(),
-      icon: Share2,
-      color: "text-yellow-400",
-    },
+    { label: "Total Views", value: (profile.statistics.totalViews / 1000000).toFixed(1) + "M", icon: TrendingUp, color: "text-info" },
+    { label: "Total Earned", value: "$" + profile.totalEarnings.toLocaleString(), icon: DollarSign, color: "text-success" },
+    { label: "Campaigns Joined", value: profile.campaigns.length, icon: Target, color: "text-warning" },
+    { label: "Approved", value: profile.statistics.approvedSubmissions, icon: CheckCircle, color: "text-primary" },
+    { label: "Best Rank", value: profile.statistics.bestRank, icon: Trophy, color: "text-warning" },
+    { label: "Active Streak", value: profile.statistics.activeStreak + "w", icon: Flame, color: "text-destructive" },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Bio Section */}
-      <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
-        <h3 className="text-sm font-semibold text-white mb-3">About</h3>
-        <p className="text-sm text-slate-300 leading-relaxed">{profile.bio}</p>
+    <div className="space-y-4">
+      {/* Banner Showcase */}
+      <div className="relative w-full h-32 rounded-md overflow-hidden border border-border bg-muted/30">
+        <img 
+          src={profile.banner || "https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=800&h=200&fit=crop"} 
+          alt="Banner" 
+          className="w-full h-full object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        
+        <div className="absolute bottom-3 left-4 flex items-center gap-3">
+          <img 
+            src={profile.avatar} 
+            alt={profile.displayName} 
+            className="w-12 h-12 rounded-md border border-border bg-card"
+          />
+          <div>
+            <h2 className="text-[15px] font-bold text-foreground">{profile.displayName}</h2>
+            <p className="text-[11px] text-primary font-medium uppercase tracking-wider">Elite Creator</p>
+          </div>
+        </div>
+
+        <div className="absolute bottom-3 right-4 flex gap-1">
+          {profile.badges.slice(0, 3).map((badge) => (
+            <div key={badge} className="bg-background/80 border border-border rounded p-1" title={badge}>
+              <Trophy className="w-3.5 h-3.5 text-warning" />
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Statistics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Statistics Grid - 1px border gap style */}
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-px bg-border border border-border rounded-md overflow-hidden">
         {overviewStats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="bg-slate-900/50 border border-slate-800 rounded-lg p-4">
+            <div key={stat.label} className="bg-background p-4 hover:bg-muted/30 transition-colors group">
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-slate-800 rounded">
-                  <Icon className={`w-5 h-5 ${stat.color}`} />
+                <div className="p-2 bg-muted/50 rounded group-hover:bg-muted transition-colors">
+                  <Icon className={`w-4 h-4 ${stat.color}`} />
                 </div>
-                <div className="flex-1">
-                  <p className="text-xs text-slate-400 uppercase tracking-wide">{stat.label}</p>
-                  <p className="text-xl font-bold text-white mt-1">{stat.value}</p>
+                <div>
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-widest font-medium">{stat.label}</p>
+                  <p className="text-xl font-bold text-foreground mt-0.5">{stat.value}</p>
                 </div>
               </div>
             </div>
@@ -61,25 +67,10 @@ export function ProfileOverview({ profile }: ProfileOverviewProps) {
         })}
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6">
-        <h3 className="text-sm font-semibold text-white mb-4">Recent Submissions</h3>
-        <div className="space-y-3">
-          {profile.submissions.slice(0, 3).map((submission) => (
-            <div key={submission.id} className="flex items-center justify-between pb-3 border-b border-slate-800 last:border-0">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">{submission.campaignTitle}</p>
-                <p className="text-xs text-slate-400 capitalize">{submission.platform}</p>
-              </div>
-              <div className="text-right">
-                <p className={`text-sm font-bold ${submission.status === 'approved' ? 'text-green-400' : submission.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}`}>
-                  {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
-                </p>
-                <p className="text-xs text-slate-400">{(submission.views / 1000).toFixed(0)}k views</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Bio Section */}
+      <div className="bg-card border border-border rounded-md p-4">
+        <h3 className="text-[12px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">About Creator</h3>
+        <p className="text-[13px] text-foreground leading-relaxed italic">"{profile.bio}"</p>
       </div>
     </div>
   );

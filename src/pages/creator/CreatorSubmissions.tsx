@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
-import { Film, Megaphone, ArrowLeft, Trash2, Loader2, Info } from "lucide-react";
+import { Film, Megaphone, ArrowLeft, Trash2, Loader2, Info, LayoutDashboard, TrendingUp, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
 import { TableSkeleton } from "@/components/Skeletons";
@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { detectSocialPlatformFromUrl } from "@/lib/detect-post-platform";
 
 type AppealRow = Pick<
@@ -142,29 +143,33 @@ export default function CreatorSubmissions() {
   }, [rows]);
 
   const campaignList = Array.from(campaignsMap.values());
-  const activeId = campaignId || campaignList[0]?.campaign.id;
-  const active = activeId ? campaignsMap.get(activeId) : null;
+  const isOverview = !campaignId || campaignId === "overview";
+  const activeId = isOverview ? "overview" : campaignId;
+  const active = campaignsMap.get(activeId);
 
   const earningsForCampaign = (subs: SubRow[]) =>
     subs.reduce((acc, s) => acc + (s.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0), 0);
 
-  const payoutStatus = (subs: SubRow[], _campaignStatus: string) => {
+  const payoutStatus = (subs: SubRow[], campaignStatus: string) => {
     const allEarnings = subs.flatMap((s) => s.earnings ?? []);
-    if (allEarnings.length === 0) return { label: "Awaiting review", tone: "warning" as const };
-    return { label: "✓ Eligible", tone: "success" as const };
+    if (allEarnings.length === 0) return { label: "Processing", tone: "warning" as const, icon: Clock };
+    return { label: "Eligible", tone: "success" as const, icon: TrendingUp };
   };
+
+  const totalEarnings = rows.reduce((acc, r) => acc + (r.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0), 0);
 
   return (
     <AppLayout>
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-background overflow-hidden">
+        {/* Header */}
         <div className="px-4 md:px-6 h-11 border-b border-border flex items-center shrink-0">
-          <h1 className="text-[13px] font-medium">My Submissions</h1>
+          <h1 className="text-[13px] font-medium uppercase tracking-tight">My Submissions</h1>
         </div>
 
         <div className="flex-1 overflow-auto">
           {loading ? (
             <div className="flex flex-col md:flex-row h-full">
-              <div className="md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-border p-1.5 space-y-1">
+              <div className="md:w-44 shrink-0 border-b md:border-b-0 md:border-r border-border p-1.5 space-y-1">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <Skeleton key={i} className="h-7 w-full" />
                 ))}
@@ -185,8 +190,24 @@ export default function CreatorSubmissions() {
             />
           ) : (
             <div className="flex flex-col md:flex-row h-full">
-              <div className="md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-border">
-                <div className="flex md:flex-col p-1.5 gap-px overflow-x-auto md:overflow-visible">
+              {/* Left Sidebar */}
+              <div className="md:w-44 shrink-0 border-b md:border-b-0 md:border-r border-border overflow-y-auto">
+                <div className="flex md:flex-col p-1.5 gap-px">
+                  {/* Overview Item */}
+                  <button
+                    onClick={() => navigate("/creator/submissions/overview")}
+                    className={cn(
+                      "flex items-center gap-1.5 text-[12px] h-7 px-2 rounded-sm w-full justify-start whitespace-nowrap transition-colors",
+                      isOverview ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                    )}
+                  >
+                    <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
+                    <span>Overview</span>
+                  </button>
+
+                  <div className="my-1 border-t border-border/50 md:block hidden" />
+
+                  {/* Campaign Items */}
                   {campaignList.map(({ campaign, submissions }) => {
                     const isActive = campaign.id === activeId;
                     return (
@@ -195,35 +216,146 @@ export default function CreatorSubmissions() {
                         type="button"
                         onClick={() => navigate(`/creator/submissions/${campaign.id}`)}
                         className={cn(
-                          "flex items-center gap-1.5 text-[12px] h-7 px-2 rounded w-full justify-start whitespace-nowrap",
-                          isActive ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50",
+                          "flex items-center gap-1.5 text-[12px] h-7 px-2 rounded-sm w-full justify-start whitespace-nowrap transition-colors",
+                          isActive ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                         )}
                       >
                         <Megaphone className="h-3.5 w-3.5 shrink-0" />
                         <span className="truncate">{campaign.title}</span>
-                        <span className="ml-auto text-[10px] text-muted-foreground">{submissions.length}</span>
+                        <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">{submissions.length}</span>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="flex-1 min-w-0 p-6">
-                {active && (
-                  <CampaignSubmissionsView
-                    active={active}
-                    payoutStatus={payoutStatus}
-                    earningsForCampaign={earningsForCampaign}
-                    onAppealSubmitted={loadRows}
-                    onReload={() => loadRows()}
-                  />
-                )}
+              {/* Content Panel */}
+              <div className="flex-1 min-w-0 overflow-y-auto">
+                <div className="p-4 md:p-6 max-w-6xl mx-auto">
+                  {isOverview ? (
+                    <SubmissionsOverview 
+                      campaignList={campaignList} 
+                      totalEarnings={totalEarnings} 
+                      earningsForCampaign={earningsForCampaign}
+                      payoutStatus={payoutStatus}
+                      navigate={navigate}
+                    />
+                  ) : active ? (
+                    <div className="animate-fade-in pb-10">
+                      <CampaignSubmissionsView
+                        active={active}
+                        payoutStatus={payoutStatus}
+                        earningsForCampaign={earningsForCampaign}
+                        onAppealSubmitted={loadRows}
+                        onReload={() => loadRows()}
+                      />
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           )}
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+function SubmissionsOverview({ 
+  campaignList, 
+  totalEarnings, 
+  earningsForCampaign,
+  payoutStatus,
+  navigate
+}: { 
+  campaignList: { campaign: any; submissions: SubRow[] }[],
+  totalEarnings: number,
+  earningsForCampaign: (subs: SubRow[]) => number,
+  payoutStatus: (subs: SubRow[], status: string) => { label: string; tone: "success" | "warning", icon: any },
+  navigate: any
+}) {
+  return (
+    <div className="space-y-8 animate-fade-in pb-20">
+      {/* Total Earnings Stats - Dashboard Style */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-border rounded-md overflow-hidden border border-border">
+        <div className="bg-background p-4">
+          <p className="text-[12px] text-muted-foreground">Total Earnings</p>
+          <div className="flex items-baseline gap-1.5 mt-1">
+            <p className="text-2xl font-medium text-primary">${totalEarnings.toFixed(2)}</p>
+          </div>
+          <p className="text-[10px] text-muted-foreground/60 mt-1 flex items-center gap-1">
+            <TrendingUp className="h-3 w-3" /> Lifetime earnings
+          </p>
+        </div>
+        <div className="bg-background p-4">
+          <p className="text-[12px] text-muted-foreground">Active Tracks</p>
+          <p className="text-2xl font-medium mt-1">{campaignList.filter(c => c.campaign.status === "active").length}</p>
+        </div>
+        <div className="bg-background p-4">
+          <p className="text-[12px] text-muted-foreground">Participated</p>
+          <p className="text-2xl font-medium mt-1">{campaignList.length}</p>
+        </div>
+      </div>
+
+      {/* Campaigns Rich Cards Grid */}
+      <div className="space-y-4">
+        <h3 className="text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground/70 px-1">Campaign Earnings Breakdown</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {campaignList.map(({ campaign, submissions }) => {
+            const earnings = earningsForCampaign(submissions);
+            const { label, tone, icon: StatusIcon } = payoutStatus(submissions, campaign.status);
+            const ended = campaign.status === "completed" || campaign.status === "ended";
+            const thumbnail = campaign.thumbnail_url || "/marketing-campaign-banner-fallback.svg";
+            
+            return (
+              <div 
+                key={campaign.id} 
+                onClick={() => navigate(`/creator/submissions/${campaign.id}`)}
+                className="group bg-card border border-border rounded-lg p-2.5 space-y-3 hover:border-primary/50 transition-all cursor-pointer flex flex-col shadow-sm"
+              >
+                {/* Thumbnail Area - Shorter for compactness */}
+                <div className="relative aspect-video w-full rounded-md overflow-hidden shrink-0">
+                  <img src={thumbnail} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-black/20" />
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                    <span className="bg-primary px-3 py-1 rounded-full text-[9px] font-bold text-black shadow-lg uppercase tracking-wider">
+                      {campaign.category || "General"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Title - Smaller font */}
+                <div className="px-1 text-center">
+                  <h4 className="text-[13px] font-bold text-foreground leading-tight line-clamp-1">
+                    {campaign.title}
+                  </h4>
+                </div>
+
+                {/* Earnings Box - Compact version */}
+                <div className="bg-muted/30 rounded-md p-3 flex flex-col items-center justify-center space-y-0.5 flex-1 border border-border/40">
+                  <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">Earnings</p>
+                  <p className="text-[20px] font-black text-foreground">${earnings.toFixed(2)}</p>
+                  <div className={cn(
+                    "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider",
+                    tone === "success" ? "text-primary" : "text-warning"
+                  )}>
+                    <StatusIcon className="h-3 w-3" />
+                    {label}
+                  </div>
+                </div>
+
+                {/* Footer Status Text - Smaller font */}
+                <p className="text-[10px] text-center text-muted-foreground/70 leading-tight px-1">
+                  {ended 
+                    ? "Ended. Payout processing." 
+                    : "Active. Under review."}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -235,7 +367,7 @@ function CampaignSubmissionsView({
   onReload,
 }: {
   active: { campaign: any; submissions: SubRow[] };
-  payoutStatus: (subs: SubRow[], status: string) => { label: string; tone: "success" | "warning" };
+  payoutStatus: (subs: SubRow[], status: string) => { label: string; tone: "success" | "warning", icon: any };
   earningsForCampaign: (subs: SubRow[]) => number;
   onAppealSubmitted: () => void | Promise<void>;
   onReload: () => void | Promise<void>;
@@ -406,7 +538,7 @@ function CampaignSubmissionsView({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in pb-10">
       <div className="rounded-md bg-muted/40 border border-border p-3 text-[12px] text-foreground">
         Earnings credit to your <Link to="/creator/wallet" className="underline">Wallet</Link>.
         <span className="text-muted-foreground"> Processing</span> means the post is with an admin.
@@ -419,16 +551,7 @@ function CampaignSubmissionsView({
         <div className="absolute inset-0 bg-black/58" />
 
         <div className="relative z-10 flex flex-col gap-5 p-5 sm:p-7 min-h-[176px] sm:min-h-[220px]">
-          <div className="flex items-start justify-between gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="shrink-0 border-border bg-background/80 backdrop-blur-sm"
-              onClick={() => navigate("/creator/campaigns")}
-            >
-              <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back to campaigns
-            </Button>
+          <div className="flex items-start justify-end gap-3">
             <Button type="button" variant="destructive" size="sm" className="shadow-sm shrink-0" onClick={openSubmitModal}>
               Submit a post
             </Button>
@@ -438,14 +561,16 @@ function CampaignSubmissionsView({
             <div className="max-w-[min(100%,620px)] w-full px-6 py-2.5 rounded-full bg-black/72 border border-white/25 backdrop-blur-sm">
               <div className="text-center space-y-1">
                 <h2 className="text-[clamp(17px,2.8vw,22px)] font-semibold text-white tracking-tight leading-snug">{campaign.title}</h2>
-                <div className="bg-white/15 rounded-full px-3 py-3 text-center mt-3">
-                  <div className="text-[11px] text-white/85">Your earnings</div>
-                  <div className="text-[22px] font-bold text-white">${earnings.toFixed(2)}</div>
-                  <div className={cn("text-[12px] font-medium", tone === "success" ? "text-primary" : "text-warning")}>
+                <div className="flex items-center justify-center gap-4 mt-2">
+                  <div className="bg-white/10 rounded-full px-3 py-1 flex items-center gap-2">
+                    <div className="text-[11px] text-white/85">Earnings</div>
+                    <div className="text-[15px] font-bold text-white tabular-nums">${earnings.toFixed(2)}</div>
+                  </div>
+                  <div className={cn("text-[12px] font-medium px-2 py-0.5 rounded-full", tone === "success" ? "text-primary bg-primary/10" : "text-warning bg-warning/10")}>
                     {label}
                   </div>
                 </div>
-                <p className="text-[11px] text-white/85 pt-3">
+                <p className="text-[11px] text-white/85 pt-2">
                   {ended
                     ? tone === "success"
                       ? "Campaign has ended."
@@ -458,8 +583,8 @@ function CampaignSubmissionsView({
         </div>
       </div>
 
-      <div className="border border-border rounded-md overflow-hidden">
-        <div className="px-4 h-11 flex items-center justify-between gap-4 border-b border-border">
+      <div className="border border-border rounded-md overflow-hidden bg-card">
+        <div className="px-4 h-11 flex items-center justify-between gap-4 border-b border-border bg-muted/20">
           <h3 className="text-[13px] font-medium">Posts ({submissions.length})</h3>
         </div>
         <div className="overflow-x-auto">
@@ -480,7 +605,7 @@ function CampaignSubmissionsView({
                 const appeals = s.submission_appeals ?? [];
                 const note = latestAppealNote(s);
                 return (
-                  <tr key={s.id} className="border-t border-border align-top">
+                  <tr key={s.id} className="border-t border-border align-top hover:bg-muted/5 transition-colors">
                     <td className="p-3 capitalize">{s.platform}</td>
                     <td className="p-3 max-w-[220px] md:max-w-[280px]">
                       <a

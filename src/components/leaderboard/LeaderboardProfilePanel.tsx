@@ -9,7 +9,7 @@ import type { EarningsTier } from "@/lib/leaderboard-compute";
 import { EarningsTierBadge } from "./EarningsTierBadge";
 import { ProfilePanelSkeleton } from "./LeaderboardSkeletons";
 import { submissionStatusLabel } from "@/lib/submission-status";
-import { Instagram, Youtube } from "lucide-react";
+import { Instagram, Youtube, ExternalLink, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 function TikTokIcon({ className }: { className?: string }) {
@@ -201,6 +201,13 @@ export function LeaderboardProfilePanel({
               <EarningsTierBadge tier={entry.tier} compact />
             </div>
             {memberSince ? <p className="text-[11px] text-muted-foreground mt-0.5">Member since {memberSince}</p> : null}
+            <Link 
+              to={`/profile/${entry.displayName}`} 
+              className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-medium text-primary hover:underline transition-all"
+            >
+              <ExternalLink className="h-3 w-3" />
+              View Full Profile
+            </Link>
           </div>
         </div>
 

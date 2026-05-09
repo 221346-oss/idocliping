@@ -7,60 +7,43 @@ interface ProfileCampaignsProps {
 }
 
 const statusColors = {
-  active: "bg-green-500/20 text-green-400 border-green-500/40",
-  completed: "bg-blue-500/20 text-blue-400 border-blue-500/40",
-  ongoing: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40",
+  active: "border-success/40 text-success bg-success/5",
+  completed: "border-info/40 text-info bg-info/5",
+  ongoing: "border-warning/40 text-warning bg-warning/5",
 };
 
 export function ProfileCampaigns({ profile }: ProfileCampaignsProps) {
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">Active Campaigns ({profile.campaigns.length})</h3>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-[14px] font-medium text-foreground uppercase tracking-tight">Active Campaigns ({profile.campaigns.length})</h3>
       </div>
-
-      <div className="space-y-3">
+      <div className="space-y-2">
         {profile.campaigns.length === 0 ? (
-          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-8 text-center">
-            <p className="text-slate-400">No campaigns joined yet</p>
+          <div className="bg-card border border-dashed border-border rounded-md p-8 text-center">
+            <p className="text-[12px] text-muted-foreground">No campaigns joined yet</p>
           </div>
         ) : (
           profile.campaigns.map((campaign) => (
-            <div
-              key={campaign.id}
-              className="bg-slate-900/50 border border-slate-800 rounded-lg p-4 hover:border-slate-700 transition-colors"
-            >
+            <div key={campaign.id} className="bg-card border border-border rounded-md p-3 hover:bg-muted/30 transition-colors">
               <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-white">{campaign.title}</h4>
-                    <Badge
-                      variant="outline"
-                      className={`capitalize border ${statusColors[campaign.status as keyof typeof statusColors]}`}
-                    >
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="text-[13px] font-semibold text-foreground truncate">{campaign.title}</h4>
+                    <Badge variant="outline" className={`h-4 text-[9px] uppercase font-bold border px-1 ${statusColors[campaign.status as keyof typeof statusColors]}`}>
                       {campaign.status}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-400">{campaign.brand}</p>
-                  <div className="flex flex-wrap gap-3 text-xs text-slate-400 mt-2">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {campaign.joinedAt?.toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {campaign.participants} participants
-                    </div>
-                    <div className="flex items-center gap-1 text-yellow-400">
-                      <DollarSign className="w-4 h-4" />
-                      ${campaign.reward}
-                    </div>
+                  <p className="text-[11px] text-muted-foreground">{campaign.brand}</p>
+                  <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground pt-1">
+                    <div className="flex items-center gap-1"><Calendar className="h-3 w-3" />{campaign.joinedAt?.toLocaleDateString()}</div>
+                    <div className="flex items-center gap-1"><Users className="h-3 w-3" />{campaign.participants}</div>
+                    <div className="flex items-center gap-1 text-success font-medium"><DollarSign className="h-3 w-3" />${campaign.reward}</div>
                   </div>
                 </div>
-
-                <div className="text-right">
-                  <p className="text-xs text-slate-400 mb-1">Max Reward</p>
-                  <p className="text-lg font-bold text-yellow-400">${campaign.reward}</p>
+                <div className="text-right shrink-0">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Reward</p>
+                  <p className="text-[14px] font-bold text-success">${campaign.reward}</p>
                 </div>
               </div>
             </div>

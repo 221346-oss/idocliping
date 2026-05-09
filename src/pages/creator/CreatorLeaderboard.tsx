@@ -210,7 +210,7 @@ export default function CreatorLeaderboard() {
                   type="button"
                   variant={scope === s ? "default" : "outline"}
                   size="sm"
-                  className={cn("h-8 text-[11px]", scope === s ? "" : "bg-transparent")}
+                  className={cn("h-7 text-[11px] px-3", scope === s ? "" : "bg-transparent")}
                   onClick={() => setScope(s)}
                 >
                   {s === "campaign" ? "Per Campaign" : s === "category" ? "Per Category" : "Platform"}
@@ -218,7 +218,7 @@ export default function CreatorLeaderboard() {
               ))}
               {scope === "campaign" ? (
                 <Select value={campaignId || undefined} onValueChange={setCampaignId}>
-                  <SelectTrigger className="h-8 w-[min(100%,220px)] text-[12px]">
+                  <SelectTrigger className="h-7 w-[min(100%,220px)] text-[11px]">
                     <SelectValue placeholder="Campaign" />
                   </SelectTrigger>
                   <SelectContent>
@@ -232,7 +232,7 @@ export default function CreatorLeaderboard() {
               ) : null}
               {scope === "category" ? (
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="h-8 w-[180px] text-[12px]">
+                  <SelectTrigger className="h-7 w-[160px] text-[11px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -246,7 +246,7 @@ export default function CreatorLeaderboard() {
               ) : null}
               {scope === "platform" ? (
                 <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                  <SelectTrigger className="h-8 w-[140px] text-[12px]">
+                  <SelectTrigger className="h-7 w-[130px] text-[11px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -268,7 +268,7 @@ export default function CreatorLeaderboard() {
                   type="button"
                   variant={period === p ? "secondary" : "ghost"}
                   size="sm"
-                  className="h-8 text-[11px]"
+                  className="h-7 text-[11px] px-3"
                   onClick={() => setPeriod(p)}
                 >
                   {p === "week" ? "This Week" : p === "month" ? "This Month" : "All Time"}
@@ -299,15 +299,15 @@ export default function CreatorLeaderboard() {
               ) : (
                 <div className="rounded-lg border border-border overflow-hidden">
                   <div className="overflow-x-auto">
-                    <table className="w-full text-[12px] min-w-[720px]">
+                    <table className="w-full text-[13px] min-w-[720px]">
                       <thead className="bg-muted/40 text-muted-foreground text-[10px] uppercase tracking-wide border-b border-border">
                         <tr>
-                          <th className="text-left p-2.5 w-12">Rank</th>
-                          <th className="text-left p-2.5">Creator</th>
-                          <th className="text-left p-2.5">Tier</th>
-                          <th className="text-right p-2.5">Submissions</th>
-                          <th className="text-right p-2.5 hidden sm:table-cell">Views</th>
-                          <th className="text-right p-2.5">Points</th>
+                          <th className="text-left p-2 w-12 font-bold">Rank</th>
+                          <th className="text-left p-2 font-bold">Creator</th>
+                          <th className="text-left p-2 font-bold">Tier</th>
+                          <th className="text-right p-2 font-bold">Submissions</th>
+                          <th className="text-right p-2 font-bold hidden sm:table-cell">Views</th>
+                          <th className="text-right p-2 font-bold">Points</th>
                         </tr>
                       </thead>
                       <tbody>

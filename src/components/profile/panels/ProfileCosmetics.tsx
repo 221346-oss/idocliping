@@ -1,4 +1,4 @@
-import { Check, Edit } from "lucide-react";
+import { Check, Edit, Shield, Sparkles, Award, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CreatorProfile } from "@/lib/mockData";
@@ -9,14 +9,14 @@ interface ProfileCosmeticsProps {
 }
 
 const rarityColors = {
-  common: "bg-slate-600",
-  rare: "bg-blue-600",
-  epic: "bg-purple-600",
-  legendary: "bg-yellow-600",
+  common: "bg-muted text-muted-foreground",
+  rare: "bg-info/10 text-info border-info/20",
+  epic: "bg-primary/10 text-primary border-primary/20",
+  legendary: "bg-warning/10 text-warning border-warning/20",
 };
 
 const typeLabels: Record<string, string> = {
-  avatar_frame: "Avatar Frame",
+  avatar_frame: "Frame",
   badge: "Badge",
   effect: "Effect",
   title: "Title",
@@ -24,9 +24,7 @@ const typeLabels: Record<string, string> = {
 
 export function ProfileCosmetics({ profile, onEdit }: ProfileCosmeticsProps) {
   const groupedCosmetics = profile.cosmetics.reduce((acc, cosmetic) => {
-    if (!acc[cosmetic.type]) {
-      acc[cosmetic.type] = [];
-    }
+    if (!acc[cosmetic.type]) acc[cosmetic.type] = [];
     acc[cosmetic.type].push(cosmetic);
     return acc;
   }, {} as Record<string, typeof profile.cosmetics>);
@@ -34,62 +32,49 @@ export function ProfileCosmetics({ profile, onEdit }: ProfileCosmeticsProps) {
   const types = Object.keys(groupedCosmetics) as Array<keyof typeof groupedCosmetics>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">
-          Cosmetics ({profile.cosmetics.length})
-        </h3>
-        <Button
-          onClick={onEdit}
-          variant="outline"
-          size="sm"
-          className="border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/10"
-        >
-          <Edit className="w-4 h-4 mr-2" />
-          Edit
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-[14px] font-medium text-foreground uppercase tracking-tight">Cosmetics ({profile.cosmetics.length})</h3>
+        <Button onClick={onEdit} variant="outline" size="sm" className="h-7 text-[11px] border-border hover:bg-muted">
+          <Edit className="h-3 w-3 mr-1.5" />
+          Customize
         </Button>
       </div>
 
       {types.map((type) => (
-        <div key={type}>
-          <h4 className="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wide">
+        <div key={type} className="space-y-2">
+          <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-1">
             {typeLabels[type]}
           </h4>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {groupedCosmetics[type].map((cosmetic) => (
               <div
                 key={cosmetic.id}
-                className={`rounded-lg p-4 border transition-colors ${
+                className={`rounded-md p-3 border transition-all ${
                   cosmetic.equipped
-                    ? "bg-gradient-to-br from-yellow-500/20 to-orange-500/10 border-yellow-500/40"
-                    : "bg-slate-900/50 border-slate-800 hover:border-slate-700"
+                    ? "bg-primary/5 border-primary/40 ring-1 ring-primary/20"
+                    : "bg-card border-border hover:bg-muted/30"
                 }`}
               >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className={`text-4xl w-12 h-12 flex items-center justify-center rounded-lg ${rarityColors[cosmetic.rarity]} flex-shrink-0`}>
+                <div className="flex items-start justify-between mb-2">
+                  <div className={`h-8 w-8 flex items-center justify-center rounded bg-muted/50 text-[18px]`}>
                     {cosmetic.icon}
                   </div>
                   {cosmetic.equipped && (
-                    <div className="bg-yellow-500/20 border border-yellow-500/40 rounded px-2 py-1 flex items-center gap-1">
-                      <Check className="w-3 h-3 text-yellow-400" />
-                      <span className="text-xs text-yellow-400 font-medium">Equipped</span>
-                    </div>
+                    <Badge variant="outline" className="h-4 text-[8px] uppercase bg-primary text-primary-foreground border-none px-1">
+                      Equipped
+                    </Badge>
                   )}
                 </div>
 
-                <div>
-                  <h5 className="font-semibold text-white text-sm">{cosmetic.name}</h5>
-                  <div className="flex items-center justify-between mt-2">
-                    <Badge
-                      variant="outline"
-                      className={`capitalize text-xs border-0 ${rarityColors[cosmetic.rarity]} text-white`}
-                    >
+                <div className="space-y-1">
+                  <h5 className="font-semibold text-[12px] text-foreground truncate">{cosmetic.name}</h5>
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline" className={`h-3.5 text-[7px] uppercase px-1 border-none ${rarityColors[cosmetic.rarity]}`}>
                       {cosmetic.rarity}
                     </Badge>
-                    <span className="text-xs text-slate-400">
-                      {cosmetic.obtainedAt.toLocaleDateString()}
-                    </span>
+                    <span className="text-[9px] text-muted-foreground">{new Date(cosmetic.obtainedAt).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}</span>
                   </div>
                 </div>
               </div>
@@ -97,37 +82,6 @@ export function ProfileCosmetics({ profile, onEdit }: ProfileCosmeticsProps) {
           </div>
         </div>
       ))}
-
-      {/* Available to Unlock */}
-      <div>
-        <h4 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wide">Available to Unlock</h4>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { name: "Dragon Frame", icon: "🐉", rarity: "legendary", type: "avatar_frame" },
-            { name: "Thunder Effect", icon: "⚡", rarity: "epic", type: "effect" },
-          ].map((cosmetic, index) => (
-            <div key={index} className="bg-slate-900/30 border border-slate-800 rounded-lg p-4 opacity-50">
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div className={`text-4xl w-12 h-12 flex items-center justify-center rounded-lg ${rarityColors[cosmetic.rarity as keyof typeof rarityColors]} flex-shrink-0`}>
-                  {cosmetic.icon}
-                </div>
-              </div>
-              <div>
-                <h5 className="font-semibold text-slate-500 text-sm">{cosmetic.name}</h5>
-                <div className="flex items-center justify-between mt-2">
-                  <Badge
-                    variant="outline"
-                    className={`capitalize text-xs border-slate-700 text-slate-600`}
-                  >
-                    {cosmetic.rarity}
-                  </Badge>
-                  <span className="text-xs text-slate-600">Locked</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
