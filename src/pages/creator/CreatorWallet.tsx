@@ -40,10 +40,25 @@ function WalletTab() {
   const load = async () => {
     if (!user) return;
     const [{ data: earnings }, { data: reqs }] = await Promise.all([
-      supabase.from("earnings").select("amount").eq("creator_id", user.id),
+      supabase
+        .from("earnings")
+        .select("amount, type, submissions(is_test_submission)")
+        .eq("creator_id", user.id),
       supabase.from("withdrawal_requests").select("*").eq("creator_id", user.id).order("created_at", { ascending: false }),
     ]);
-    const earned = (earnings ?? []).reduce((a: number, b: any) => a + Number(b.amount), 0);
+    function countsTowardWithdrawableBal(row: { type?: string; submissions?: { is_test_submission?: boolean | null } | null }) {
+      const tst = !!(row.submissions?.is_test_submission);
+      if (tst && (row.type === "campaign" || row.type === "referral")) return false;
+      return true;
+    }
+    const earned = (earnings ?? []).reduce(
+      (a: number, b: Record<string, unknown>) => {
+        const row = { type: b.type as string, submissions: b.submissions as { is_test_submission?: boolean | null } | null };
+        if (!countsTowardWithdrawableBal(row)) return a;
+        return a + Number((b.amount as number) ?? 0);
+      },
+      0,
+    );
     const pendingPaid = (reqs ?? []).filter((r: any) => r.status !== "rejected").reduce((a: number, b: any) => a + Number(b.amount), 0);
     const withdrawn = (reqs ?? []).filter((r: any) => r.status === "paid").reduce((a: number, b: any) => a + Number(b.amount), 0);
     const pending = (reqs ?? []).filter((r: any) => r.status === "pending" || r.status === "approved").reduce((a: number, b: any) => a + Number(b.amount), 0);

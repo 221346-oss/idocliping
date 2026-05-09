@@ -80,7 +80,9 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
     supabase.from("creator_profile_settings").select("equipped_avatar_id, equipped_banner_id").eq("user_id", userId).maybeSingle(),
     supabase
       .from("submissions")
-      .select("id, campaign_id, manual_views, status, created_at, platform, campaigns(title)")
+      .select(
+        "id, campaign_id, manual_views, status, created_at, platform, is_test_submission, campaigns(title)",
+      )
       .eq("creator_id", userId)
       .order("created_at", { ascending: false })
       .limit(500),
@@ -128,7 +130,9 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
     campaignsCompleted: new Set(approved.map((x) => x.campaign_id)).size,
     adminFlags: 0,
   });
-  const honorScore = Math.round(honorB.total);
+  const overrideHon = Number((profile as { honor_score_override?: number | null }).honor_score_override);
+  const computedHonor = Math.round(honorB.total);
+  const honorScore = Number.isFinite(overrideHon) ? Math.round(overrideHon) : computedHonor;
   const hLabel = honorLabel(honorScore);
 
   const campMap = new Map<string, string>();

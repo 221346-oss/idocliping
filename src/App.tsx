@@ -30,6 +30,8 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminTickets from "./pages/admin/AdminTickets";
 import AdminCosmetics from "./pages/admin/AdminCosmetics";
 import AdminCreatorProfiles from "./pages/admin/AdminCreatorProfiles";
+import AdminAutomationLab from "./pages/admin/AdminAutomationLab";
+import AdminCampaignDetail from "./pages/admin/AdminCampaignDetail";
 
 // Creator
 
@@ -73,6 +75,8 @@ const App = () => (
               <Route path="/admin" element={<RoleRoute roles={["admin"]}><Dashboard /></RoleRoute>} />
               <Route path="/admin/brands" element={<RoleRoute roles={["admin"]}><AdminBrands /></RoleRoute>} />
               <Route path="/admin/campaigns" element={<RoleRoute roles={["admin"]}><AdminCampaigns /></RoleRoute>} />
+              <Route path="/admin/campaigns/:id" element={<RoleRoute roles={["admin"]}><AdminCampaignDetail /></RoleRoute>} />
+              <Route path="/admin/automation-lab" element={<RoleRoute roles={["admin"]}><AdminAutomationLab /></RoleRoute>} />
               <Route path="/admin/rules" element={<RoleRoute roles={["admin"]}><AdminRulesManager /></RoleRoute>} />
               <Route path="/admin/badges" element={<RoleRoute roles={["admin"]}><AdminBadges /></RoleRoute>} />
               <Route path="/admin/submissions" element={<RoleRoute roles={["admin"]}><AdminSubmissions /></RoleRoute>} />

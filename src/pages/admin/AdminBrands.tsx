@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { INTERNAL_CREATOR_EMAIL_DOMAIN, isInternalNoSendEmail } from "@/lib/internal-email";
 
 export default function AdminBrands() {
   const { toast } = useToast();
@@ -34,6 +35,14 @@ export default function AdminBrands() {
     // Try to find owner by email via profiles (no auth.users access). Brand owner_user_id can be null until invited user signs up.
     let owner: string | null = null;
     if (ownerEmail.trim()) {
+      if (isInternalNoSendEmail(ownerEmail.trim())) {
+        setBusy(false);
+        return toast({
+          title: "Invalid owner email",
+          description: `Addresses ending in ${INTERNAL_CREATOR_EMAIL_DOMAIN} are simulated-only.`,
+          variant: "destructive",
+        });
+      }
       // Best-effort lookup by full_name? Profiles don't store email. We just send invitation row.
       const { data: { user } } = await supabase.auth.getUser();
       await supabase.from("invitations").insert({ email: ownerEmail.trim(), role: "brand", invited_by: user!.id });

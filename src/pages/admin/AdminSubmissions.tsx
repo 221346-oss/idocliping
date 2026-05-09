@@ -4,6 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -41,6 +43,7 @@ export default function AdminSubmissions() {
   const [appealModal, setAppealModal] = useState<{ appeal: Appeal; mode: "reopen" | "dismiss" } | null>(null);
   const [appealAdminNote, setAppealAdminNote] = useState("");
   const [appealsUnsupported, setAppealsUnsupported] = useState(false);
+  const [showTestSubmissions, setShowTestSubmissions] = useState(false);
 
   const load = async () => {
     const { data } = await supabase
@@ -110,7 +113,7 @@ export default function AdminSubmissions() {
         .select("referrer_id, commission_rate")
         .eq("referred_user_id", row.creator_id)
         .maybeSingle();
-      if (ref) {
+      if (ref && !row.is_test_submission) {
         await supabase.from("earnings").insert({
           creator_id: ref.referrer_id,
           submission_id: row.id,
@@ -196,7 +199,18 @@ export default function AdminSubmissions() {
 
   return (
     <AppLayout>
-      <PageHeader title="Submission review" description="Verify posts, approve payouts, and resolve appeals." />
+      <PageHeader
+        title="Submission review"
+        description="Verify posts, approve payouts, and resolve appeals."
+        actions={
+          <div className="flex items-center gap-2">
+            <Label htmlFor="show-test-sub" className="text-[12px] text-muted-foreground whitespace-nowrap">
+              Show test submissions
+            </Label>
+            <Switch id="show-test-sub" checked={showTestSubmissions} onCheckedChange={setShowTestSubmissions} />
+          </div>
+        }
+      />
       <div className="p-6 space-y-8">
         {!appealsUnsupported && appeals.length > 0 && (
           <div className="border border-border rounded-md overflow-hidden">
@@ -256,7 +270,7 @@ export default function AdminSubmissions() {
           <div className="flex justify-center py-12">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
-        ) : rows.length === 0 ? (
+        ) : rows.filter((r) => showTestSubmissions || !r.is_test_submission).length === 0 ? (
           <div className="text-center text-[13px] text-muted-foreground py-12">No submissions yet.</div>
         ) : (
           <div className="border border-border rounded-md overflow-hidden overflow-x-auto">
@@ -272,9 +286,16 @@ export default function AdminSubmissions() {
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
-                  <tr key={r.id} className="border-t border-border">
-                    <td className="p-3">{r._creatorName ?? "—"}</td>
+                {rows.filter((r) => showTestSubmissions || !r.is_test_submission).map((r) => (
+                  <tr key={r.id} className={cn("border-t border-border", r.is_test_submission && "bg-muted/40")}>
+                    <td className="p-3">
+                      {r._creatorName ?? "—"}
+                      {r.is_test_submission ? (
+                        <span className="ml-2 text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded border border-warning/40 text-warning inline-block align-middle">
+                          sim
+                        </span>
+                      ) : null}
+                    </td>
                     <td className="p-3 max-w-[200px] truncate">{r.campaigns?.title ?? "—"}</td>
                     <td className="p-3">
                       <a

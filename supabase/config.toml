@@ -3,3 +3,15 @@ project_id = "xupstpxwjnkvkyevnrto"
 # Edge Function: call with service role + optional x-cron-secret; schedule in Dashboard → Database → Cron or external scheduler.
 [functions.process-rank-rewards]
 verify_jwt = false
+
+[functions.generate-test-creators]
+verify_jwt = false
+
+[functions.schedule-test-submissions]
+verify_jwt = false
+
+[functions.destroy-test-batch]
+verify_jwt = false
+
+[functions.destroy-all-test-creators]
+verify_jwt = false

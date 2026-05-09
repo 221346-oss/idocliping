@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
@@ -121,7 +122,9 @@ export default function AdminCampaigns() {
             <tbody>
               {rows.map(r => (
                 <tr key={r.id} className="border-t border-border">
-                  <td className="p-3 font-medium">{r.title}</td>
+                  <td className="p-3 font-medium">
+                    <Link to={`/admin/campaigns/${r.id}`} className="hover:underline text-primary">{r.title}</Link>
+                  </td>
                   <td className="p-3">{r.brands?.name ?? "—"}</td>
                   <td className="p-3 capitalize">{r.category}</td>
                   <td className="p-3 text-right">${Number(r.budget_remaining).toFixed(0)} / ${Number(r.budget_total).toFixed(0)}</td>

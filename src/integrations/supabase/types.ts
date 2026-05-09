@@ -238,6 +238,161 @@ export type Database = {
           },
         ]
       }
+      automation_generation_jobs: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          error_detail: string | null
+          id: string
+          kind: string
+          message: string
+          processed: number
+          progress_pct: number
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          error_detail?: string | null
+          id?: string
+          kind?: string
+          message?: string
+          processed?: number
+          progress_pct?: number
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          error_detail?: string | null
+          id?: string
+          kind?: string
+          message?: string
+          processed?: number
+          progress_pct?: number
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      automation_logs: {
+        Row: {
+          details: Json
+          duration_ms: number
+          errors_count: number
+          id: string
+          items_processed: number
+          job_name: string
+          run_at: string
+        }
+        Insert: {
+          details?: Json
+          duration_ms?: number
+          errors_count?: number
+          id?: string
+          items_processed?: number
+          job_name: string
+          run_at?: string
+        }
+        Update: {
+          details?: Json
+          duration_ms?: number
+          errors_count?: number
+          id?: string
+          items_processed?: number
+          job_name?: string
+          run_at?: string
+        }
+        Relationships: []
+      }
+      campaign_test_assignments: {
+        Row: {
+          assigned_at: string
+          campaign_id: string
+          id: string
+          scheduled_submit_at: string
+          submission_id: string | null
+          submission_status: string
+          test_creator_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          campaign_id: string
+          id?: string
+          scheduled_submit_at: string
+          submission_id?: string | null
+          submission_status?: string
+          test_creator_id: string
+        }
+        Update: {
+          assigned_at?: string
+          campaign_id?: string
+          id?: string
+          scheduled_submit_at?: string
+          submission_id?: string | null
+          submission_status?: string
+          test_creator_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_test_assignments_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      internal_creator_flags: {
+        Row: {
+          is_test_creator: boolean
+          test_batch_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          is_test_creator?: boolean
+          test_batch_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          is_test_creator?: boolean
+          test_batch_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      test_creator_batches: {
+        Row: {
+          batch_name: string
+          created_at: string
+          creator_count: number
+          id: string
+          status: string
+        }
+        Insert: {
+          batch_name: string
+          created_at?: string
+          creator_count?: number
+          id?: string
+          status?: string
+        }
+        Update: {
+          batch_name?: string
+          creator_count?: number
+          created_at?: string
+          id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           allowed_niches_pages: string[] | null
@@ -793,8 +948,11 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string
+          category_specialty: Database["public"]["Enums"]["campaign_category"] | null
           created_at: string
+          creator_public_id: string | null
           full_name: string
+          honor_score_override: number | null
           id: string
           job_title: string | null
           profile_hidden: boolean
@@ -805,9 +963,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string
+          category_specialty?: Database["public"]["Enums"]["campaign_category"] | null
           created_at?: string
+          creator_public_id?: string | null
           full_name?: string
           id?: string
+          honor_score_override?: number | null
           job_title?: string | null
           profile_hidden?: boolean
           profile_slug?: string | null
@@ -817,9 +978,12 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string
+          category_specialty?: Database["public"]["Enums"]["campaign_category"] | null
           created_at?: string
+          creator_public_id?: string | null
           full_name?: string
           id?: string
+          honor_score_override?: number | null
           job_title?: string | null
           profile_hidden?: boolean
           profile_slug?: string | null
@@ -986,12 +1150,14 @@ export type Database = {
           created_at: string
           creator_id: string
           id: string
+          is_test_submission: boolean
           manual_views: number
           platform: Database["public"]["Enums"]["social_platform"]
           post_url: string
           reject_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          sim_view_cap: number | null
           status: Database["public"]["Enums"]["submission_status"]
           updated_at: string
         }
@@ -1000,12 +1166,14 @@ export type Database = {
           created_at?: string
           creator_id: string
           id?: string
+          is_test_submission?: boolean
           manual_views?: number
           platform: Database["public"]["Enums"]["social_platform"]
           post_url: string
           reject_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          sim_view_cap?: number | null
           status?: Database["public"]["Enums"]["submission_status"]
           updated_at?: string
         }
@@ -1014,12 +1182,14 @@ export type Database = {
           created_at?: string
           creator_id?: string
           id?: string
+          is_test_submission?: boolean
           manual_views?: number
           platform?: Database["public"]["Enums"]["social_platform"]
           post_url?: string
           reject_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          sim_view_cap?: number | null
           status?: Database["public"]["Enums"]["submission_status"]
           updated_at?: string
         }
@@ -1209,6 +1379,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      alloc_creator_public_ids: {
+        Args: { p_n: number }
+        Returns: string[]
+      }
+      automation_run_grow_manual: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      automation_run_submissions_manual: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      grow_test_creator_views: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      process_scheduled_test_submissions: {
+        Args: Record<string, never>
+        Returns: Json
+      }
       get_cookie_preferences: {
         Args: { p_browser_key: string }
         Returns: {

@@ -17,6 +17,7 @@ import {
   Mail, Trash2, Shield, Send, AlertTriangle, Loader2, Camera, Palette
 } from "lucide-react";
 import { SettingsAppearanceTab } from "./SettingsAppearance";
+import { isInternalNoSendEmail } from "@/lib/internal-email";
 
 // ─── Profile Tab ────────────────────────────────────────────────────────────────
 
@@ -216,6 +217,14 @@ function TeamTab() {
 
   const handleInvite = async () => {
     if (!user || !inviteEmail) return;
+    if (isInternalNoSendEmail(inviteEmail.trim())) {
+      toast({
+        title: "Cannot invite internal address",
+        description: `${inviteEmail.trim()} is reserved for simulated creators.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setSending(true);
     const { error } = await supabase.from("invitations").insert({ email: inviteEmail, role: inviteRole as any, invited_by: user.id });
     setSending(false);
