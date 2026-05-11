@@ -79,6 +79,7 @@ export default {
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
         marker: ["Permanent Marker", "cursive", "sans-serif"],
+        bebas: ["Bebas Neue", "cursive", "sans-serif"],
       },
       fontSize: {
         "2xs": ["0.6875rem", { lineHeight: "1rem" }],
