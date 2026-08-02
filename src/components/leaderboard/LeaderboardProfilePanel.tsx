@@ -79,14 +79,13 @@ export function LeaderboardProfilePanel({
       try {
         const [{ data: prof }, { data: soc }, { data: earnRows }, { data: subs }] = await Promise.all([
           supabase.from("profiles").select("created_at").eq("user_id", entry.creatorId).maybeSingle(),
-          supabase.from("social_accounts").select("platform").eq("user_id", entry.creatorId),
-          supabase
-            .from("earnings")
-            .select("amount, submission_id, submissions(campaign_id)")
-            .eq("creator_id", entry.creatorId)
-            .eq("type", "campaign"),
-          supabase
-            .from("submissions")
+          (supabase as any).from("public_creator_platforms").select("platform").eq("user_id", entry.creatorId),
+          (supabase as any)
+            .from("public_campaign_creator_earnings")
+            .select("amount, campaign_id")
+            .eq("creator_id", entry.creatorId),
+          (supabase as any)
+            .from("public_submissions")
             .select("id, platform, manual_views, status, campaign_id")
             .eq("creator_id", entry.creatorId)
             .order("created_at", { ascending: false })
@@ -96,16 +95,14 @@ export function LeaderboardProfilePanel({
         if (cancelled) return;
 
         setMemberSince(prof?.created_at ? new Date(prof.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" }) : null);
-        setPlatforms([...new Set((soc ?? []).map((s: any) => s.platform))]);
+        setPlatforms([...new Set(((soc ?? []) as any[]).map((s: any) => String(s.platform)))]);
 
         let earned = 0;
         const byCamp = new Map<string, number>();
-        for (const e of earnRows ?? []) {
+        for (const e of ((earnRows ?? []) as any[])) {
           const a = Number((e as any).amount ?? 0);
           earned += a;
-          const sub = (e as any).submissions;
-          const campId =
-            sub?.campaign_id ?? (Array.isArray(sub) ? sub[0]?.campaign_id : undefined);
+          const campId = (e as any).campaign_id as string | undefined;
           if (campId) byCamp.set(campId, (byCamp.get(campId) ?? 0) + a);
         }
         let bestId: string | null = null;
@@ -122,16 +119,21 @@ export function LeaderboardProfilePanel({
           bestTitle = c?.title ?? null;
         }
 
-        const { count: campCount } = await supabase
-          .from("campaign_participants")
-          .select("id", { count: "exact", head: true })
+        const { data: ccRow } = await (supabase as any)
+          .from("public_creator_campaign_counts")
+          .select("campaign_count")
+          .eq("creator_id", entry.creatorId)
+          .maybeSingle();
+        const campCount = Number((ccRow as any)?.campaign_count ?? 0);
+
+        const { data: viewSum } = await (supabase as any)
+          .from("public_submissions")
+          .select("manual_views")
           .eq("creator_id", entry.creatorId);
 
-        const { data: viewSum } = await supabase.from("submissions").select("manual_views").eq("creator_id", entry.creatorId).eq("status", "approved");
+        const views = ((viewSum ?? []) as any[]).reduce((a, r: any) => a + Number(r.manual_views ?? 0), 0);
 
-        const views = (viewSum ?? []).reduce((a, r: any) => a + Number(r.manual_views ?? 0), 0);
-
-        const campIds = [...new Set((subs ?? []).map((s: any) => s.campaign_id).filter(Boolean))];
+        const campIds = [...new Set(((subs ?? []) as any[]).map((s: any) => String(s.campaign_id)).filter(Boolean))];
         const titleById = new Map<string, string>();
         if (campIds.length) {
           const { data: ct } = await supabase.from("campaigns").select("id, title").in("id", campIds);
@@ -146,7 +148,7 @@ export function LeaderboardProfilePanel({
           bestCampaignTitle: bestTitle,
         });
         setRecent(
-          (subs ?? []).map((s: any) => ({
+          ((subs ?? []) as any[]).map((s: any) => ({
             ...s,
             campaignTitle: titleById.get(s.campaign_id) ?? "Campaign",
           })),

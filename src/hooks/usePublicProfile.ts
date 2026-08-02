@@ -78,16 +78,19 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
   const [profileRes, settingsRes, subsRes, earnRes, socialRes, ccRes] = await Promise.all([
     fetchProfileRow(userId),
     supabase.from("creator_profile_settings").select("equipped_avatar_id, equipped_banner_id").eq("user_id", userId).maybeSingle(),
-    supabase
-      .from("submissions")
+    (supabase as any)
+      .from("public_submissions")
       .select(
         "id, campaign_id, manual_views, status, created_at, platform, is_test_submission, campaigns(title)",
       )
       .eq("creator_id", userId)
       .order("created_at", { ascending: false })
       .limit(500),
-    supabase.from("earnings").select("amount").eq("creator_id", userId).eq("type", "campaign"),
-    supabase.from("social_accounts").select("platform").eq("user_id", userId),
+    (supabase as any)
+      .from("public_creator_earnings")
+      .select("lifetime_campaign_earnings")
+      .eq("creator_id", userId),
+    (supabase as any).from("public_creator_platforms").select("platform").eq("user_id", userId),
     supabase.from("creator_cosmetics").select("cosmetic_id").eq("user_id", userId),
   ]);
 
@@ -109,9 +112,9 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
   const bannerUrl =
     (settings?.equipped_banner_id && itemMap.get(settings.equipped_banner_id)?.image_url) || BANNER_FALLBACK;
 
-  const subs = subsRes.data ?? [];
+  const subs = (subsRes.data ?? []) as any[];
   let totalEarnings = 0;
-  for (const e of earnRes.data ?? []) totalEarnings += Number((e as { amount: number }).amount ?? 0);
+  for (const e of ((earnRes.data ?? []) as any[])) totalEarnings += Number((e as any).lifetime_campaign_earnings ?? 0);
 
   const tier = tierFromLifetimeEarningsUsd(totalEarnings);
   const approved = subs.filter((s) => s.status === "approved");
@@ -198,7 +201,7 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
     honorLabelText: hLabel,
     totalEarnings,
     level: honorScore,
-    platforms: [...new Set((socialRes.data ?? []).map((x) => String((x as { platform: string }).platform)))],
+    platforms: [...new Set(((socialRes.data ?? []) as any[]).map((x) => String((x as { platform: string }).platform)))],
     platformViewTotals,
     statistics: {
       totalSubmissions: subs.length,

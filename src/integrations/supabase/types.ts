@@ -358,6 +358,13 @@ export type Database = {
             foreignKeyName: "campaign_test_assignments_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_test_assignments_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
             referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
@@ -787,6 +794,13 @@ export type Database = {
             foreignKeyName: "earnings_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "earnings_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
             referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
@@ -1158,6 +1172,13 @@ export type Database = {
             foreignKeyName: "submission_appeals_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
+            referencedRelation: "public_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submission_appeals_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
             referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
@@ -1419,7 +1440,102 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_campaign_creator_earnings: {
+        Row: {
+          amount: number | null
+          campaign_id: string | null
+          creator_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_campaign_participant_counts: {
+        Row: {
+          campaign_id: string | null
+          participant_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_participants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_creator_campaign_counts: {
+        Row: {
+          campaign_count: number | null
+          creator_id: string | null
+        }
+        Relationships: []
+      }
+      public_creator_earnings: {
+        Row: {
+          creator_id: string | null
+          lifetime_campaign_earnings: number | null
+        }
+        Relationships: []
+      }
+      public_creator_platforms: {
+        Row: {
+          platform: Database["public"]["Enums"]["social_platform"] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      public_submissions: {
+        Row: {
+          campaign_id: string | null
+          created_at: string | null
+          creator_id: string | null
+          id: string | null
+          is_test_submission: boolean | null
+          manual_views: number | null
+          platform: Database["public"]["Enums"]["social_platform"] | null
+          status: Database["public"]["Enums"]["submission_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string | null
+          creator_id?: string | null
+          id?: string | null
+          is_test_submission?: boolean | null
+          manual_views?: number | null
+          platform?: Database["public"]["Enums"]["social_platform"] | null
+          status?: Database["public"]["Enums"]["submission_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string | null
+          creator_id?: string | null
+          id?: string | null
+          is_test_submission?: boolean | null
+          manual_views?: number | null
+          platform?: Database["public"]["Enums"]["social_platform"] | null
+          status?: Database["public"]["Enums"]["submission_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       alloc_creator_public_ids: { Args: { p_n: number }; Returns: string[] }
