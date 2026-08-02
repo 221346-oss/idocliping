@@ -243,11 +243,10 @@ export default function CreatorCampaignDetail() {
       setCommunityLink(campaignCommunity);
 
       // Leaderboard: approved submissions + earnings of type "campaign".
-      const { data: subs } = await supabase
-        .from("submissions")
+      const { data: subs } = await (supabase as any)
+        .from("public_submissions")
         .select("id, creator_id, status")
         .eq("campaign_id", id)
-        .eq("status", "approved")
         .order("created_at", { ascending: false });
 
       const approvedSubs = (subs ?? []) as any[];
@@ -259,11 +258,10 @@ export default function CreatorCampaignDetail() {
       }
 
       const creatorIds = Array.from(new Set(approvedSubs.map((s) => s.creator_id)));
-      const { data: earnings } = await supabase
-        .from("earnings")
-        .select("creator_id, amount, submission_id")
-        .eq("type", "campaign")
-        .in("submission_id", submissionIds);
+      const { data: earnings } = await (supabase as any)
+        .from("public_campaign_creator_earnings")
+        .select("creator_id, amount")
+        .eq("campaign_id", id);
 
       const { data: profiles } = await supabase
         .from("profiles")
