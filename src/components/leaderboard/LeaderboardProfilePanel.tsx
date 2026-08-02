@@ -79,14 +79,13 @@ export function LeaderboardProfilePanel({
       try {
         const [{ data: prof }, { data: soc }, { data: earnRows }, { data: subs }] = await Promise.all([
           supabase.from("profiles").select("created_at").eq("user_id", entry.creatorId).maybeSingle(),
-          supabase.from("social_accounts").select("platform").eq("user_id", entry.creatorId),
-          supabase
-            .from("earnings")
-            .select("amount, submission_id, submissions(campaign_id)")
-            .eq("creator_id", entry.creatorId)
-            .eq("type", "campaign"),
-          supabase
-            .from("submissions")
+          (supabase as any).from("public_creator_platforms").select("platform").eq("user_id", entry.creatorId),
+          (supabase as any)
+            .from("public_campaign_creator_earnings")
+            .select("amount, campaign_id")
+            .eq("creator_id", entry.creatorId),
+          (supabase as any)
+            .from("public_submissions")
             .select("id, platform, manual_views, status, campaign_id")
             .eq("creator_id", entry.creatorId)
             .order("created_at", { ascending: false })
