@@ -72,6 +72,7 @@ export const Display: React.FC<{
       color,
       letterSpacing: "-0.01em",
       textTransform: "uppercase",
+      whiteSpace: "pre-line",
       ...style,
     }}
   >

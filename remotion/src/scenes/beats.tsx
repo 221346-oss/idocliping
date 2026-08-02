@@ -296,8 +296,8 @@ const B08: React.FC = () => (
     <Plate color={C.lime} dir="left" />
     <Center>
       <Pop delay={2} cfg={SLAM as never} from={0.4}>
-        <Display size={250} color={C.ink} style={{ textAlign: "center" }}>
-          SO GET<br />PAID FOR IT
+        <Display size={200} color={C.ink} style={{ textAlign: "center" }}>
+          SO GET<br />PAID<br />FOR IT
         </Display>
       </Pop>
     </Center>
@@ -385,6 +385,10 @@ const B11: React.FC = () => {
             key={i}
             style={{
               position: "absolute",
+              left: "50%",
+              top: "50%",
+              marginLeft: -215,
+              marginTop: -320,
               transform: `translate(${interpolate(s, [0, 1], [0, (i - 1) * 300])}px, ${interpolate(s, [0, 1], [200, (i - 1) * -40])}px) rotate(${interpolate(s, [0, 1], [0, (i - 1) * 7])}deg) scale(${interpolate(s, [0, 1], [0.7, 1])})`,
               opacity: interpolate(s, [0, 0.3], [0, 1], { extrapolateRight: "clamp" }),
               zIndex: i === 1 ? 3 : 1,
@@ -517,7 +521,7 @@ const B18: React.FC = () => (
   <AbsoluteFill style={{ background: C.lime }}>
     <Center>
       <Pop cfg={SLAM as never} from={0.35}>
-        <Display size={300} color={C.ink} style={{ textAlign: "center" }}>THAT’S IT.</Display>
+        <Display size={280} color={C.ink} style={{ textAlign: "center" }}>THAT’S<br />IT.</Display>
       </Pop>
     </Center>
   </AbsoluteFill>
@@ -715,7 +719,7 @@ const B33: React.FC = () => (
   <AbsoluteFill style={{ background: C.ink }}>
     <Center>
       <Wipe dur={8} dir="up">
-        <Display size={300} color={C.white}>GET PAID</Display>
+        <Display size={250} color={C.white}>GET PAID</Display>
       </Wipe>
     </Center>
   </AbsoluteFill>
@@ -841,7 +845,8 @@ const B39: React.FC = () => (
         <Display size={380} color={C.ink}>5%</Display>
       </Pop>
       <Pop delay={5} from={0.7}>
-        <Display size={140} color={C.ink}>OF THEIRS. FOREVER.</Display>
+        <Display size={130} color={C.ink} style={{ textAlign: "center" }}>OF THEIRS.
+FOREVER.</Display>
       </Pop>
     </Center>
   </AbsoluteFill>
@@ -867,7 +872,7 @@ const B41: React.FC = () => (
   <AbsoluteFill style={{ background: C.ink }}>
     <Center style={{ alignItems: "flex-start" }}>
       <Wipe dur={8}>
-        <Display size={250} color={C.grey}>LESS WORK.</Display>
+        <Display size={200} color={C.grey}>LESS WORK.</Display>
       </Wipe>
     </Center>
   </AbsoluteFill>
@@ -877,9 +882,10 @@ const B41: React.FC = () => (
 const B42: React.FC = () => (
   <AbsoluteFill style={{ background: C.ink }}>
     <Center style={{ alignItems: "flex-start", justifyContent: "center" }}>
-      <Display size={250} color={C.grey} style={{ opacity: 0.35 }}>LESS WORK.</Display>
+      <Display size={200} color={C.grey} style={{ opacity: 0.35 }}>LESS WORK.</Display>
       <Wipe dur={8}>
-        <Display size={250} color={C.lime}>MORE RETURNS.</Display>
+        <Display size={200} color={C.lime}>MORE
+RETURNS.</Display>
       </Wipe>
     </Center>
   </AbsoluteFill>

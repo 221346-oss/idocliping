@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
   const p = interpolate(frame, [0, TOTAL_FRAMES], [0, 100], { extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ justifyContent: "flex-end", pointerEvents: "none" }}>
-      <div style={{ height: 6, width: `${p}%`, background: C.lime, mixBlendMode: "difference" }} />
+      <div style={{ height: 6, width: `${p}%`, background: C.white, mixBlendMode: "difference" }} />
       <div
         style={{
           padding: "26px 0 44px",
@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
           fontWeight: 900,
           fontSize: 26,
           letterSpacing: "0.34em",
-          color: C.grey,
+          color: "#6E6E6E",
           mixBlendMode: "difference",
         }}
       >
