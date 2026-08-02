@@ -148,7 +148,7 @@ export function LeaderboardProfilePanel({
           bestCampaignTitle: bestTitle,
         });
         setRecent(
-          (subs ?? []).map((s: any) => ({
+          ((subs ?? []) as any[]).map((s: any) => ({
             ...s,
             campaignTitle: titleById.get(s.campaign_id) ?? "Campaign",
           })),
