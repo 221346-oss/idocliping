@@ -1,32 +1,7 @@
 import React from "react";
-import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
 import { SCENES } from "./scenes/beats";
-import { BEAT_COUNT, BODY, C, TOTAL_FRAMES, beatFrame } from "./theme";
-
-/** Persistent bottom bar: wordmark + beat-accurate progress. */
-const Footer: React.FC = () => {
-  const frame = useCurrentFrame();
-  const p = interpolate(frame, [0, TOTAL_FRAMES], [0, 100], { extrapolateRight: "clamp" });
-  return (
-    <AbsoluteFill style={{ justifyContent: "flex-end", pointerEvents: "none" }}>
-      <div style={{ height: 6, width: `${p}%`, background: C.white, mixBlendMode: "difference" }} />
-      <div
-        style={{
-          padding: "26px 0 44px",
-          textAlign: "center",
-          fontFamily: BODY,
-          fontWeight: 900,
-          fontSize: 26,
-          letterSpacing: "0.34em",
-          color: "#6E6E6E",
-          mixBlendMode: "difference",
-        }}
-      >
-        CLIPPER
-      </div>
-    </AbsoluteFill>
-  );
-};
+import { BEAT_COUNT, C, TOTAL_FRAMES, beatFrame } from "./theme";
 
 export const MainVideo: React.FC = () => {
   let cursor = 0;
@@ -46,7 +21,6 @@ export const MainVideo: React.FC = () => {
           </Sequence>
         );
       })}
-      <Footer />
     </AbsoluteFill>
   );
 };
