@@ -78,16 +78,19 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
   const [profileRes, settingsRes, subsRes, earnRes, socialRes, ccRes] = await Promise.all([
     fetchProfileRow(userId),
     supabase.from("creator_profile_settings").select("equipped_avatar_id, equipped_banner_id").eq("user_id", userId).maybeSingle(),
-    supabase
-      .from("submissions")
+    (supabase as any)
+      .from("public_submissions")
       .select(
         "id, campaign_id, manual_views, status, created_at, platform, is_test_submission, campaigns(title)",
       )
       .eq("creator_id", userId)
       .order("created_at", { ascending: false })
       .limit(500),
-    supabase.from("earnings").select("amount").eq("creator_id", userId).eq("type", "campaign"),
-    supabase.from("social_accounts").select("platform").eq("user_id", userId),
+    (supabase as any)
+      .from("public_creator_earnings")
+      .select("lifetime_campaign_earnings")
+      .eq("creator_id", userId),
+    (supabase as any).from("public_creator_platforms").select("platform").eq("user_id", userId),
     supabase.from("creator_cosmetics").select("cosmetic_id").eq("user_id", userId),
   ]);
 
