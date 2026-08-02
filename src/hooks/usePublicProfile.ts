@@ -112,9 +112,9 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
   const bannerUrl =
     (settings?.equipped_banner_id && itemMap.get(settings.equipped_banner_id)?.image_url) || BANNER_FALLBACK;
 
-  const subs = subsRes.data ?? [];
+  const subs = (subsRes.data ?? []) as any[];
   let totalEarnings = 0;
-  for (const e of earnRes.data ?? []) totalEarnings += Number((e as { amount: number }).amount ?? 0);
+  for (const e of ((earnRes.data ?? []) as any[])) totalEarnings += Number((e as any).lifetime_campaign_earnings ?? 0);
 
   const tier = tierFromLifetimeEarningsUsd(totalEarnings);
   const approved = subs.filter((s) => s.status === "approved");
@@ -201,7 +201,7 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
     honorLabelText: hLabel,
     totalEarnings,
     level: honorScore,
-    platforms: [...new Set((socialRes.data ?? []).map((x) => String((x as { platform: string }).platform)))],
+    platforms: [...new Set(((socialRes.data ?? []) as any[]).map((x) => String((x as { platform: string }).platform)))],
     platformViewTotals,
     statistics: {
       totalSubmissions: subs.length,
