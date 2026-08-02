@@ -95,16 +95,14 @@ export function LeaderboardProfilePanel({
         if (cancelled) return;
 
         setMemberSince(prof?.created_at ? new Date(prof.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" }) : null);
-        setPlatforms([...new Set((soc ?? []).map((s: any) => s.platform))]);
+        setPlatforms([...new Set(((soc ?? []) as any[]).map((s: any) => String(s.platform)))]);
 
         let earned = 0;
         const byCamp = new Map<string, number>();
-        for (const e of earnRows ?? []) {
+        for (const e of ((earnRows ?? []) as any[])) {
           const a = Number((e as any).amount ?? 0);
           earned += a;
-          const sub = (e as any).submissions;
-          const campId =
-            sub?.campaign_id ?? (Array.isArray(sub) ? sub[0]?.campaign_id : undefined);
+          const campId = (e as any).campaign_id as string | undefined;
           if (campId) byCamp.set(campId, (byCamp.get(campId) ?? 0) + a);
         }
         let bestId: string | null = null;
