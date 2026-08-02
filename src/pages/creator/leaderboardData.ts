@@ -26,6 +26,8 @@ export type LeaderboardEntry = {
   lifetimeEarningsUsd: number;
 };
 
+const pubSubs = () => (supabase as any).from("public_submissions");
+
 export async function fetchSubmissionsForScope(
   scope: Scope,
   campaignId: string,
@@ -34,71 +36,44 @@ export async function fetchSubmissionsForScope(
 ): Promise<SubmissionRow[]> {
   if (scope === "campaign") {
     if (!campaignId) return [];
-    const { data, error } = await supabase
-      .from("submissions")
+    const { data, error } = await pubSubs()
       .select("id, creator_id, campaign_id, manual_views, status, created_at, updated_at")
-      .eq("campaign_id", campaignId)
-      .eq("status", "approved");
+      .eq("campaign_id", campaignId);
     if (error) throw error;
     return (data ?? []) as SubmissionRow[];
   }
   if (scope === "platform") {
-    const { data, error } = await supabase
-      .from("submissions")
+    const { data, error } = await pubSubs()
       .select("id, creator_id, campaign_id, manual_views, status, created_at, updated_at")
-      .eq("platform", platformFilter as Enums<"social_platform">)
-      .eq("status", "approved");
+      .eq("platform", platformFilter as Enums<"social_platform">);
     if (error) throw error;
     return (data ?? []) as SubmissionRow[];
   }
   const cat = categoryFilter as Enums<"campaign_category">;
-  const { data, error } = await supabase
-    .from("submissions")
-    .select("id, creator_id, campaign_id, manual_views, status, created_at, updated_at, campaigns!inner(category)")
-    .eq("status", "approved")
-    .eq("campaigns.category", cat);
-  if (!error && data) return (data as any[]).map((s) => ({
-    id: s.id,
-    creator_id: s.creator_id,
-    campaign_id: s.campaign_id,
-    manual_views: s.manual_views,
-    status: s.status,
-    created_at: s.created_at,
-    updated_at: s.updated_at,
-  }));
-  const { data: wide, error: err2 } = await supabase
-    .from("submissions")
-    .select("id, creator_id, campaign_id, manual_views, status, created_at, updated_at, campaigns(category)")
-    .eq("status", "approved");
-  if (err2) throw err2;
-  return ((wide ?? []) as any[])
-    .filter((s) => s.campaigns?.category === cat)
-    .map((s) => ({
-      id: s.id,
-      creator_id: s.creator_id,
-      campaign_id: s.campaign_id,
-      manual_views: s.manual_views,
-      status: s.status,
-      created_at: s.created_at,
-      updated_at: s.updated_at,
-    }));
+  const { data: camps } = await supabase.from("campaigns").select("id").eq("category", cat);
+  const campIds = (camps ?? []).map((c: any) => c.id);
+  if (!campIds.length) return [];
+  const { data, error } = await pubSubs()
+    .select("id, creator_id, campaign_id, manual_views, status, created_at, updated_at")
+    .in("campaign_id", campIds);
+  if (error) throw error;
+  return (data ?? []) as SubmissionRow[];
 }
 
 export async function fetchLifetimeEarningsByCreator(creatorIds: string[]): Promise<Map<string, number>> {
   const map = new Map<string, number>();
   if (!creatorIds.length) return map;
-  const { data, error } = await supabase
-    .from("earnings")
-    .select("creator_id, amount")
-    .eq("type", "campaign")
+  const { data, error } = await (supabase as any)
+    .from("public_creator_earnings")
+    .select("creator_id, lifetime_campaign_earnings")
     .in("creator_id", creatorIds);
   if (error) throw error;
   for (const e of data ?? []) {
-    const id = (e as any).creator_id as string;
-    map.set(id, (map.get(id) ?? 0) + Number((e as any).amount ?? 0));
+    map.set((e as any).creator_id as string, Number((e as any).lifetime_campaign_earnings ?? 0));
   }
   return map;
 }
+
 
 export function buildLeaderboard(
   submissions: SubmissionRow[],
