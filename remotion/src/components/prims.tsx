@@ -306,7 +306,7 @@ export const PlatformGlyph: React.FC<{ kind: "tiktok" | "ig" | "yt" | "x"; size:
     return (
       <svg width={s} height={s} viewBox="0 0 100 100">
         <rect x="6" y="22" width="88" height="56" rx="16" fill={color} />
-        <path d="M42 38 L66 50 L42 62 Z" fill={C.ink} />
+        <path d="M42 38 L66 50 L42 62 Z" fill={C.lime} />
       </svg>
     );
   }
