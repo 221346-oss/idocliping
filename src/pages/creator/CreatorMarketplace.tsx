@@ -40,12 +40,12 @@ export default function CreatorMarketplace() {
       setCampaigns(data ?? []);
       if (data && data.length) {
         const ids = data.map((c: any) => c.id);
-        const { data: parts } = await supabase
-          .from("campaign_participants")
-          .select("campaign_id")
+        const { data: parts } = await (supabase as any)
+          .from("public_campaign_participant_counts")
+          .select("campaign_id, participant_count")
           .in("campaign_id", ids);
         const counts: Record<string, number> = {};
-        (parts ?? []).forEach((p: any) => { counts[p.campaign_id] = (counts[p.campaign_id] ?? 0) + 1; });
+        (parts ?? []).forEach((p: any) => { counts[p.campaign_id] = Number(p.participant_count ?? 0); });
         setParticipantCounts(counts);
       }
       setLoading(false);
