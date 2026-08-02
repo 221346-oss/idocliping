@@ -46,6 +46,7 @@ if (stillFrames.length) {
     puppeteerInstance: browser,
     muted: true,
     concurrency: 2,
+    timeoutInMilliseconds: 180000,
     onProgress: ({ progress }) => {
       if (Math.round(progress * 100) % 20 === 0) console.log("progress", Math.round(progress * 100));
     },
