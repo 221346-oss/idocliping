@@ -119,16 +119,21 @@ export function LeaderboardProfilePanel({
           bestTitle = c?.title ?? null;
         }
 
-        const { count: campCount } = await supabase
-          .from("campaign_participants")
-          .select("id", { count: "exact", head: true })
+        const { data: ccRow } = await (supabase as any)
+          .from("public_creator_campaign_counts")
+          .select("campaign_count")
+          .eq("creator_id", entry.creatorId)
+          .maybeSingle();
+        const campCount = Number((ccRow as any)?.campaign_count ?? 0);
+
+        const { data: viewSum } = await (supabase as any)
+          .from("public_submissions")
+          .select("manual_views")
           .eq("creator_id", entry.creatorId);
 
-        const { data: viewSum } = await supabase.from("submissions").select("manual_views").eq("creator_id", entry.creatorId).eq("status", "approved");
+        const views = ((viewSum ?? []) as any[]).reduce((a, r: any) => a + Number(r.manual_views ?? 0), 0);
 
-        const views = (viewSum ?? []).reduce((a, r: any) => a + Number(r.manual_views ?? 0), 0);
-
-        const campIds = [...new Set((subs ?? []).map((s: any) => s.campaign_id).filter(Boolean))];
+        const campIds = [...new Set(((subs ?? []) as any[]).map((s: any) => String(s.campaign_id)).filter(Boolean))];
         const titleById = new Map<string, string>();
         if (campIds.length) {
           const { data: ct } = await supabase.from("campaigns").select("id, title").in("id", campIds);
