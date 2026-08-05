@@ -18,21 +18,20 @@ type Props = {
 export function EmptyState({ icon: Icon, title, description, actionLabel, actionTo, onAction, className, children }: Props) {
   return (
     <div className={cn("flex flex-col items-center justify-center text-center py-16 px-6 animate-fade-in", className)}>
-      <div className="relative mb-5">
-        <span className="absolute inset-0 rounded-full bg-primary/20 animate-pulse-ring" />
-        <span className="absolute inset-0 rounded-full bg-primary/10" />
-        <div className="relative h-16 w-16 rounded-full border border-border bg-card flex items-center justify-center animate-float">
-          <Icon className="h-7 w-7 text-foreground/80" strokeWidth={1.5} />
+      <div className="relative mb-6">
+        <span className="absolute -inset-4 rounded-full bg-primary/10 blur-2xl" />
+        <div className="relative h-20 w-20 rounded-[28px] border border-border/70 bg-surface-raised flex items-center justify-center">
+          <Icon className="h-8 w-8 text-primary" strokeWidth={1.5} />
         </div>
       </div>
-      <h3 className="text-[15px] font-semibold text-foreground tracking-tight">{title}</h3>
-      {description && <p className="text-[13px] text-muted-foreground mt-1.5 max-w-sm">{description}</p>}
+      <h3 className="text-[17px] font-semibold text-foreground tracking-tight">{title}</h3>
+      {description && <p className="text-[13px] leading-relaxed text-muted-foreground mt-2 max-w-sm">{description}</p>}
       {(actionLabel && (actionTo || onAction)) && (
-        <div className="mt-5">
+        <div className="mt-6">
           {actionTo ? (
-            <Link to={actionTo}><Button size="sm" className="transition-transform hover:scale-105">{actionLabel}</Button></Link>
+            <Link to={actionTo}><Button className="h-11 rounded-full bg-primary text-primary-foreground hover:bg-primary hover:opacity-90 px-6 font-semibold press-scale">{actionLabel}</Button></Link>
           ) : (
-            <Button size="sm" onClick={onAction} className="transition-transform hover:scale-105">{actionLabel}</Button>
+            <Button onClick={onAction} className="h-11 rounded-full bg-primary text-primary-foreground hover:bg-primary hover:opacity-90 px-6 font-semibold press-scale">{actionLabel}</Button>
           )}
         </div>
       )}
@@ -40,3 +39,4 @@ export function EmptyState({ icon: Icon, title, description, actionLabel, action
     </div>
   );
 }
+
