@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { AppLayout } from "@/components/AppLayout";
+import { CreatorShell, PageContainer, PageTitle, DetailHeader } from "@/components/shell/CreatorShell";
+import { UnderlineTabs } from "@/components/ui-kit/Pills";
+import { StatusChip, normalizeStatus } from "@/components/ui-kit/StatusChip";
+import { RowListSkeleton, StatBlockSkeleton } from "@/components/ui-kit/Skeletons";
 import { Film, Megaphone, ArrowLeft, Trash2, Loader2, Info, LayoutDashboard, TrendingUp, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
@@ -59,6 +62,7 @@ export default function CreatorSubmissions() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<SubRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState("campaigns");
 
   const missingAppealsWarned = useRef(false);
 
