@@ -422,13 +422,6 @@ export default function CreatorWallet() {
                       </div>
                     </div>
                   ))}
-                  <ListRow
-                    label="All transactions"
-                    onClick={undefined}
-                    href={undefined}
-                    trailing={<ChevronRight className="h-4 w-4 text-muted-foreground" />}
-                    className={cn("pointer-events-none opacity-0 h-0 py-0")}
-                  />
                 </div>
               )}
 
