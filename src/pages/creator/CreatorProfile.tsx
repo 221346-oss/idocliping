@@ -11,6 +11,8 @@ import { ProfileAchievements } from "@/components/profile/panels/ProfileAchievem
 import { ProfileCosmetics } from "@/components/profile/panels/ProfileCosmetics";
 import { ProfileHonorScore } from "@/components/profile/panels/ProfileHonorScore";
 import { ProfileSavedCampaigns } from "@/components/profile/panels/ProfileSavedCampaigns";
+import { AccountProfileView } from "@/components/profile/AccountProfileView";
+
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { StatBlockSkeleton, RowListSkeleton } from "@/components/ui-kit/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
@@ -73,12 +75,14 @@ export default function CreatorProfile() {
     }
   };
 
+  const isAccountView = isOwnProfile && (!username || username === "me");
+
   return (
     <CreatorShell>
       <PageContainer>
         <PageTitle
           action={
-            isOwnProfile ? (
+            isOwnProfile && !isAccountView ? (
               <Link
                 to="/creator/profile/edit"
                 className="press-scale focus-ring inline-flex h-10 items-center gap-2 rounded-full border border-border/70 bg-surface-raised px-4 text-[14px] font-semibold transition-colors hover:border-border"
@@ -105,6 +109,8 @@ export default function CreatorProfile() {
             title="Profile not found"
             description="Check the link, or open a creator from the leaderboard."
           />
+        ) : isAccountView ? (
+          <AccountProfileView profile={profile} />
         ) : (
           <>
             <div className="surface-card p-4 md:p-5">
@@ -122,3 +128,4 @@ export default function CreatorProfile() {
     </CreatorShell>
   );
 }
+
