@@ -8,12 +8,15 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RoleRoute } from "@/components/RoleRoute";
 import { GeneralRulesGate } from "@/components/GeneralRulesGate";
+import { UsernameGate } from "@/components/auth/UsernameGate";
 
 import Auth from "./pages/Auth";
+import OnboardingUsername from "./pages/OnboardingUsername";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import Analytics from "./pages/Analytics";
+
 
 // Admin (legacy bug tracker stays under /bugs and existing Dashboard becomes admin home)
 import Dashboard from "./pages/Dashboard";
