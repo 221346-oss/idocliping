@@ -39,6 +39,7 @@ import CreatorMarketplace from "./pages/creator/CreatorMarketplace";
 import CreatorCampaignDetail from "./pages/creator/CreatorCampaignDetail";
 import CreatorSubmissions from "./pages/creator/CreatorSubmissions";
 import CreatorWallet from "./pages/creator/CreatorWallet";
+import CreatorTransactions from "./pages/creator/CreatorTransactions";
 import CreatorReferrals from "./pages/creator/CreatorReferrals";
 import CreatorSocial from "./pages/creator/CreatorSocial";
 import CreatorLeaderboard from "./pages/creator/CreatorLeaderboard";
@@ -103,6 +104,7 @@ const App = () => (
               <Route path="/creator/submissions" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
               <Route path="/creator/submissions/:campaignId" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
               <Route path="/creator/wallet" element={<RoleRoute roles={["creator", "user"]}><CreatorWallet /></RoleRoute>} />
+              <Route path="/creator/wallet/transactions" element={<RoleRoute roles={["creator", "user"]}><CreatorTransactions /></RoleRoute>} />
               <Route path="/creator/referrals" element={<RoleRoute roles={["creator", "user"]}><CreatorReferrals /></RoleRoute>} />
               <Route path="/creator/social" element={<RoleRoute roles={["creator", "user"]}><CreatorSocial /></RoleRoute>} />
               <Route path="/creator/support" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportList /></RoleRoute>} />
