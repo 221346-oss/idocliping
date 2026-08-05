@@ -1,119 +1,59 @@
-# Clipper — MVP Plan
+# Clipper Redesign — Mobile-First Creator App
 
-A scope this large needs to be built in phases. This plan covers **Phase 1 (MVP foundation)** so we ship something usable quickly. Later phases (payouts, fraud detection, messaging, mobile, AI) get their own plans once Phase 1 is live.
+A full visual rebuild of the creator experience, modelled on the reference screens you supplied, but carrying your identity: acid lime `#63EC00`, the Clipper name and stacked-clapper mark. Mobile is the source of truth; web is the same system widened.
 
-## Phase 1 Goals
+## What changes
 
-1. Rebrand "Triage" → "Clipper" everywhere (logo text, auth page, sidebar, landing, meta tags). Keep the current visual style.
-2. Add a 3-role system: `admin`, `brand`, `creator` (default for new signups = `creator`).
-3. Role-based dashboards behind one login.
-4. Campaign marketplace + submission flow.
-5. Creator earnings + referral tracking (manual admin verification, no payment processor yet).
-6. Keep the existing bug-tracking system intact, but scoped to admins only (becomes an internal tool inside the admin dashboard).
+### 1. Global design system (done once, used everywhere)
+- **Typography**: Sora for headings/display, Manrope for body. Replaces Geist/Inter/Bebas globally. Big page titles are Sora ~32px semi-bold, left-aligned, no page-header chrome.
+- **Color**: lime `#63EC00` becomes the primary action + active-state + progress color (buttons, filled bottom-nav icon, budget bars, "Eligible/Paid Out" states). Charcoal surface stack: page `#0F0F10`, card `#1B1B1D`, raised `#232326`. Destructive/rejected stays red. All values as HSL tokens in `index.css`; no hardcoded colors in components.
+- **Shape**: radius jumps from 6px to fully rounded — 20px cards, 16px inner rows, pill buttons and pill filter chips. This is the single biggest visual shift toward the reference.
+- **Global interaction layer**: one set of reusable classes/tokens for hover lift, press-scale, focus ring, row-press highlight, and skeleton shimmer — so every page picks them up automatically instead of each page re-inventing them.
+- **Motion**: shared page-enter fade, staggered list-item entry, sheet slide-up, tab underline slide.
 
-## Roles & Routing
+### 2. App shell
+- **Mobile (< 768px)**: fixed floating bottom nav bar — rounded pill container, 4 items: Explore, My Activity, Wallet, Profile. Custom SVG glyphs drawn for Clipper (clapper-lens, flag, wallet, person), inactive = outline muted, active = lime filled. Small dot badge for unread. Content gets bottom padding so nothing hides behind it.
+- **Web (≥ 768px)**: slim top bar — Clipper logo left, Explore / My Activity nav pills centre-left, wallet balance chip, Invite & Earn, notification bell, avatar menu (Profile / Settings / Help / Log Out) on the right. Replaces the current left sidebar for creators. Sidebar stays for admin/brand.
+- Shared page container: max-width, consistent gutters, sticky sub-headers.
 
-```text
-/auth                  → single login (existing)
-/                      → landing (existing, rebranded)
+### 3. Creator pages rebuilt
+- **Explore** (`CreatorMarketplace`): search field, filter-toggle button, horizontally scrolling category pills (All / Music / Logo / Clipping / UGC / Gaming), expandable panel with platform pills + "Sort by", live "N of M campaigns" count. Card = square thumbnail with category tag overlaid bottom-left, title, platform glyph row, bookmark toggle top-right, then `xx% / $budget` on the left and `$rate / 1M` on the right above a thin progress bar. Single column on mobile, 4-up grid on web.
+- **Campaign Details**: header card (thumbnail, title, category), three tabs — **Details** (payout %, rate, platforms, cap per post/profile, min duration, requirements checklist with tick/cross, example videos, available sounds, submission limits table), **Activity** (your earnings, submissions/views/rejected trio, your submission rows), **Leaderboard** (rank medals, masked usernames, submission count, earnings). Sticky bottom action bar: bookmark button + full-width lime "Submit Content".
+- **My Activity**: two tabs — **Campaigns** (filter pills All/Active/Pending/Paid Out; per-campaign card with earnings, progress, "Your Submissions: n") and **Submissions** (filter pills All/Processing/Ineligible/Eligible/Paid Out/Rejected; compact rows on mobile, full data table on web).
+- **Submission Report**: status chip, earnings figure, reason text, Open Post button, next-refresh countdown, delete action when allowed, earnings breakdown (total views / eligible views / rate per 1M / your earnings), campaign details block.
+- **Wallet / My Balance**: balance hero with pending chip, min-withdrawal note, lime Withdraw button (disabled state when under threshold), Lifetime Earnings row, Earn Rewards row, Transactions list with the 30-day-public notice and an "All Transactions" full page.
+- **Referrals**: "Turn your network into earnings" panel with lime gift illustration, referral link copy, commission stats.
+- **Profile**: avatar over card, `@username`, member-since, three stats (money earned / total videos / total views), then grouped rounded list sections — Connected accounts, Referrals, Language/Theme/Notifications, FAQ/Resources/Support, legal links, Login methods, Logout, Delete, app version footer.
+- **Auth + Landing**: restyled onto the same tokens — rounded cards, Sora display, lime CTAs.
 
-After login, redirect by role:
-  admin    → /admin            (current Dashboard becomes admin home)
-  brand    → /brand
-  creator  → /creator          (default for new signups)
-```
+### 4. Functionality alignment (from the reference)
+These behaviours exist in the reference and will be wired to your existing data where it already exists, and shown as read-only/empty where it doesn't yet:
+- Bookmark/save a campaign, surfaced back on Explore and Profile
+- Campaign leaderboard tab with masked usernames
+- Submission status vocabulary standardised to: Processing, Ineligible, Eligible, Rejected, Paid Out
+- Per-submission earnings breakdown and rejection reason
+- Cap per post / cap per profile / min views / min engagement shown on campaign details
+- Withdraw method sheet (PayPal, Gift Card, Prepaid Card, USDT)
 
-A `RoleRoute` wrapper guards each section. Role is read from the existing `user_roles` table (we'll extend the `app_role` enum with `brand` and `creator`).
+No schema or business-logic changes in this pass. If a field the reference shows has no column behind it, it renders as `—` and I'll flag the list at the end so you can decide what to add next.
 
-## Database Changes (migration)
+### 5. Loading + empty states
+Skeletons refreshed to the new card shapes, and every list gets a centred illustrated empty state instead of a bare sentence.
 
-Extend enum + add new tables. No existing tables get destructive changes.
+## Technical notes
+- Tokens live in `src/index.css` and `tailwind.config.ts`; new radius scale, surface tokens, lime state colors, shadow + hover utilities.
+- New `src/components/shell/` — `CreatorShell`, `BottomNav`, `TopNav`, `PageContainer`.
+- New `src/components/brand/icons/` — hand-authored SVG React components for the 4 nav glyphs plus platform glyphs.
+- New shared primitives: `FilterPills`, `CampaignCard`, `StatTrio`, `ProgressRate`, `StatusChip`, `ListSection` / `ListRow`, `SheetPicker`.
+- Creator routes move under the new shell in `App.tsx`; admin/brand keep `AppLayout` until their pass.
+- Font loading swaps to Sora + Manrope in `index.css`.
 
-- `app_role` enum → add `'brand'`, `'creator'` (keep `admin`, `user`).
-- `handle_new_user()` trigger → default new signups to `creator` instead of `user`.
-- New tables:
-  - `brands` — id, name, logo_url, website, owner_user_id (the invited brand account), created_at
-  - `campaigns` — id, brand_id, title, description, instructions, thumbnail_url, category (enum: music/clipping/gaming/logo/ugc/other), platforms (text[]), payout_per_1m_views (numeric), budget_total, budget_remaining, status (draft/active/paused/ended), badges (text[]), created_at, updated_at
-  - `campaign_participants` — id, campaign_id, creator_id, joined_at (creator joins a campaign)
-  - `submissions` — id, campaign_id, creator_id, platform, post_url, manual_views, status (pending/approved/rejected), reject_reason, reviewed_by, reviewed_at, created_at
-  - `social_accounts` — id, user_id, platform (tiktok/instagram/youtube/x), handle, profile_url, verified
-  - `earnings` — id, creator_id, submission_id, amount, type (campaign/referral), created_at
-  - `referrals` — id, referrer_id, referred_user_id, code, commission_rate, created_at
-  - `referral_codes` — id, user_id, code (unique), uses_count
-  - `withdrawal_requests` — id, creator_id, amount, method (paypal/usdt/bank), payout_details (jsonb), status (pending/approved/paid/rejected), notes, created_at
-- Storage bucket: `campaign-assets` (public) for thumbnails.
-- RLS: per project knowledge, team-wide visibility — authenticated users can SELECT most tables; mutations are scoped (creators write own submissions, brands write own campaigns via admin-managed `brands.owner_user_id`, admins manage everything).
+## Order of work
+1. Tokens, fonts, radius, global hover/motion utilities
+2. Custom nav icons + mobile bottom nav + web top nav shell
+3. Shared primitives (cards, pills, chips, list rows)
+4. Explore → Campaign Details → My Activity → Submission Report → Wallet → Referrals → Profile
+5. Auth + Landing
+6. Skeletons, empty states, mobile/web pass at 390px and 1440px
 
-## Pages To Build
-
-### Creator dashboard (`/creator/*`)
-
-- `/creator` — overview: total earnings, campaign balance, referral balance, withdraw CTA, submission history list, simple earnings graph (Recharts).
-- `/creator/campaigns` — marketplace grid of active campaigns (cards with thumbnail, category, budget remaining, CPM, platforms, badges).
-- `/creator/campaigns/:id` — details + Join button + submission form (paste post URL).
-- `/creator/submissions` — table of own submissions with status.
-- `/creator/referrals` — referral code, link, list of referred users, commission earned.
-- `/creator/wallet` — withdrawal request form (PayPal / USDT / Bank), history, min-payout notice.
-- `/creator/social` — connect/list social handles (manual entry for MVP, no OAuth yet).
-
-### Brand dashboard (`/brand/*`) — read-only for MVP
-
-- `/brand` — overview of own brand's campaigns + aggregate stats.
-- `/brand/campaigns` — list of campaigns admin created for this brand.
-- `/brand/campaigns/:id` — view details, submissions, performance. (Approve/reject is admin-only in MVP, brand just views.)
-
-### Admin dashboard (`/admin/*`)
-
-- `/admin` — current Dashboard (KPIs adapted to platform-wide stats).
-- `/admin/brands` — create/edit brands, invite brand owner by email (uses existing `invitations` table; on signup that user gets `brand` role).
-- `/admin/campaigns` — create/edit/approve campaigns on behalf of brands.
-- `/admin/submissions` — review queue: approve/reject, set manual view count, which writes an `earnings` row.
-- `/admin/users` — list, ban, change role.
-- `/admin/withdrawals` — approve/mark paid/reject withdrawal requests.
-- `/admin/bugs` — existing bug system moves under admin (internal tool). Settings/Analytics stay in admin.
-
-## Rebrand Checklist
-
-- `StackedLogo` keeps current 3-rectangle mark.
-- All "Triage" strings → "CLIPPER" (uppercase, tracking 0.08em — same memory rule).
-- Update: `index.html` title/meta, `Landing.tsx`, `Auth.tsx`, `AppSidebar.tsx`, `AppLayout.tsx` mobile header, README.
-- Update memory: `mem://ui/branding-and-logo` to record the new name.
-
-## What Is NOT In Phase 1 (deferred)
-
-These are big enough to be their own phases. We'll plan each separately when we get to it:
-
-- Real payment processing (Stripe/PayPal/crypto) — MVP is manual admin payout marking.
-- OAuth into TikTok/IG/YT/X — MVP uses manual handle entry + manual URL submissions.
-- Automated view tracking, fraud detection, AI moderation — MVP is manual admin entry of view counts.
-- Messaging/chat, notifications system, leaderboard, multi-language, public API, mobile app.
-- Email notifications (we can layer in later via the auth-email-hook + transactional templates).
-
-## Technical Notes
-
-- Reuse existing patterns: `AuthContext`, `ProtectedRoute`, `AppLayout`, shadcn UI, dark theme, square-ish cards.
-- Add a `useRole()` hook reading from `user_roles` (cached in `AuthContext`) and a `<RoleRoute roles={["admin"]}>` wrapper.
-- Sidebar nav items become role-aware (different items rendered for admin/brand/creator).
-- Validate all form inputs with `zod` (per project security rules).
-- Keep the existing bug system tables and pages — just move routes under `/admin/bugs/*`.
-
-## Suggested Build Order (after approval)
-
-1. Migration: extend `app_role` enum, change default role to `creator`, create new tables + RLS + storage bucket.
-2. Rebrand pass (Triage → Clipper).
-3. Role infrastructure: `useRole`, `RoleRoute`, role-based redirect after login, role-aware sidebar.
-4. Creator marketplace + submission flow.
-5. Admin: brands, campaigns CRUD, submission review queue (with manual view count → earnings).
-6. Brand read-only dashboard.
-7. Referral codes + earnings rollup.
-8. Withdrawal requests (manual admin approval).
-9. Move bug tracker under `/admin/bugs`.
-
-## Open Questions Before I Build
-
-1. **Default landing after login for an admin** — keep current Dashboard as `/admin` (recommended) or make a new admin home? /admin
-2. **Brand creation** — confirm: admin creates the brand record AND invites the brand-owner user by email; that invitee signs up and is auto-linked to the brand and given `brand` role. OK? yes 
-3. **Earnings formula** — for MVP: `earnings = (manual_views / 1,000,000) * campaign.payout_per_1m_views`. Confirm? yup
-4. **Min withdrawal threshold + referral commission %** — any default values you want (e.g. $50 min, 5% referral)? I'll pick sensible defaults if you don't care. okay
-
-Once you approve, I'll start with the migration + rebrand in the first build, then work through the order above in follow-up messages so each step is reviewable.
+Admin and brand dashboards keep working unchanged and get the same treatment in a follow-up pass.
