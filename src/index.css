@@ -235,6 +235,32 @@
            transition-colors duration-150 press-scale focus-ring hover:text-foreground hover:bg-accent;
   }
 
+  /* Primary lime pill button */
+  .btn-primary-pill {
+    @apply inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary text-[15px] font-semibold
+           text-primary-foreground transition-opacity press-scale focus-ring hover:opacity-90
+           disabled:pointer-events-none disabled:opacity-40;
+  }
+
+  /* Secondary outline pill button */
+  .btn-outline-pill {
+    @apply inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border/70
+           bg-surface-raised text-[15px] font-semibold text-foreground transition-colors press-scale focus-ring
+           hover:border-border hover:bg-accent disabled:pointer-events-none disabled:opacity-40;
+  }
+
+  /* Sticky bottom action bar (sits above the floating mobile nav) */
+  .sticky-action-bar {
+    @apply fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/90 px-4 pb-[calc(env(safe-area-inset-bottom)+88px)] pt-3 backdrop-blur-xl
+           md:static md:z-auto md:border-0 md:bg-transparent md:px-0 md:pb-0 md:pt-0 md:backdrop-blur-none;
+  }
+
+  /* Thin section divider */
+  .hairline {
+    @apply border-t border-border/60;
+  }
+
+
   /* Shimmering skeleton */
   .skeleton-shimmer {
     @apply relative overflow-hidden bg-surface-raised rounded-2xl;
