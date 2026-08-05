@@ -169,7 +169,7 @@ export default function Auth() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Type your email..."
-                  className="focus-ring h-13 w-full rounded-full border border-border/70 bg-surface-raised py-3.5 pl-11 pr-4 text-[15px] placeholder:text-muted-foreground"
+                  className="focus-ring w-full rounded-full border border-border/70 bg-surface-raised py-3.5 pl-11 pr-4 text-[15px] placeholder:text-muted-foreground"
                   required
                 />
               </div>
