@@ -246,6 +246,18 @@
     animation: shimmer-sweep 1.6s ease-in-out infinite;
   }
 
+  /* Solid skeleton fill (bars, thumbs) */
+  .skeleton-block {
+    @apply relative overflow-hidden bg-surface-raised;
+  }
+  .skeleton-block::after {
+    content: "";
+    @apply absolute inset-0;
+    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.06), transparent);
+    animation: shimmer-sweep 1.6s ease-in-out infinite;
+  }
+
+
   /* Display numerals */
   .display-figure {
     font-family: 'Sora', system-ui, sans-serif;
