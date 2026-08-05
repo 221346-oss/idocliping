@@ -1,34 +1,45 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Search, SlidersHorizontal, Compass, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { AppLayout } from "@/components/AppLayout";
-import { PageHeader } from "@/components/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Compass } from "lucide-react";
-import { CampaignGridSkeleton } from "@/components/Skeletons";
+import { CreatorShell, PageContainer, PageTitle } from "@/components/shell/CreatorShell";
+import { FilterPills, PillOption } from "@/components/ui-kit/Pills";
+import { CampaignCard, CampaignCardData } from "@/components/ui-kit/CampaignCard";
+import { CampaignListSkeleton } from "@/components/ui-kit/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
+import { useSavedCampaigns } from "@/hooks/useSavedCampaigns";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { PLATFORM_GLYPHS } from "@/components/brand/icons/NavGlyphs";
 import { cn } from "@/lib/utils";
 
-const CATEGORIES = ["all", "music", "logo", "clipping", "ugc"] as const;
 const PLATFORMS = ["tiktok", "instagram", "youtube", "x"] as const;
-
-const PLATFORM_LABEL: Record<(typeof PLATFORMS)[number], string> = {
+const PLATFORM_LABEL: Record<string, string> = {
   tiktok: "TikTok",
   instagram: "Instagram",
   youtube: "YouTube",
   x: "X",
 };
 
+const SORTS: PillOption[] = [
+  { value: "newest", label: "Newest" },
+  { value: "payout", label: "Highest payout" },
+  { value: "budget", label: "Biggest budget" },
+];
+
 export default function CreatorMarketplace() {
-  const { user } = useAuth();
-  const [campaigns, setCampaigns] = useState<any[]>([]);
-  const [participantCounts, setParticipantCounts] = useState<Record<string, number>>({});
+  const [campaigns, setCampaigns] = useState<CampaignCardData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState("all");
+  const [query, setQuery] = useState("");
+  const [tab, setTab] = useState("all");
   const [platforms, setPlatforms] = useState<string[]>([...PLATFORMS]);
   const [sort, setSort] = useState("newest");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const { saved } = useSavedCampaigns();
 
   useEffect(() => {
     (async () => {
@@ -37,208 +48,193 @@ export default function CreatorMarketplace() {
         .select("*, brands(name, logo_url)")
         .eq("status", "active")
         .order("created_at", { ascending: false });
-      setCampaigns(data ?? []);
-      if (data && data.length) {
-        const ids = data.map((c: any) => c.id);
-        const { data: parts } = await (supabase as any)
-          .from("public_campaign_participant_counts")
-          .select("campaign_id, participant_count")
-          .in("campaign_id", ids);
-        const counts: Record<string, number> = {};
-        (parts ?? []).forEach((p: any) => { counts[p.campaign_id] = Number(p.participant_count ?? 0); });
-        setParticipantCounts(counts);
-      }
+      setCampaigns((data ?? []) as CampaignCardData[]);
       setLoading(false);
     })();
   }, []);
 
-  const togglePlatform = (p: string) => {
-    setPlatforms((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
-  };
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    campaigns.forEach((c) => c.category && set.add(String(c.category).toLowerCase()));
+    return Array.from(set).sort();
+  }, [campaigns]);
+
+  const tabs: PillOption[] = useMemo(
+    () => [
+      { value: "all", label: "All" },
+      { value: "saved", label: "Bookmarks", count: saved.length || undefined },
+      ...categories.map((c) => ({ value: c, label: c[0].toUpperCase() + c.slice(1) })),
+    ],
+    [categories, saved.length],
+  );
 
   const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
     let list = campaigns.filter((c) => {
-      if (category !== "all" && c.category?.toLowerCase() !== category) return false;
-      const cp = (c.platforms ?? []) as string[];
-      if (cp.length && !cp.some((plat) => platforms.includes(plat.toLowerCase()))) return false;
+      if (tab === "saved" && !saved.includes(c.id)) return false;
+      if (tab !== "all" && tab !== "saved" && String(c.category ?? "").toLowerCase() !== tab) return false;
+      const cp = (Array.isArray(c.platforms) ? (c.platforms as string[]) : []).map((p) => p.toLowerCase());
+      if (cp.length && !cp.some((p) => platforms.includes(p))) return false;
+      if (q && !String(c.title ?? "").toLowerCase().includes(q)) return false;
       return true;
     });
-    if (sort === "newest") list = [...list].sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
-    if (sort === "payout") list = [...list].sort((a, b) => Number(b.payout_per_1m_views) - Number(a.payout_per_1m_views));
-    if (sort === "budget") list = [...list].sort((a, b) => Number(b.budget_remaining) - Number(a.budget_remaining));
+    if (sort === "newest") list = [...list].sort((a, b) => +new Date(b.created_at ?? 0) - +new Date(a.created_at ?? 0));
+    if (sort === "payout")
+      list = [...list].sort((a, b) => Number(b.payout_per_1m_views ?? 0) - Number(a.payout_per_1m_views ?? 0));
+    if (sort === "budget")
+      list = [...list].sort((a, b) => Number(b.budget_remaining ?? 0) - Number(a.budget_remaining ?? 0));
     return list;
-  }, [campaigns, category, platforms, sort]);
+  }, [campaigns, tab, platforms, sort, query, saved]);
 
-  const isNew = (c: any) => {
-    const created = +new Date(c.created_at);
-    return Date.now() - created < 1000 * 60 * 60 * 24 * 7;
+  const togglePlatform = (p: string) =>
+    setPlatforms((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
+
+  const filtersDirty = platforms.length !== PLATFORMS.length || sort !== "newest";
+
+  const resetAll = () => {
+    setTab("all");
+    setPlatforms([...PLATFORMS]);
+    setSort("newest");
+    setQuery("");
   };
 
   return (
-    <AppLayout>
-      <PageHeader
-        title="Explore"
-        description="Active campaigns you can join right now."
-        actions={
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-[12px] text-muted-foreground hidden sm:inline">Sort</span>
-              <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger className="h-8 text-[12px] w-[130px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="payout">Highest payout</SelectItem>
-                  <SelectItem value="budget">Biggest budget</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        }
-      />
+    <CreatorShell>
+      <PageContainer>
+        <PageTitle>Explore</PageTitle>
 
-      <div className="px-6 pt-4">
-        <div className="flex flex-wrap items-center gap-x-1 gap-y-1 border-b border-border pb-2">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setCategory(c)}
-              className={cn(
-                "px-2.5 h-7 text-[11px] capitalize rounded-md border border-transparent -mb-px transition-colors",
-                category === c
-                  ? "border-primary/50 bg-primary/10 text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
-              )}
-            >
-              {c}
-            </button>
-          ))}
-          <span className="h-4 w-px bg-border mx-0.5 shrink-0 hidden sm:block" aria-hidden />
-          <span className="w-full sm:w-auto sm:ml-0 text-[10px] uppercase tracking-wide text-muted-foreground sm:hidden basis-full pt-1">
-            Platforms
-          </span>
-          {PLATFORMS.map((p) => {
-            const on = platforms.includes(p);
-            return (
+        {/* Search + filter trigger */}
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search campaigns"
+              aria-label="Search campaigns"
+              className="h-12 w-full rounded-full border border-border/70 bg-surface-raised pl-11 pr-10 text-[15px] text-foreground placeholder:text-muted-foreground focus-ring transition-colors hover:border-border"
+            />
+            {query && (
               <button
-                key={p}
                 type="button"
-                onClick={() => togglePlatform(p)}
-                className={cn(
-                  "px-2 h-7 text-[11px] rounded-full border transition-colors shrink-0",
-                  on
-                    ? "border-primary/60 bg-primary/10 text-foreground"
-                    : "border-border text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground",
-                )}
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:text-foreground press-scale focus-ring"
               >
-                {PLATFORM_LABEL[p]}
+                <X className="h-4 w-4" />
               </button>
-            );
-          })}
-          <span className="text-[12px] text-muted-foreground ml-auto whitespace-nowrap">
-            {filtered.length} of {campaigns.length} campaigns
-          </span>
-        </div>
-      </div>
+            )}
+          </div>
 
-      <div className="p-6 pt-4">
-        {loading ? (
-          <CampaignGridSkeleton count={8} />
-        ) : filtered.length === 0 ? (
-          <EmptyState
-            icon={Compass}
-            title={campaigns.length === 0 ? "No campaigns live yet" : "No matches found"}
-            description={
-              campaigns.length === 0
-                ? "New campaigns drop regularly. Check back soon — or follow your favorite brands to get notified."
-                : "Try clearing a filter or switching categories to discover more campaigns."
-            }
-            actionLabel={campaigns.length === 0 ? undefined : "Reset filters"}
-            onAction={
-              campaigns.length === 0 ? undefined : () => { setCategory("all"); setPlatforms([...PLATFORMS]); }
-            }
-          />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
-            {filtered.map((c) => {
-              const used =
-                Number(c.budget_total) > 0
-                  ? Math.min(
-                      100,
-                      Math.round(
-                        ((Number(c.budget_total) - Number(c.budget_remaining)) / Number(c.budget_total)) * 100,
-                      ),
-                    )
-                  : 0;
-              return (
-                <div
-                  key={c.id}
-                  className="border border-border rounded-md bg-card overflow-hidden flex flex-col transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 animate-scale-in"
-                >
-                  <div className="p-3">
-                    <div className="flex gap-3">
-                      <div className="w-24 h-24 shrink-0 bg-muted rounded relative overflow-hidden">
-                        {c.thumbnail_url ? (
-                          <img src={c.thumbnail_url} alt={c.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[9px] text-muted-foreground uppercase tracking-wide px-1 text-center">
-                            {c.category}
-                          </div>
-                        )}
-                        <div className="absolute bottom-1 left-1 flex gap-1 items-start max-w-[calc(100%-8px)] pointer-events-none">
-                          {c.category && (
-                            <span className="text-[6.5px] leading-tight uppercase tracking-wider px-1 py-[1px] rounded-sm font-medium bg-background/90 text-muted-foreground border border-border/90">
-                              {c.category}
-                            </span>
-                          )}
-                          {isNew(c) && (
-                            <span className="text-[6.5px] leading-tight uppercase tracking-wider px-1 py-[1px] rounded-sm font-medium bg-primary/25 text-primary border border-primary/50">
-                              New
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <h3 className="text-[14px] font-semibold leading-tight line-clamp-2">{c.title}</h3>
-                        <div className="space-y-1 text-[11px]">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Creators</span>
-                            <span className="font-medium">{participantCounts[c.id] ?? 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Budget</span>
-                            <span className="font-medium">${Number(c.budget_total).toFixed(0)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Budget Used</span>
-                            <span className="font-medium">{used}%</span>
-                          </div>
-                        </div>
-                        <div className="h-1 bg-muted rounded overflow-hidden">
-                          <div className="h-full bg-primary" style={{ width: `${used}%` }} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="border-t border-border p-3 flex items-center justify-between mt-auto">
-                    <div>
-                      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Rate per 1M Views</div>
-                      <div className="text-[15px] font-semibold">${Number(c.payout_per_1m_views).toFixed(2)}</div>
-                    </div>
-                    <Link to={`/creator/campaigns/${c.id}`}>
-                      <Button size="sm" className="h-8 text-[12px]">
-                        Details
-                      </Button>
-                    </Link>
+          <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                aria-label="Filters"
+                className={cn("icon-pill h-12 w-12 shrink-0", filtersDirty && "text-primary")}
+              >
+                <SlidersHorizontal className="h-[18px] w-[18px]" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="rounded-t-3xl border-border/70 bg-surface pb-8">
+              <SheetHeader className="text-left">
+                <SheetTitle className="font-display text-[20px]">Filters</SheetTitle>
+              </SheetHeader>
+
+              <div className="mt-5 space-y-6">
+                <div>
+                  <div className="mb-2.5 text-[13px] font-semibold text-muted-foreground">Platforms</div>
+                  <div className="flex flex-wrap gap-2">
+                    {PLATFORMS.map((p) => {
+                      const Glyph = PLATFORM_GLYPHS[p];
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          data-active={platforms.includes(p)}
+                          onClick={() => togglePlatform(p)}
+                          className="chip"
+                        >
+                          {Glyph && <Glyph size={15} />}
+                          {PLATFORM_LABEL[p]}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </AppLayout>
+
+                <div>
+                  <div className="mb-2.5 text-[13px] font-semibold text-muted-foreground">Sort by</div>
+                  <div className="flex flex-wrap gap-2">
+                    {SORTS.map((s) => (
+                      <button
+                        key={s.value}
+                        type="button"
+                        data-active={sort === s.value}
+                        onClick={() => setSort(s.value)}
+                        className="chip"
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={resetAll}
+                    className="h-12 flex-1 rounded-full border border-border text-[15px] font-semibold press-scale focus-ring transition-colors hover:bg-accent"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFiltersOpen(false)}
+                    className="h-12 flex-1 rounded-full bg-primary text-[15px] font-semibold text-primary-foreground press-scale focus-ring transition-opacity hover:opacity-90"
+                  >
+                    Show {filtered.length}
+                  </button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        <FilterPills className="mt-3.5" options={tabs} value={tab} onChange={setTab} />
+
+        <div className="mt-4">
+          {loading ? (
+            <CampaignListSkeleton count={6} />
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              icon={Compass}
+              title={
+                tab === "saved" && saved.length === 0
+                  ? "No bookmarks yet"
+                  : campaigns.length === 0
+                    ? "No campaigns live yet"
+                    : "No matches found"
+              }
+              description={
+                tab === "saved" && saved.length === 0
+                  ? "Tap the bookmark icon on a campaign to keep it here for later."
+                  : campaigns.length === 0
+                    ? "New campaigns drop regularly — check back soon."
+                    : "Try clearing a filter or switching category."
+              }
+              actionLabel={campaigns.length === 0 ? undefined : "Reset filters"}
+              onAction={campaigns.length === 0 ? undefined : resetAll}
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {filtered.map((c, i) => (
+                <CampaignCard key={c.id} campaign={c} index={i} />
+              ))}
+            </div>
+          )}
+        </div>
+      </PageContainer>
+    </CreatorShell>
   );
 }
