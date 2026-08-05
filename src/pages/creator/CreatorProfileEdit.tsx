@@ -1,56 +1,91 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { AppLayout } from "@/components/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/CreatorShell";
 import { useToast } from "@/hooks/use-toast";
-import { slugifyDisplayName } from "@/lib/profile-slug";
-import { ArrowLeft, Loader2 } from "lucide-react";
-function CreatorProfileEditInner() {
-  const { user, refreshProfile } = useAuth();
+import { Loader2, Camera } from "lucide-react";
+
+export default function CreatorProfileEdit() {
+  const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const fileRef = useRef<HTMLInputElement>(null);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
-  const [slug, setSlug] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+
+  const username = profile?.profile_slug ?? "";
 
   useEffect(() => {
     if (!user) return;
-    (async () => {
-      const { data, error } = await supabase.from("profiles").select("full_name, bio, profile_slug").eq("user_id", user.id).maybeSingle();
+    void (async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("full_name, bio, avatar_url")
+        .eq("user_id", user.id)
+        .maybeSingle();
       if (error) {
         toast({ title: "Could not load profile", description: error.message, variant: "destructive" });
       } else if (data) {
         setFullName(data.full_name ?? "");
         setBio((data as { bio?: string }).bio ?? "");
-        setSlug((data as { profile_slug?: string | null }).profile_slug ?? "");
+        setAvatarUrl(data.avatar_url ?? "");
       }
       setLoading(false);
     })();
   }, [user, toast]);
+
+  const onPickFile = async (file: File | undefined) => {
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Pick an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image too large", description: "Max 5 MB", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      setAvatarUrl(data.publicUrl);
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: data.publicUrl, updated_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast({ title: "Photo updated" });
+    } catch (err) {
+      toast({
+        title: "Upload failed",
+        description: err instanceof Error ? err.message : "",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
     try {
-      const name = fullName.trim() || "Creator";
-      let nextSlug = slug.trim().toLowerCase() || slugifyDisplayName(name);
-      const { data: clash } = await supabase.from("profiles").select("user_id").eq("profile_slug", nextSlug).neq("user_id", user.id).maybeSingle();
-      if (clash) nextSlug = `${nextSlug}-${user.id.slice(0, 6)}`;
-
       const { error } = await supabase
         .from("profiles")
         .update({
-          full_name: name,
+          full_name: fullName.trim() || "Creator",
           bio: bio.slice(0, 500),
-          profile_slug: nextSlug,
           updated_at: new Date().toISOString(),
         })
         .eq("user_id", user.id);
@@ -58,85 +93,96 @@ function CreatorProfileEditInner() {
       await refreshProfile();
       toast({ title: "Profile saved" });
       navigate("/profile/me");
-    } catch (err: unknown) {
+    } catch (err) {
       toast({ title: "Save failed", description: err instanceof Error ? err.message : "", variant: "destructive" });
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      </AppLayout>
-    );
-  }
+  const initial = (fullName || username || "?").trim().charAt(0).toUpperCase();
 
   return (
-    <AppLayout>
-      <div className="flex flex-col h-full max-w-xl mx-auto w-full px-4 py-4">
-        <Button variant="ghost" size="sm" className="h-8 w-fit mb-4 -ml-2" asChild>
-          <Link to="/profile/me">
-            <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back to profile
-          </Link>
-        </Button>
-        <h1 className="text-[15px] font-semibold mb-1">Edit profile</h1>
-        <p className="text-[12px] text-muted-foreground mb-6">
-          Update how you appear on your public profile. Avatar and banner cosmetics are in{" "}
-          <Link to="/settings?tab=appearance" className="text-primary underline">
-            Settings → Appearance
-          </Link>
-          .
-        </p>
+    <CreatorShell>
+      <PageContainer className="max-w-[560px]">
+        <DetailHeader title="Edit profile" onBack={() => navigate("/profile/me")} />
 
-        <form onSubmit={(e) => void save(e)} className="space-y-4">
-          <div className="space-y-1">
-            <Label className="text-[12px]">Display name</Label>
-            <Input value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-9 text-[13px]" maxLength={80} required />
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
-          <div className="space-y-1">
-            <Label className="text-[12px]">Profile URL slug</Label>
-            <Input
-              value={slug}
-              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-              placeholder="your-name"
-              className="h-9 text-[13px] font-mono"
-              maxLength={48}
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Others can open your public profile at /profile/[your-slug] (or from the leaderboard). Letters, numbers, dashes only.
-            </p>
-          </div>
-          <div className="space-y-1">
-            <Label className="text-[12px]">Bio</Label>
-            <Textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 500))} className="min-h-[140px] text-[13px]" placeholder="Tell visitors about your content" />
-            <p className="text-[11px] text-muted-foreground text-right">{bio.length}/500</p>
-          </div>
-
-          <div className="rounded-md border border-border bg-muted/20 p-3 space-y-2 text-[12px]">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Account</p>
-            <div className="flex justify-between gap-2">
-              <span className="text-muted-foreground">User ID</span>
-              <span className="font-mono text-[11px] truncate max-w-[180px]">{user?.id}</span>
+        ) : (
+          <form onSubmit={(e) => void save(e)} className="space-y-4 pb-8">
+            <div className="surface-card flex flex-col items-center gap-3 p-6">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="press-scale focus-ring relative rounded-full"
+                aria-label="Change profile photo"
+              >
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="" className="h-24 w-24 rounded-full object-cover" />
+                ) : (
+                  <span className="flex h-24 w-24 items-center justify-center rounded-full bg-primary text-[32px] font-semibold text-primary-foreground">
+                    {initial}
+                  </span>
+                )}
+                <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-card bg-surface-raised">
+                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+                </span>
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => void onPickFile(e.target.files?.[0])}
+              />
+              <p className="text-[13px] text-muted-foreground">Tap the photo to upload a new one</p>
             </div>
-          </div>
 
-          <div className="flex flex-wrap gap-2 pt-2">
-            <Button type="submit" disabled={saving} className="h-9 text-[13px]">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            <div className="surface-card space-y-4 p-5">
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-medium text-muted-foreground">Username</label>
+                <div className="flex h-12 items-center rounded-2xl border border-border/60 bg-surface-raised px-4 text-[15px] text-muted-foreground">
+                  @{username || "—"}
+                </div>
+                <p className="text-[12px] text-muted-foreground">Usernames are permanent and can’t be changed.</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-medium text-muted-foreground">Display name</label>
+                <input
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  maxLength={80}
+                  required
+                  className="focus-ring h-12 w-full rounded-2xl border border-border/60 bg-surface-raised px-4 text-[15px]"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[13px] font-medium text-muted-foreground">Bio</label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value.slice(0, 500))}
+                  placeholder="Tell visitors about your content"
+                  className="focus-ring min-h-[132px] w-full rounded-2xl border border-border/60 bg-surface-raised px-4 py-3 text-[15px]"
+                />
+                <p className="text-right text-[12px] text-muted-foreground">{bio.length}/500</p>
+              </div>
+            </div>
+
+            <button type="submit" disabled={saving} className="btn-primary-pill">
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Save changes
-            </Button>
-            <Button type="button" variant="outline" className="h-9 text-[13px]" asChild>
-              <Link to="/settings?tab=appearance">Appearance</Link>
-            </Button>
-          </div>
-        </form>
-      </div>
-    </AppLayout>
+            </button>
+            <Link to="/settings?tab=appearance" className="btn-outline-pill">
+              Appearance &amp; cosmetics
+            </Link>
+          </form>
+        )}
+      </PageContainer>
+    </CreatorShell>
   );
 }
-
-export default CreatorProfileEditInner;

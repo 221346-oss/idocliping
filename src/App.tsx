@@ -69,9 +69,12 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <GeneralRulesGate />
+            <UsernameGate />
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/onboarding/username" element={<ProtectedRoute><OnboardingUsername /></ProtectedRoute>} />
               <Route path="/" element={<Index />} />
+
 
               {/* Shared (any signed-in role) */}
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
