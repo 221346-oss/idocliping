@@ -25,7 +25,7 @@ type ReportRow = {
   created_at: string;
   reject_reason: string | null;
   earnings?: { amount: number; created_at: string }[];
-  campaigns?: { id: string; title: string; thumbnail_url: string | null; rate_per_1000_views?: number | null } | null;
+  campaigns?: { id: string; title: string; thumbnail_url: string | null; payout_per_1m_views?: number | null } | null;
 };
 
 const STATUS_COPY: Record<string, string> = {
@@ -50,7 +50,7 @@ export default function CreatorSubmissionReport() {
     void (async () => {
       const { data } = await supabase
         .from("submissions")
-        .select("*, earnings(amount, created_at), campaigns(id, title, thumbnail_url, rate_per_1000_views)")
+        .select("*, earnings(amount, created_at), campaigns(id, title, thumbnail_url, payout_per_1m_views)")
         .eq("id", id)
         .eq("creator_id", user.id)
         .maybeSingle();
@@ -67,7 +67,7 @@ export default function CreatorSubmissionReport() {
   const status = normalizeStatus(row?.status);
   const earned = (row?.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0);
   const views = Number(row?.manual_views ?? 0);
-  const rate = Number(row?.campaigns?.rate_per_1000_views ?? 0);
+  const rate = Number(row?.campaigns?.payout_per_1m_views ?? 0);
 
   return (
     <CreatorShell>
@@ -113,7 +113,7 @@ export default function CreatorSubmissionReport() {
               <ListSection title="Performance">
                 <div className="px-4 py-1">
                   <DataRow label="Views counted" value={views.toLocaleString()} />
-                  <DataRow label="Rate" value={rate ? `$${rate.toFixed(2)} / 1K views` : "—"} />
+                  <DataRow label="Rate" value={rate ? `$${rate.toFixed(2)} / 1M views` : "—"} />
                   <DataRow label="Platform" value={PLATFORM_LABEL[row.platform] ?? row.platform} />
                   <DataRow label="Submitted" value={new Date(row.created_at).toLocaleDateString()} />
                 </div>
