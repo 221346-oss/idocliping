@@ -343,8 +343,8 @@ export default function CreatorWallet() {
             <RowListSkeleton count={4} />
           </div>
         ) : (
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
-            <div className="space-y-4">
+          <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
+            <div className="min-w-0 space-y-4">
               {/* Balance */}
               <section className="surface-card relative overflow-hidden p-5">
                 <div className="pointer-events-none absolute -right-10 -top-12 h-36 w-36 rounded-full bg-primary/20 blur-3xl" />
@@ -377,7 +377,7 @@ export default function CreatorWallet() {
             </div>
 
             {/* Transactions */}
-            <section className="space-y-2">
+            <section className="min-w-0 space-y-2">
               <div className="flex items-center justify-between px-1">
                 <h2 className="font-display text-[15px] font-semibold">Recent activity</h2>
                 {requests.length > recent.length && (

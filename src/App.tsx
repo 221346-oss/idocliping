@@ -37,6 +37,7 @@ import AdminCampaignDetail from "./pages/admin/AdminCampaignDetail";
 
 import CreatorMarketplace from "./pages/creator/CreatorMarketplace";
 import CreatorCampaignDetail from "./pages/creator/CreatorCampaignDetail";
+import CreatorSubmissionReport from "./pages/creator/CreatorSubmissionReport";
 import CreatorSubmissions from "./pages/creator/CreatorSubmissions";
 import CreatorWallet from "./pages/creator/CreatorWallet";
 import CreatorTransactions from "./pages/creator/CreatorTransactions";
@@ -102,6 +103,7 @@ const App = () => (
               <Route path="/creator/profile/edit" element={<RoleRoute roles={["creator", "user"]}><CreatorProfileEdit /></RoleRoute>} />
               <Route path="/creator/profile/:username" element={<ProtectedRoute><CreatorProfile /></ProtectedRoute>} />
               <Route path="/creator/submissions" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
+              <Route path="/creator/submissions/report/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissionReport /></RoleRoute>} />
               <Route path="/creator/submissions/:campaignId" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
               <Route path="/creator/wallet" element={<RoleRoute roles={["creator", "user"]}><CreatorWallet /></RoleRoute>} />
               <Route path="/creator/wallet/transactions" element={<RoleRoute roles={["creator", "user"]}><CreatorTransactions /></RoleRoute>} />
