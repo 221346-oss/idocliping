@@ -158,29 +158,39 @@ export default function CreatorSubmissions() {
 
   const totalEarnings = rows.reduce((acc, r) => acc + (r.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0), 0);
 
-  return (
-    <AppLayout>
-      <div className="flex flex-col h-full bg-background overflow-hidden">
-        {/* Header */}
-        <div className="px-4 md:px-6 h-11 border-b border-border flex items-center shrink-0">
-          <h1 className="text-[13px] font-medium uppercase tracking-tight">My Submissions</h1>
-        </div>
+  const allSubmissions = rows;
 
-        <div className="flex-1 overflow-auto">
-          {loading ? (
-            <div className="flex flex-col md:flex-row h-full">
-              <div className="md:w-44 shrink-0 border-b md:border-b-0 md:border-r border-border p-1.5 space-y-1">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="h-7 w-full" />
-                ))}
-              </div>
-              <div className="flex-1 p-6 space-y-6">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-56 w-full sm:w-72" />
-                <TableSkeleton rows={4} cols={5} />
-              </div>
-            </div>
-          ) : campaignList.length === 0 ? (
+  if (!isOverview && active) {
+    return (
+      <CreatorShell>
+        <PageContainer>
+          <DetailHeader title={active.campaign.title} onBack={() => navigate("/creator/submissions")} />
+          <div className="animate-fade-in pb-4">
+            <CampaignSubmissionsView
+              active={active}
+              payoutStatus={payoutStatus}
+              earningsForCampaign={earningsForCampaign}
+              onAppealSubmitted={loadRows}
+              onReload={() => loadRows()}
+            />
+          </div>
+        </PageContainer>
+      </CreatorShell>
+    );
+  }
+
+  return (
+    <CreatorShell>
+      <PageContainer>
+        <PageTitle>My Activity</PageTitle>
+
+        {loading ? (
+          <div className="space-y-4">
+            <StatBlockSkeleton />
+            <RowListSkeleton count={5} />
+          </div>
+        ) : campaignList.length === 0 ? (
+          <div className="surface-card">
             <EmptyState
               icon={Film}
               title="Your submissions will appear here"
@@ -188,176 +198,118 @@ export default function CreatorSubmissions() {
               actionLabel="Find a campaign"
               actionTo="/creator/campaigns"
             />
-          ) : (
-            <div className="flex flex-col md:flex-row h-full">
-              {/* Left Sidebar */}
-              <div className="md:w-44 shrink-0 border-b md:border-b-0 md:border-r border-border overflow-y-auto">
-                <div className="flex md:flex-col p-1.5 gap-px">
-                  {/* Overview Item */}
-                  <button
-                    onClick={() => navigate("/creator/submissions/overview")}
+          </div>
+        ) : (
+          <>
+            <div className="surface-card grid grid-cols-3 divide-x divide-border/60 overflow-hidden">
+              {[
+                { label: "Total earned", value: `$${totalEarnings.toFixed(2)}`, accent: true },
+                { label: "Campaigns", value: String(campaignList.length) },
+                { label: "Submissions", value: String(allSubmissions.length) },
+              ].map((s) => (
+                <div key={s.label} className="min-w-0 px-3 py-4 text-center">
+                  <div
                     className={cn(
-                      "flex items-center gap-1.5 text-[12px] h-7 px-2 rounded-sm w-full justify-start whitespace-nowrap transition-colors",
-                      isOverview ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                      "display-figure truncate text-[20px] leading-none",
+                      s.accent && "text-primary",
                     )}
                   >
-                    <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
-                    <span>Overview</span>
-                  </button>
-
-                  <div className="my-1 border-t border-border/50 md:block hidden" />
-
-                  {/* Campaign Items */}
-                  {campaignList.map(({ campaign, submissions }) => {
-                    const isActive = campaign.id === activeId;
-                    return (
-                      <button
-                        key={campaign.id}
-                        type="button"
-                        onClick={() => navigate(`/creator/submissions/${campaign.id}`)}
-                        className={cn(
-                          "flex items-center gap-1.5 text-[12px] h-7 px-2 rounded-sm w-full justify-start whitespace-nowrap transition-colors",
-                          isActive ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
-                        )}
-                      >
-                        <Megaphone className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate">{campaign.title}</span>
-                        <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">{submissions.length}</span>
-                      </button>
-                    );
-                  })}
+                    {s.value}
+                  </div>
+                  <div className="mt-1.5 truncate text-[12px] text-muted-foreground">{s.label}</div>
                 </div>
-              </div>
-
-              {/* Content Panel */}
-              <div className="flex-1 min-w-0 overflow-y-auto">
-                <div className="p-4 md:p-6 max-w-6xl mx-auto">
-                  {isOverview ? (
-                    <SubmissionsOverview 
-                      campaignList={campaignList} 
-                      totalEarnings={totalEarnings} 
-                      earningsForCampaign={earningsForCampaign}
-                      payoutStatus={payoutStatus}
-                      navigate={navigate}
-                    />
-                  ) : active ? (
-                    <div className="animate-fade-in pb-10">
-                      <CampaignSubmissionsView
-                        active={active}
-                        payoutStatus={payoutStatus}
-                        earningsForCampaign={earningsForCampaign}
-                        onAppealSubmitted={loadRows}
-                        onReload={() => loadRows()}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              </div>
+              ))}
             </div>
-          )}
-        </div>
-      </div>
-    </AppLayout>
-  );
-}
 
-function SubmissionsOverview({ 
-  campaignList, 
-  totalEarnings, 
-  earningsForCampaign,
-  payoutStatus,
-  navigate
-}: { 
-  campaignList: { campaign: any; submissions: SubRow[] }[],
-  totalEarnings: number,
-  earningsForCampaign: (subs: SubRow[]) => number,
-  payoutStatus: (subs: SubRow[], status: string) => { label: string; tone: "success" | "warning", icon: any },
-  navigate: any
-}) {
-  return (
-    <div className="space-y-8 animate-fade-in pb-20">
-      {/* Total Earnings Stats - Dashboard Style */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-border rounded-md overflow-hidden border border-border">
-        <div className="bg-background p-4">
-          <p className="text-[12px] text-muted-foreground">Total Earnings</p>
-          <div className="flex items-baseline gap-1.5 mt-1">
-            <p className="text-2xl font-medium text-primary">${totalEarnings.toFixed(2)}</p>
-          </div>
-          <p className="text-[10px] text-muted-foreground/60 mt-1 flex items-center gap-1">
-            <TrendingUp className="h-3 w-3" /> Lifetime earnings
-          </p>
-        </div>
-        <div className="bg-background p-4">
-          <p className="text-[12px] text-muted-foreground">Active Tracks</p>
-          <p className="text-2xl font-medium mt-1">{campaignList.filter(c => c.campaign.status === "active").length}</p>
-        </div>
-        <div className="bg-background p-4">
-          <p className="text-[12px] text-muted-foreground">Participated</p>
-          <p className="text-2xl font-medium mt-1">{campaignList.length}</p>
-        </div>
-      </div>
+            <UnderlineTabs
+              className="mt-5"
+              value={tab}
+              onChange={setTab}
+              options={[
+                { value: "campaigns", label: "Campaigns", count: campaignList.length },
+                { value: "submissions", label: "Submissions", count: allSubmissions.length },
+              ]}
+            />
 
-      {/* Campaigns Rich Cards Grid */}
-      <div className="space-y-4">
-        <h3 className="text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground/70 px-1">Campaign Earnings Breakdown</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {campaignList.map(({ campaign, submissions }) => {
-            const earnings = earningsForCampaign(submissions);
-            const { label, tone, icon: StatusIcon } = payoutStatus(submissions, campaign.status);
-            const ended = campaign.status === "completed" || campaign.status === "ended";
-            const thumbnail = campaign.thumbnail_url || "/marketing-campaign-banner-fallback.svg";
-            
-            return (
-              <div 
-                key={campaign.id} 
-                onClick={() => navigate(`/creator/submissions/${campaign.id}`)}
-                className="group bg-card border border-border rounded-lg p-2.5 space-y-3 hover:border-primary/50 transition-all cursor-pointer flex flex-col shadow-sm"
-              >
-                {/* Thumbnail Area - Shorter for compactness */}
-                <div className="relative aspect-video w-full rounded-md overflow-hidden shrink-0">
-                  <img src={thumbnail} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-black/20" />
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                    <span className="bg-primary px-3 py-1 rounded-full text-[9px] font-bold text-black shadow-lg uppercase tracking-wider">
-                      {campaign.category || "General"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Title - Smaller font */}
-                <div className="px-1 text-center">
-                  <h4 className="text-[13px] font-bold text-foreground leading-tight line-clamp-1">
-                    {campaign.title}
-                  </h4>
-                </div>
-
-                {/* Earnings Box - Compact version */}
-                <div className="bg-muted/30 rounded-md p-3 flex flex-col items-center justify-center space-y-0.5 flex-1 border border-border/40">
-                  <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">Earnings</p>
-                  <p className="text-[20px] font-black text-foreground">${earnings.toFixed(2)}</p>
-                  <div className={cn(
-                    "flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider",
-                    tone === "success" ? "text-primary" : "text-warning"
-                  )}>
-                    <StatusIcon className="h-3 w-3" />
-                    {label}
-                  </div>
-                </div>
-
-                {/* Footer Status Text - Smaller font */}
-                <p className="text-[10px] text-center text-muted-foreground/70 leading-tight px-1">
-                  {ended 
-                    ? "Ended. Payout processing." 
-                    : "Active. Under review."}
-                </p>
+            {tab === "campaigns" ? (
+              <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {campaignList.map(({ campaign, submissions }) => {
+                  const earnings = earningsForCampaign(submissions);
+                  const thumbnail = campaign.thumbnail_url || "/marketing-campaign-banner-fallback.svg";
+                  const ended = campaign.status === "completed" || campaign.status === "ended";
+                  return (
+                    <button
+                      key={campaign.id}
+                      type="button"
+                      onClick={() => navigate(`/creator/submissions/${campaign.id}`)}
+                      className="surface-card interactive-card focus-ring flex w-full items-center gap-3 p-3.5 text-left"
+                    >
+                      <img
+                        src={thumbnail}
+                        alt=""
+                        className="h-[68px] w-[68px] shrink-0 rounded-2xl object-cover"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[14.5px] font-semibold">{campaign.title}</div>
+                        <div className="mt-0.5 truncate text-[12.5px] text-muted-foreground">
+                          {submissions.length} submission{submissions.length === 1 ? "" : "s"} ·{" "}
+                          {ended ? "Ended" : "Active"}
+                        </div>
+                        <div className="mt-2">
+                          <StatusChip status={ended ? "paid" : "processing"} />
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <div className="display-figure text-[17px] text-primary">${earnings.toFixed(2)}</div>
+                        <div className="text-[11.5px] text-muted-foreground">earned</div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+            ) : (
+              <div className="surface-card mt-4 divide-y divide-border/60 overflow-hidden">
+                {allSubmissions.map((s) => {
+                  const earned = (s.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0);
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => navigate(`/creator/submissions/report/${s.id}`)}
+                      className="press-row focus-ring flex w-full items-center gap-3 px-4 py-3.5 text-left"
+                    >
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-raised text-primary">
+                        <Film className="h-[18px] w-[18px]" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[14.5px] font-semibold">
+                          {s.campaigns?.title ?? "Campaign"}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
+                          {PLATFORM_LABEL[s.platform] ?? s.platform} ·{" "}
+                          {new Date(s.created_at).toLocaleDateString()}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-right">
+                        <span className="display-figure block text-[15px] tabular-nums">
+                          ${earned.toFixed(2)}
+                        </span>
+                        <span className="mt-1 block">
+                          <StatusChip status={normalizeStatus(s.status)} />
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+      </PageContainer>
+    </CreatorShell>
   );
 }
+
 
 function CampaignSubmissionsView({
   active,
