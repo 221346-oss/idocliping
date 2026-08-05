@@ -173,7 +173,7 @@ export default function Auth() {
               <Label className="text-[13px]">New Password</Label>
               <Input type="password" placeholder="Min 6 characters" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={6} className="h-12 rounded-2xl text-[14px] px-4" />
             </div>
-            <Button type="submit" className="w-full h-12 rounded-full text-[14px] font-semibold press-scale" disabled={isSubmitting}>
+            <Button type="submit" className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary hover:opacity-90 text-[14px] font-semibold press-scale" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Update Password
             </Button>
@@ -185,7 +185,7 @@ export default function Auth() {
               <Input type="email" placeholder="you@example.com" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} required className="h-12 rounded-2xl text-[14px] px-4" />
             </div>
             <div className="flex flex-col gap-2">
-              <Button type="submit" className="w-full h-12 rounded-full text-[14px] font-semibold press-scale" disabled={isSubmitting}>
+              <Button type="submit" className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary hover:opacity-90 text-[14px] font-semibold press-scale" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Send Reset Link
               </Button>
@@ -214,7 +214,7 @@ export default function Auth() {
                   </div>
                   <Input type="password" placeholder="••••••••" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required className="h-12 rounded-2xl text-[14px] px-4" />
                 </div>
-                <Button type="submit" className="w-full h-12 rounded-full text-[14px] font-semibold press-scale" disabled={isSubmitting}>
+                <Button type="submit" className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary hover:opacity-90 text-[14px] font-semibold press-scale" disabled={isSubmitting}>
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Sign In
                 </Button>
@@ -235,7 +235,7 @@ export default function Auth() {
                   <Label className="text-[13px]">Password</Label>
                   <Input type="password" placeholder="Min 6 characters" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} required minLength={6} className="h-12 rounded-2xl text-[14px] px-4" />
                 </div>
-                <Button type="submit" className="w-full h-12 rounded-full text-[14px] font-semibold press-scale" disabled={isSubmitting}>
+                <Button type="submit" className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary hover:opacity-90 text-[14px] font-semibold press-scale" disabled={isSubmitting}>
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Account
                 </Button>
