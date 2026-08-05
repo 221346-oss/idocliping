@@ -1,7 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,6 +9,9 @@
     --background: 0 0% 100%;
     --foreground: 0 0% 9%;
 
+    --surface: 0 0% 97%;
+    --surface-raised: 0 0% 94%;
+
     --card: 0 0% 100%;
     --card-foreground: 0 0% 9%;
 
@@ -20,7 +20,7 @@
 
     /* Brand accent #63ec00 */
     --primary: 95 100% 46%;
-    --primary-foreground: 0 0% 9%;
+    --primary-foreground: 0 0% 7%;
 
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 9%;
@@ -31,10 +31,10 @@
     --accent: 0 0% 96%;
     --accent-foreground: 0 0% 9%;
 
-    --destructive: 345 72% 51%;
+    --destructive: 345 82% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 95 100% 46%;
+    --success: 95 100% 40%;
     --success-foreground: 0 0% 9%;
 
     --warning: 38 92% 50%;
@@ -47,7 +47,7 @@
     --input: 0 0% 90%;
     --ring: 95 100% 46%;
 
-    --radius: 0.375rem;
+    --radius: 1.25rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 40%;
@@ -62,60 +62,84 @@
     --severity-high: 25 95% 53%;
     --severity-medium: 38 92% 50%;
     --severity-low: 95 100% 46%;
+
+    /* Submission / campaign status tokens */
+    --state-eligible: 95 100% 40%;
+    --state-paid: 95 100% 40%;
+    --state-processing: 38 92% 50%;
+    --state-ineligible: 12 80% 55%;
+    --state-rejected: 345 82% 52%;
+
+    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.06);
+    --shadow-lift: 0 12px 32px -12px hsl(0 0% 0% / 0.18);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.35), 0 10px 40px -14px hsl(var(--primary) / 0.4);
   }
 
-  /* Main charcoal #222222 — neutral grey scale (no blue/purple tint) */
+  /* Charcoal neutral grey scale (no blue/purple tint) */
   .dark {
-    --background: 0 0% 13%;
-    --foreground: 0 0% 93%;
+    --background: 240 3% 6%;
+    --foreground: 0 0% 96%;
 
-    --card: 0 0% 16%;
-    --card-foreground: 0 0% 93%;
+    --surface: 240 3% 11%;
+    --surface-raised: 240 3% 14%;
 
-    --popover: 0 0% 16%;
-    --popover-foreground: 0 0% 93%;
+    --card: 240 3% 11%;
+    --card-foreground: 0 0% 96%;
+
+    --popover: 240 3% 13%;
+    --popover-foreground: 0 0% 96%;
 
     --primary: 95 100% 46%;
-    --primary-foreground: 0 0% 9%;
+    --primary-foreground: 0 0% 7%;
 
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 0 0% 92%;
+    --secondary: 240 3% 15%;
+    --secondary-foreground: 0 0% 93%;
 
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 52%;
+    --muted: 240 3% 15%;
+    --muted-foreground: 0 0% 58%;
 
-    --accent: 0 0% 19%;
-    --accent-foreground: 0 0% 92%;
+    --accent: 240 3% 17%;
+    --accent-foreground: 0 0% 93%;
 
-    --destructive: 345 90% 60%;
+    --destructive: 345 88% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --success: 95 100% 46%;
-    --success-foreground: 0 0% 9%;
+    --success-foreground: 0 0% 7%;
 
-    --warning: 38 100% 55%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 38 100% 58%;
+    --warning-foreground: 0 0% 7%;
 
-    --info: 0 0% 50%;
+    --info: 0 0% 55%;
     --info-foreground: 0 0% 100%;
 
-    --border: 0 0% 22%;
-    --input: 0 0% 22%;
+    --border: 240 3% 18%;
+    --input: 240 3% 18%;
     --ring: 95 100% 46%;
 
-    --sidebar-background: 0 0% 11%;
-    --sidebar-foreground: 0 0% 55%;
+    --sidebar-background: 240 3% 8%;
+    --sidebar-foreground: 0 0% 58%;
     --sidebar-primary: 95 100% 46%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 88%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 240 3% 14%;
+    --sidebar-accent-foreground: 0 0% 92%;
+    --sidebar-border: 240 3% 16%;
     --sidebar-ring: 95 100% 46%;
 
     --severity-critical: 345 90% 60%;
     --severity-high: 25 100% 58%;
     --severity-medium: 38 100% 55%;
     --severity-low: 95 100% 46%;
+
+    --state-eligible: 95 100% 46%;
+    --state-paid: 95 100% 46%;
+    --state-processing: 38 100% 58%;
+    --state-ineligible: 16 85% 60%;
+    --state-rejected: 345 88% 60%;
+
+    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.4);
+    --shadow-lift: 0 16px 40px -16px hsl(0 0% 0% / 0.7);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.4), 0 12px 44px -14px hsl(var(--primary) / 0.35);
   }
 }
 
@@ -125,24 +149,129 @@
   }
 
   html {
-    background-color: hsl(0 0% 100%);
-    /* ~browser 110% zoom: larger UI site-wide (Chromium / Safari / Edge; Firefox 126+) */
-    zoom: 1.1;
-  }
-
-  html.dark {
-    background-color: hsl(0 0% 13%);
+    background-color: hsl(var(--background));
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 14px;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 15px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-medium tracking-tight;
+    font-family: 'Sora', -apple-system, system-ui, sans-serif;
+    @apply font-semibold tracking-tight;
   }
+
+  /* Hide scrollbars on horizontal filter rails */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+@layer components {
+  /* ---------- Global interaction layer ---------- */
+
+  /* Rounded surface card used across the whole app */
+  .surface-card {
+    @apply bg-card rounded-[20px] border border-border/60;
+    box-shadow: var(--shadow-card);
+  }
+
+  .surface-inset {
+    @apply bg-surface-raised rounded-2xl;
+  }
+
+  /* Hover lift for interactive cards */
+  .interactive-card {
+    @apply transition-all duration-200 ease-out;
+  }
+  .interactive-card:hover {
+    @apply border-primary/40 -translate-y-0.5;
+    box-shadow: var(--shadow-lift);
+  }
+  .interactive-card:active {
+    @apply translate-y-0 scale-[0.995];
+  }
+
+  /* Row press highlight for list items */
+  .press-row {
+    @apply transition-colors duration-150;
+  }
+  .press-row:hover {
+    @apply bg-foreground/[0.04];
+  }
+  .press-row:active {
+    @apply bg-foreground/[0.07];
+  }
+
+  /* Tap feedback for buttons / icon buttons */
+  .press-scale {
+    @apply transition-transform duration-150 ease-out active:scale-[0.96];
+  }
+
+  /* Consistent focus ring everywhere */
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Pill filter chip */
+  .chip {
+    @apply inline-flex shrink-0 items-center justify-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-medium
+           border border-transparent bg-surface-raised text-muted-foreground
+           transition-all duration-150 press-scale focus-ring whitespace-nowrap;
+  }
+  .chip:hover {
+    @apply text-foreground bg-accent;
+  }
+  .chip[data-active="true"] {
+    @apply border-primary/60 bg-primary/15 text-foreground;
+  }
+
+  /* Circular icon button */
+  .icon-pill {
+    @apply inline-flex items-center justify-center h-11 w-11 rounded-full bg-surface-raised text-muted-foreground
+           transition-colors duration-150 press-scale focus-ring hover:text-foreground hover:bg-accent;
+  }
+
+  /* Shimmering skeleton */
+  .skeleton-shimmer {
+    @apply relative overflow-hidden bg-surface-raised rounded-2xl;
+  }
+  .skeleton-shimmer::after {
+    content: "";
+    @apply absolute inset-0;
+    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.06), transparent);
+    animation: shimmer-sweep 1.6s ease-in-out infinite;
+  }
+
+  /* Solid skeleton fill (bars, thumbs) */
+  .skeleton-block {
+    @apply relative overflow-hidden bg-surface-raised;
+  }
+  .skeleton-block::after {
+    content: "";
+    @apply absolute inset-0;
+    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.06), transparent);
+    animation: shimmer-sweep 1.6s ease-in-out infinite;
+  }
+
+
+  /* Display numerals */
+  .display-figure {
+    font-family: 'Sora', system-ui, sans-serif;
+    @apply font-semibold tracking-tight tabular-nums;
+  }
+
+  /* Staggered list entry — set --i on the element */
+  .stagger-item {
+    animation: fade-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
