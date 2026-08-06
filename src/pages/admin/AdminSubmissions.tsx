@@ -46,10 +46,17 @@ export default function AdminSubmissions() {
   const [showTestSubmissions, setShowTestSubmissions] = useState(false);
 
   const load = async () => {
+    await supabase.rpc("promote_eligible_submissions" as any);
     const { data } = await supabase
       .from("submissions")
-      .select("*, campaigns(title, payout_per_1m_views, budget_remaining, id)")
+      .select("*, campaigns(title, payout_per_1m_views, budget_remaining, budget_total, status, id)")
       .order("created_at", { ascending: false });
+    const eids = (data ?? []).map((r: any) => r.id);
+    const { data: earn } = eids.length
+      ? await supabase.from("earnings").select("submission_id, amount, status").in("submission_id", eids)
+      : { data: [] as any[] };
+    const earnMap = new Map((earn ?? []).filter((e: any) => e.submission_id).map((e: any) => [e.submission_id, e]));
+
     const ids = Array.from(new Set((data ?? []).map((r: any) => r.creator_id)));
     const { data: profs } = ids.length ? await supabase.from("profiles").select("user_id, full_name").in("user_id", ids) : { data: [] as any[] };
     const map = new Map((profs ?? []).map((p: any) => [p.user_id, p.full_name]));
