@@ -253,8 +253,37 @@ export default function CreatorSubmissions() {
             />
 
             {tab === "campaigns" ? (
+              <FilterPills
+                className="mt-4"
+                value={campFilter}
+                onChange={setCampFilter}
+                options={[
+                  { value: "all", label: "All" },
+                  { value: "active", label: "Active" },
+                  { value: "pending", label: "Pending" },
+                  { value: "paid", label: "Paid Out" },
+                ]}
+              />
+            ) : (
+              <FilterPills
+                className="mt-4"
+                value={subFilter}
+                onChange={setSubFilter}
+                options={[
+                  { value: "all", label: "All" },
+                  { value: "processing", label: "Processing" },
+                  { value: "ineligible", label: "Ineligible" },
+                  { value: "eligible", label: "Eligible" },
+                  { value: "paid", label: "Paid Out" },
+                  { value: "rejected", label: "Rejected" },
+                ]}
+              />
+            )}
+
+            {tab === "campaigns" ? (
               <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {campaignList.map(({ campaign, submissions }) => {
+                {filteredCampaignList.map(({ campaign, submissions }) => {
+
                   const earnings = earningsForCampaign(submissions);
                   const thumbnail = campaign.thumbnail_url || "/marketing-campaign-banner-fallback.svg";
                   const ended = campaign.status === "completed" || campaign.status === "ended";
