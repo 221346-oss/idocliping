@@ -379,6 +379,7 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          account_audience_requirements: Json | null
           allowed_niches_pages: string[] | null
           badges: string[]
           brand_id: string | null
@@ -389,12 +390,18 @@ export type Database = {
           content_requirements: string | null
           created_at: string
           description: string | null
+          discord_link: string | null
           example_ads: string[] | null
           id: string
           instructions: string | null
           max_earnings_per_creator: number | null
           max_earnings_per_post: number | null
           max_submissions_per_account: number | null
+          max_submissions_per_day: number | null
+          min_duration_seconds: number | null
+          min_engagement_rate: number | null
+          min_followers_per_account: number | null
+          min_views_for_earnings: number | null
           not_allowed: string[] | null
           payout_per_1m_views: number
           platforms: string[]
@@ -409,6 +416,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          account_audience_requirements?: Json | null
           allowed_niches_pages?: string[] | null
           badges?: string[]
           brand_id?: string | null
@@ -419,12 +427,18 @@ export type Database = {
           content_requirements?: string | null
           created_at?: string
           description?: string | null
+          discord_link?: string | null
           example_ads?: string[] | null
           id?: string
           instructions?: string | null
           max_earnings_per_creator?: number | null
           max_earnings_per_post?: number | null
           max_submissions_per_account?: number | null
+          max_submissions_per_day?: number | null
+          min_duration_seconds?: number | null
+          min_engagement_rate?: number | null
+          min_followers_per_account?: number | null
+          min_views_for_earnings?: number | null
           not_allowed?: string[] | null
           payout_per_1m_views?: number
           platforms?: string[]
@@ -439,6 +453,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          account_audience_requirements?: Json | null
           allowed_niches_pages?: string[] | null
           badges?: string[]
           brand_id?: string | null
@@ -449,12 +464,18 @@ export type Database = {
           content_requirements?: string | null
           created_at?: string
           description?: string | null
+          discord_link?: string | null
           example_ads?: string[] | null
           id?: string
           instructions?: string | null
           max_earnings_per_creator?: number | null
           max_earnings_per_post?: number | null
           max_submissions_per_account?: number | null
+          max_submissions_per_day?: number | null
+          min_duration_seconds?: number | null
+          min_engagement_rate?: number | null
+          min_followers_per_account?: number | null
+          min_views_for_earnings?: number | null
           not_allowed?: string[] | null
           payout_per_1m_views?: number
           platforms?: string[]
@@ -1111,6 +1132,10 @@ export type Database = {
           platform: Database["public"]["Enums"]["social_platform"]
           profile_url: string | null
           user_id: string
+          verification_code: string | null
+          verification_note: string | null
+          verification_requested_at: string | null
+          verification_status: string
           verified: boolean
         }
         Insert: {
@@ -1120,6 +1145,10 @@ export type Database = {
           platform: Database["public"]["Enums"]["social_platform"]
           profile_url?: string | null
           user_id: string
+          verification_code?: string | null
+          verification_note?: string | null
+          verification_requested_at?: string | null
+          verification_status?: string
           verified?: boolean
         }
         Update: {
@@ -1129,6 +1158,10 @@ export type Database = {
           platform?: Database["public"]["Enums"]["social_platform"]
           profile_url?: string | null
           user_id?: string
+          verification_code?: string | null
+          verification_note?: string | null
+          verification_requested_at?: string | null
+          verification_status?: string
           verified?: boolean
         }
         Relationships: []
@@ -1189,9 +1222,12 @@ export type Database = {
           campaign_id: string
           created_at: string
           creator_id: string
+          eligible_views: number | null
+          engagement_rate: number | null
           id: string
           is_test_submission: boolean
           manual_views: number
+          next_refresh_at: string | null
           platform: Database["public"]["Enums"]["social_platform"]
           post_url: string
           reject_reason: string | null
@@ -1199,15 +1235,20 @@ export type Database = {
           reviewed_by: string | null
           sim_view_cap: number | null
           status: Database["public"]["Enums"]["submission_status"]
+          status_reason: string | null
+          total_views: number | null
           updated_at: string
         }
         Insert: {
           campaign_id: string
           created_at?: string
           creator_id: string
+          eligible_views?: number | null
+          engagement_rate?: number | null
           id?: string
           is_test_submission?: boolean
           manual_views?: number
+          next_refresh_at?: string | null
           platform: Database["public"]["Enums"]["social_platform"]
           post_url: string
           reject_reason?: string | null
@@ -1215,15 +1256,20 @@ export type Database = {
           reviewed_by?: string | null
           sim_view_cap?: number | null
           status?: Database["public"]["Enums"]["submission_status"]
+          status_reason?: string | null
+          total_views?: number | null
           updated_at?: string
         }
         Update: {
           campaign_id?: string
           created_at?: string
           creator_id?: string
+          eligible_views?: number | null
+          engagement_rate?: number | null
           id?: string
           is_test_submission?: boolean
           manual_views?: number
+          next_refresh_at?: string | null
           platform?: Database["public"]["Enums"]["social_platform"]
           post_url?: string
           reject_reason?: string | null
@@ -1231,6 +1277,8 @@ export type Database = {
           reviewed_by?: string | null
           sim_view_cap?: number | null
           status?: Database["public"]["Enums"]["submission_status"]
+          status_reason?: string | null
+          total_views?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -1396,6 +1444,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_rewards: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          is_published: boolean
+          prize_text: string
+          title: string
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          is_published?: boolean
+          prize_text?: string
+          title: string
+          updated_at?: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          is_published?: boolean
+          prize_text?: string
+          title?: string
+          updated_at?: string
+          week_start?: string
         }
         Relationships: []
       }
@@ -1623,7 +1704,12 @@ export type Database = {
         | "submission_issue"
         | "feature_request"
         | "other"
-      withdrawal_method: "paypal" | "usdt" | "bank"
+      withdrawal_method:
+        | "paypal"
+        | "usdt"
+        | "bank"
+        | "amazon_giftcard"
+        | "visa_prepaid"
       withdrawal_status: "pending" | "approved" | "paid" | "rejected"
     }
     CompositeTypes: {
@@ -1789,7 +1875,13 @@ export const Constants = {
         "feature_request",
         "other",
       ],
-      withdrawal_method: ["paypal", "usdt", "bank"],
+      withdrawal_method: [
+        "paypal",
+        "usdt",
+        "bank",
+        "amazon_giftcard",
+        "visa_prepaid",
+      ],
       withdrawal_status: ["pending", "approved", "paid", "rejected"],
     },
   },
