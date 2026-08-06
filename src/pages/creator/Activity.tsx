@@ -147,6 +147,16 @@ export default function CreatorSubmissions() {
     };
   }, [user?.id, loadRows]);
 
+  // keep polling while a post is inside its 6s processing window
+  useEffect(() => {
+    const hasProcessing = rows.some((r: any) => r.status === "processing");
+    if (!hasProcessing) return;
+    const t = setInterval(() => void loadRows(), 3000);
+    return () => clearInterval(t);
+  }, [rows, loadRows]);
+
+
+
   const campaignsMap = useMemo(() => {
     const map = new Map<string, { campaign: any; submissions: SubRow[] }>();
     rows.forEach((r) => {
