@@ -67,6 +67,7 @@ export function CampaignThumb({
 
 export function BookmarkButton({ id, className }: { id: string; className?: string }) {
   const { isSaved, toggle } = useSavedCampaigns();
+  const { toast } = useToast();
   const saved = isSaved(id);
   return (
     <button
@@ -77,7 +78,9 @@ export function BookmarkButton({ id, className }: { id: string; className?: stri
         e.preventDefault();
         e.stopPropagation();
         toggle(id);
+        toast({ title: saved ? "Removed from My Activity" : "Saved to My Activity" });
       }}
+
       className={cn(
         "press-scale focus-ring rounded-full p-1.5 transition-colors",
         saved ? "text-primary" : "text-muted-foreground hover:text-foreground",
