@@ -6,7 +6,9 @@ import { CreatorShell, PageContainer, PageTitle, DetailHeader } from "@/componen
 import { FilterPills, UnderlineTabs } from "@/components/ui-kit/Pills";
 import { StatusChip, normalizeStatus } from "@/components/ui-kit/StatusChip";
 import { RowListSkeleton, StatBlockSkeleton } from "@/components/ui-kit/Skeletons";
-import { Film, Megaphone, ArrowLeft, Trash2, Loader2, Info, LayoutDashboard, TrendingUp, Clock } from "lucide-react";
+import { Film, Megaphone, ArrowLeft, Trash2, Loader2, Info, LayoutDashboard, TrendingUp, Clock, ChevronRight } from "lucide-react";
+import { RowGroup, SubmissionRow, StatusIcon, PlatformGlyph } from "@/components/ui-kit/SubmissionRow";
+
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/EmptyState";
 import { TableSkeleton } from "@/components/Skeletons";
