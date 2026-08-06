@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -37,6 +37,7 @@ import AdminAutomationLab from "./pages/admin/AdminAutomationLab";
 import AdminCampaignDetail from "./pages/admin/AdminCampaignDetail";
 
 // Creator
+import Rewards from "./pages/creator/Rewards";
 import Discover from "./pages/creator/Discover";
 import CampaignDetail from "./pages/creator/CampaignDetail";
 import SubmissionReport from "./pages/creator/SubmissionReport";
