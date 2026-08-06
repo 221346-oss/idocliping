@@ -265,10 +265,14 @@ export default function CreatorCampaignDetail() {
           .eq("campaign_id", id)
           .eq("creator_id", user.id)
           .order("created_at", { ascending: false }),
-        supabase.from("social_accounts").select("platform").eq("user_id", user.id),
+        supabase.from("social_accounts").select("platform, verified, verification_status").eq("user_id", user.id),
       ]);
       setMySubs((mine ?? []) as any[]);
-      setConnectedPlatforms(((socials ?? []) as any[]).map((s) => String(s.platform).toLowerCase()));
+      setConnectedPlatforms(
+        ((socials ?? []) as any[])
+          .filter((s) => s.verified === true || s.verification_status === "verified")
+          .map((s) => String(s.platform).toLowerCase()),
+      );
 
 
 
