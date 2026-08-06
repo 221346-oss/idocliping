@@ -13,16 +13,12 @@ export type CreatorBalance = {
   reload: () => Promise<void>;
 };
 
-function countsTowardWithdrawable(row: {
-  type?: string | null;
-  submissions?: { is_test_submission?: boolean | null } | null;
-}) {
-  const isTest = !!row.submissions?.is_test_submission;
-  if (isTest && (row.type === "campaign" || row.type === "referral")) return false;
-  return true;
-}
-
-/** Single source of truth for creator wallet figures (nav chip, wallet page, profile stats). */
+/**
+ * Wallet rules:
+ * - earnings.status = 'pending'  → counted as Pending (post is eligible, campaign not paid out yet)
+ * - earnings.status = 'paid'     → counted toward Available balance (withdrawable)
+ * - withdrawal requests that are pending/approved/paid reserve the available balance
+ */
 export function useCreatorBalance(): CreatorBalance {
   const { user } = useAuth();
   const [available, setAvailable] = useState(0);
@@ -37,29 +33,29 @@ export function useCreatorBalance(): CreatorBalance {
       return;
     }
     const [{ data: earnings }, { data: reqs }] = await Promise.all([
-      supabase.from("earnings").select("amount, type, status, submissions(is_test_submission)").eq("creator_id", user.id),
+      supabase.from("earnings").select("amount, status").eq("creator_id", user.id),
       supabase.from("withdrawal_requests").select("amount, status").eq("creator_id", user.id),
     ]);
 
     const rows = (earnings ?? []) as any[];
-    const earned = rows.reduce((acc, r) => {
-      if (!countsTowardWithdrawable(r)) return acc;
-      return acc + Number(r.amount ?? 0);
-    }, 0);
+    const paidEarned = rows
+      .filter((r) => r.status === "paid")
+      .reduce((a, r) => a + Number(r.amount ?? 0), 0);
+    const pendingEarned = rows
+      .filter((r) => r.status !== "paid")
+      .reduce((a, r) => a + Number(r.amount ?? 0), 0);
 
     const requests = (reqs ?? []) as any[];
     const reserved = requests.filter((r) => r.status !== "rejected").reduce((a, b) => a + Number(b.amount ?? 0), 0);
-    const paid = requests.filter((r) => r.status === "paid").reduce((a, b) => a + Number(b.amount ?? 0), 0);
-    const inFlight = requests
-      .filter((r) => r.status === "pending" || r.status === "approved")
-      .reduce((a, b) => a + Number(b.amount ?? 0), 0);
+    const paidOut = requests.filter((r) => r.status === "paid").reduce((a, b) => a + Number(b.amount ?? 0), 0);
 
-    setLifetime(earned);
-    setWithdrawn(paid);
-    setPending(inFlight);
-    setAvailable(Math.max(0, earned - reserved));
+    setLifetime(paidEarned + pendingEarned);
+    setWithdrawn(paidOut);
+    setPending(pendingEarned);
+    setAvailable(Math.max(0, paidEarned - reserved));
     setLoading(false);
   };
+
 
   useEffect(() => {
     void reload();
