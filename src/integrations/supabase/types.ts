@@ -569,6 +569,7 @@ export type Database = {
           creator_id: string
           id: string
           message: string
+          proof_url: string | null
           proof_urls: string[]
           resolved_at: string | null
           resolved_by: string | null
@@ -581,6 +582,7 @@ export type Database = {
           creator_id: string
           id?: string
           message: string
+          proof_url?: string | null
           proof_urls?: string[]
           resolved_at?: string | null
           resolved_by?: string | null
@@ -593,6 +595,7 @@ export type Database = {
           creator_id?: string
           id?: string
           message?: string
+          proof_url?: string | null
           proof_urls?: string[]
           resolved_at?: string | null
           resolved_by?: string | null
