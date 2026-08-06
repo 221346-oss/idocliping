@@ -165,6 +165,14 @@ export default function CreatorSubmissions() {
 
   const allSubmissions = rows;
 
+  const filteredCampaignList = campaignList.filter(
+    ({ campaign }) => campFilter === "all" || campaignPayoutState(campaign.status) === campFilter,
+  );
+  const filteredSubmissions = allSubmissions.filter(
+    (s) => subFilter === "all" || normalizeStatus(s.status) === subFilter,
+  );
+
+
   if (!isOverview && active) {
     return (
       <CreatorShell>
