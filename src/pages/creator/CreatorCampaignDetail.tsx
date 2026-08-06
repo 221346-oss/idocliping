@@ -138,7 +138,10 @@ export default function CreatorCampaignDetail() {
   const [pendingSubmitPayload, setPendingSubmitPayload] = useState<z.infer<typeof submitSchema> | null>(null);
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
+  const [mySubs, setMySubs] = useState<any[]>([]);
+  const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
   const [tab, setTab] = useState("details");
+
 
   const supportedPlatforms = useMemo(() => (campaign?.platforms ?? []) as string[], [campaign]);
   const ratePerMillion = Number(campaign?.payout_per_1m_views ?? 0);
