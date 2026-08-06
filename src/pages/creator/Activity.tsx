@@ -585,93 +585,155 @@ function CampaignSubmissionsView({
         </div>
       </div>
 
-      <div className="border border-border rounded-md overflow-hidden bg-card">
-        <div className="px-4 h-11 flex items-center justify-between gap-4 border-b border-border bg-muted/20">
-          <h3 className="text-[13px] font-medium">Posts ({submissions.length})</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-[13px] min-w-[640px]">
-            <thead className="bg-muted/30 text-muted-foreground text-[11px] uppercase tracking-wide">
-              <tr>
-                <th className="text-left p-3">Platform</th>
-                <th className="text-left p-3">URL</th>
-                <th className="text-right p-3">Views</th>
-                <th className="text-right p-3">Earned</th>
-                <th className="text-left p-3">Status</th>
-                <th className="text-right p-3 w-[112px]">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {submissions.map((s) => {
-                const earned = (s.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0);
-                const appeals = s.submission_appeals ?? [];
-                const note = latestAppealNote(s);
-                return (
-                  <tr key={s.id} className="border-t border-border align-top hover:bg-muted/5 transition-colors">
-                    <td className="p-3 capitalize">{s.platform}</td>
-                    <td className="p-3 max-w-[220px] md:max-w-[280px]">
-                      <a
-                        href={s.post_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="underline truncate block"
-                      >
-                        {s.post_url}
-                      </a>
-                      {s.status === "rejected" && s.reject_reason && (
-                        <p className="text-[11px] text-destructive mt-1.5 leading-snug">
-                          Reason: {s.reject_reason}
-                        </p>
-                      )}
-                      {note && (
-                        <p className="text-[11px] text-muted-foreground mt-1.5 leading-snug">
-                          Admin (appeal): {note.admin_note}
-                        </p>
-                      )}
-                      {pendingAppeal(s) && (
-                        <p className="text-[11px] text-warning mt-1">Appeal pending review.</p>
-                      )}
-                    </td>
-                    <td className="p-3 text-right">{Number(s.manual_views).toLocaleString()}</td>
-                    <td className="p-3 text-right">${earned.toFixed(2)}</td>
-                    <td className="p-3">
-                      <span
-                        className={cn(
-                          "inline-flex text-[10px] px-2 py-0.5 rounded uppercase tracking-wide font-medium",
-                          submissionStatusBadgeClass(s.status),
-                        )}
-                      >
-                        {submissionStatusLabel(s.status)}
+      {/* Mobile: row cards. Desktop (md+): the richer table. */}
+      <section className="space-y-2">
+        <h3 className="px-1 font-display text-[15px] font-semibold">Posts ({submissions.length})</h3>
+
+        <div className="surface-card divide-y divide-border/60 overflow-hidden md:hidden">
+          {submissions.length === 0 ? (
+            <div className="px-4 py-10 text-center text-[13px] text-muted-foreground">
+              Your activity will show up here once you submit content.
+            </div>
+          ) : (
+            submissions.map((s) => {
+              const earned = (s.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0);
+              const note = latestAppealNote(s);
+              return (
+                <div key={s.id} className="px-4 py-3.5">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/submissions/${s.id}`)}
+                    className="focus-ring flex w-full items-center gap-3 text-left"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-raised text-primary">
+                      <Film className="h-[18px] w-[18px]" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14.5px] font-semibold">
+                        {PLATFORM_LABEL[s.platform] ?? s.platform}
                       </span>
-                    </td>
-                    <td className="p-3 text-right space-x-1">
-                      <div className="inline-flex justify-end gap-1 flex-wrap">
-                        {s.status === "rejected" && !pendingAppeal(s) && (
-                          <Button type="button" variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => setAppealFor(s)}>
-                            Appeal
-                          </Button>
-                        )}
-                        {s.status === "pending" && (
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="h-7 text-[11px] px-2"
-                            title="Withdraw submission before review"
-                            onClick={() => setDeleteTarget(s)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
+                        {Number(s.manual_views).toLocaleString()} views ·{" "}
+                        {new Date(s.created_at).toLocaleDateString()}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span className="display-figure block text-[15px] tabular-nums">${earned.toFixed(2)}</span>
+                      <span className="mt-1 block">
+                        <StatusChip status={normalizeStatus(s.status)} size="sm" />
+                      </span>
+                    </span>
+                  </button>
+
+                  {s.status === "rejected" && s.reject_reason && (
+                    <p className="mt-2 text-[12px] leading-snug text-destructive">Reason: {s.reject_reason}</p>
+                  )}
+                  {note && (
+                    <p className="mt-2 text-[12px] leading-snug text-muted-foreground">
+                      Admin (appeal): {note.admin_note}
+                    </p>
+                  )}
+                  {pendingAppeal(s) && <p className="mt-1 text-[12px] text-warning">Appeal pending review.</p>}
+
+                  <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                    <a
+                      href={s.post_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-outline-pill h-9 px-4 text-[13px]"
+                    >
+                      Open post
+                    </a>
+                    {s.status === "rejected" && !pendingAppeal(s) && (
+                      <button type="button" onClick={() => setAppealFor(s)} className="btn-outline-pill h-9 px-4 text-[13px]">
+                        Appeal
+                      </button>
+                    )}
+                    {s.status === "pending" && (
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(s)}
+                        className="btn-outline-pill h-9 px-4 text-[13px] border-destructive/40 text-destructive"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
-      </div>
+
+        <div className="hidden overflow-hidden rounded-md border border-border bg-card md:block">
+          <div className="overflow-x-auto">
+            <table className="w-full text-[13px]">
+              <thead className="bg-muted/30 text-[11px] uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="p-3 text-left">Platform</th>
+                  <th className="p-3 text-left">URL</th>
+                  <th className="p-3 text-right">Views</th>
+                  <th className="p-3 text-right">Earned</th>
+                  <th className="p-3 text-left">Status</th>
+                  <th className="w-[112px] p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {submissions.map((s) => {
+                  const earned = (s.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0);
+                  const note = latestAppealNote(s);
+                  return (
+                    <tr key={s.id} className="border-t border-border align-top transition-colors hover:bg-muted/5">
+                      <td className="p-3 capitalize">{s.platform}</td>
+                      <td className="max-w-[280px] p-3">
+                        <a href={s.post_url} target="_blank" rel="noreferrer" className="block truncate underline">
+                          {s.post_url}
+                        </a>
+                        {s.status === "rejected" && s.reject_reason && (
+                          <p className="mt-1.5 text-[11px] leading-snug text-destructive">Reason: {s.reject_reason}</p>
+                        )}
+                        {note && (
+                          <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
+                            Admin (appeal): {note.admin_note}
+                          </p>
+                        )}
+                        {pendingAppeal(s) && <p className="mt-1 text-[11px] text-warning">Appeal pending review.</p>}
+                      </td>
+                      <td className="p-3 text-right">{Number(s.manual_views).toLocaleString()}</td>
+                      <td className="p-3 text-right">${earned.toFixed(2)}</td>
+                      <td className="p-3">
+                        <StatusChip status={normalizeStatus(s.status)} size="sm" />
+                      </td>
+                      <td className="space-x-1 p-3 text-right">
+                        <div className="inline-flex flex-wrap justify-end gap-1">
+                          {s.status === "rejected" && !pendingAppeal(s) && (
+                            <Button type="button" variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => setAppealFor(s)}>
+                              Appeal
+                            </Button>
+                          )}
+                          {s.status === "pending" && (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="h-7 px-2 text-[11px]"
+                              title="Withdraw submission before review"
+                              onClick={() => setDeleteTarget(s)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
 
       <Dialog
         open={submitOpen}
