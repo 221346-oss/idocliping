@@ -77,7 +77,10 @@ export default function CreatorSubmissions() {
 
   const loadRows = useCallback(async () => {
     if (!user) return;
+    // flips posts whose 6s processing window has passed to Eligible
+    await supabase.rpc("promote_eligible_submissions" as any);
     const { data, error } = await supabase
+
       .from("submissions")
       .select(
         "*, earnings(amount), campaigns(id, title, thumbnail_url, status, category, platforms), submission_appeals(id, status, message, admin_note, created_at)",
@@ -143,6 +146,16 @@ export default function CreatorSubmissions() {
       void supabase.removeChannel(channel);
     };
   }, [user?.id, loadRows]);
+
+  // keep polling while a post is inside its 6s processing window
+  useEffect(() => {
+    const hasProcessing = rows.some((r: any) => r.status === "processing");
+    if (!hasProcessing) return;
+    const t = setInterval(() => void loadRows(), 3000);
+    return () => clearInterval(t);
+  }, [rows, loadRows]);
+
+
 
   const campaignsMap = useMemo(() => {
     const map = new Map<string, { campaign: any; submissions: SubRow[] }>();

@@ -404,7 +404,7 @@ export default function CreatorCampaignDetail() {
       setPendingSubmitPayload(null);
       setSubmitModalOpen(false);
       setPostUrl("");
-      toast({ title: "Submitted!", description: "Admin will verify your post shortly." });
+      toast({ title: "Submitted!", description: "Processing — your post turns Eligible in a few seconds." });
       navigate(`/activity/${id}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Try again";

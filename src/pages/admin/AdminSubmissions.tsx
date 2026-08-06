@@ -46,14 +46,27 @@ export default function AdminSubmissions() {
   const [showTestSubmissions, setShowTestSubmissions] = useState(false);
 
   const load = async () => {
+    await supabase.rpc("promote_eligible_submissions" as any);
     const { data } = await supabase
       .from("submissions")
-      .select("*, campaigns(title, payout_per_1m_views, budget_remaining, id)")
+      .select("*, campaigns(title, payout_per_1m_views, budget_remaining, budget_total, status, id)")
       .order("created_at", { ascending: false });
+    const eids = (data ?? []).map((r: any) => r.id);
+    const { data: earn } = eids.length
+      ? await supabase.from("earnings").select("submission_id, amount, status").in("submission_id", eids)
+      : { data: [] as any[] };
+    const earnMap = new Map((earn ?? []).filter((e: any) => e.submission_id).map((e: any) => [e.submission_id, e]));
+
     const ids = Array.from(new Set((data ?? []).map((r: any) => r.creator_id)));
     const { data: profs } = ids.length ? await supabase.from("profiles").select("user_id, full_name").in("user_id", ids) : { data: [] as any[] };
     const map = new Map((profs ?? []).map((p: any) => [p.user_id, p.full_name]));
-    setRows((data ?? []).map((r: any) => ({ ...r, _creatorName: map.get(r.creator_id) })));
+    setRows(
+      (data ?? []).map((r: any) => ({
+        ...r,
+        _creatorName: map.get(r.creator_id),
+        _earning: earnMap.get(r.id) ?? null,
+      })),
+    );
 
     const { data: appData, error: appErr } = await supabase
       .from("submission_appeals")
@@ -81,64 +94,56 @@ export default function AdminSubmissions() {
     void load();
   }, []);
 
+  /** Admin updates the verified view count — recalculates the (still unpaid) earning. */
+  const saveViews = async (row: any) => {
+    const views = Number(editing[row.id] ?? row.manual_views ?? 0);
+    const { data, error } = await supabase.rpc("admin_update_submission_views" as any, {
+      p_submission_id: row.id,
+      p_views: Math.max(0, Math.round(views)),
+    });
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+    const amount = Number((data as any)?.amount ?? 0);
+    toast({ title: "Views updated", description: `Pending earning $${amount.toFixed(2)}` });
+    void load();
+  };
+
+  /** Final approval — releases the money into the creator's available balance. */
   const approve = async (row: any) => {
     if (!user) return;
-    const views = Number(editing[row.id] ?? row.manual_views ?? 0);
-    const payout = Number(row.campaigns?.payout_per_1m_views ?? 0);
-    const earned = (views / 1_000_000) * payout;
+    const { error } = await supabase.rpc("admin_approve_submission" as any, { p_submission_id: row.id });
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
 
-    const { error: e1 } = await supabase
-      .from("submissions")
-      .update({
-        status: "approved",
-        manual_views: views,
-        reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", row.id);
-    if (e1) return toast({ title: "Failed", description: e1.message, variant: "destructive" });
-
+    const earned = Number(row._earning?.amount ?? 0);
     if (earned > 0) {
-      await supabase.from("earnings").insert({
-        creator_id: row.creator_id,
-        submission_id: row.id,
-        amount: earned,
-        type: "campaign",
-      });
-      const remaining = Math.max(0, Number(row.campaigns?.budget_remaining ?? 0) - earned);
-      await supabase.from("campaigns").update({ budget_remaining: remaining }).eq("id", row.campaigns.id);
-
       const { data: ref } = await supabase
         .from("referrals")
         .select("referrer_id, commission_rate")
         .eq("referred_user_id", row.creator_id)
         .maybeSingle();
-      if (ref && !row.is_test_submission) {
+      if (ref) {
         await supabase.from("earnings").insert({
           creator_id: ref.referrer_id,
           submission_id: row.id,
           amount: earned * Number(ref.commission_rate),
           type: "referral",
-        });
+          status: "paid",
+          paid_at: new Date().toISOString(),
+        } as any);
       }
     }
-    toast({ title: "Approved", description: `Earned $${earned.toFixed(2)}` });
-    load();
+    toast({ title: "Approved & paid out", description: `$${earned.toFixed(2)} released` });
+    void load();
   };
 
   const confirmReject = async () => {
     if (!user || !rejectTarget) return;
     const reason = rejectReason.trim() || "No reason provided";
-    const { error } = await supabase
-      .from("submissions")
-      .update({
-        status: "rejected",
-        reject_reason: reason,
-        reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", rejectTarget.id);
+    const { error } = await supabase.rpc("admin_reject_submission" as any, {
+      p_submission_id: rejectTarget.id,
+      p_reason: reason,
+    });
     if (error) return toast({ title: "Reject failed", description: error.message, variant: "destructive" });
+
     toast({ title: "Rejected" });
     setRejectTarget(null);
     setRejectReason("");
@@ -281,8 +286,10 @@ export default function AdminSubmissions() {
                   <th className="text-left p-3">Campaign</th>
                   <th className="text-left p-3">Post</th>
                   <th className="text-left p-3">Views</th>
+                  <th className="text-right p-3">Earning</th>
                   <th className="text-left p-3">Status</th>
                   <th className="text-right p-3">Actions</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -309,25 +316,43 @@ export default function AdminSubmissions() {
                       </a>
                     </td>
                     <td className="p-3">
-                      {r.status === "pending" ? (
-                        <Input
-                          type="number"
-                          defaultValue={r.manual_views}
-                          onChange={(e) => setEditing((p) => ({ ...p, [r.id]: e.target.value }))}
-                          className="h-7 w-28 text-[12px]"
-                        />
+                      {["processing", "eligible", "pending"].includes(r.status) ? (
+                        <div className="flex items-center gap-1.5">
+                          <Input
+                            type="number"
+                            defaultValue={r.manual_views}
+                            onChange={(e) => setEditing((p) => ({ ...p, [r.id]: e.target.value }))}
+                            className="h-7 w-28 text-[12px]"
+                          />
+                          <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => void saveViews(r)}>
+                            Save
+                          </Button>
+                        </div>
                       ) : (
                         Number(r.manual_views).toLocaleString()
                       )}
+                    </td>
+                    <td className="p-3 text-right tabular-nums">
+                      {r._earning ? `$${Number(r._earning.amount).toFixed(2)}` : "—"}
+                      {r._earning?.status === "paid" ? (
+                        <span className="ml-1 text-[10px] uppercase text-state-paid">paid</span>
+                      ) : null}
                     </td>
                     <td className="p-3">
                       <StatusChip status={normalizeStatus(r.status)} size="sm" />
                     </td>
 
                     <td className="p-3 text-right">
-                      {r.status === "pending" && (
+                      {["pending", "eligible"].includes(r.status) && (
                         <div className="inline-flex gap-1 justify-end">
-                          <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => approve(r)} title="Approve">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-7 w-7"
+                            disabled={r.status !== "pending"}
+                            onClick={() => void approve(r)}
+                            title={r.status === "pending" ? "Approve & pay out" : "Approve once the campaign is in final review"}
+                          >
                             <Check className="h-3.5 w-3.5" />
                           </Button>
                           <Button
@@ -343,6 +368,7 @@ export default function AdminSubmissions() {
                             <X className="h-3.5 w-3.5" />
                           </Button>
                         </div>
+
                       )}
                     </td>
                   </tr>
