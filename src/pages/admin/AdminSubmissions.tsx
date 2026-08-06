@@ -321,19 +321,9 @@ export default function AdminSubmissions() {
                       )}
                     </td>
                     <td className="p-3">
-                      <span
-                        className={cn(
-                          "inline-flex text-[10px] px-2 py-0.5 rounded uppercase tracking-wide font-medium",
-                          r.status === "approved"
-                            ? "bg-primary/15 text-primary border border-primary/25"
-                            : r.status === "rejected"
-                              ? "bg-destructive/15 text-destructive border border-destructive/25"
-                              : "bg-warning/15 text-warning border border-warning/25",
-                        )}
-                      >
-                        {submissionStatusLabel(r.status)}
-                      </span>
+                      <StatusChip status={normalizeStatus(r.status)} size="sm" />
                     </td>
+
                     <td className="p-3 text-right">
                       {r.status === "pending" && (
                         <div className="inline-flex gap-1 justify-end">
