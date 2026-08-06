@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { AtSign, Check, Copy, Loader2, Plus, ShieldCheck, Trash2, Clock } from "lucide-react";
+import { makeVerificationCode } from "@/lib/verification-code";
+
 
 const PLATFORMS = [
   { value: "tiktok", label: "TikTok" },
