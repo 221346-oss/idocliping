@@ -413,27 +413,50 @@ function CampaignSubmissionsView({
   const sendAppeal = async () => {
     if (!user || !appealFor || !appealText.trim()) return;
     setAppealSending(true);
+
+    let proofUrl: string | null = null;
+    if (appealProof) {
+      const ext = appealProof.name.split(".").pop()?.toLowerCase() || "bin";
+      const path = `${user.id}/${appealFor.id}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("appeal-proof").upload(path, appealProof, {
+        upsert: true,
+        contentType: appealProof.type || undefined,
+      });
+      if (upErr) {
+        setAppealSending(false);
+        return toast({ title: "Upload failed", description: upErr.message, variant: "destructive" });
+      }
+      proofUrl = path;
+    }
+
     const { error } = await supabase.from("submission_appeals").insert({
       submission_id: appealFor.id,
       creator_id: user.id,
       message: appealText.trim(),
+      proof_url: proofUrl,
     });
     setAppealSending(false);
     if (error) {
       return toast({
         title: "Appeal not sent",
-        description: error.message,
+        description: error.message?.includes("duplicate")
+          ? "You've already appealed this submission — only one appeal is allowed per post."
+          : error.message,
         variant: "destructive",
       });
     }
     toast({ title: "Appeal submitted", description: "An admin will review your request." });
     setAppealFor(null);
     setAppealText("");
+    setAppealProof(null);
     await onAppealSubmitted();
   };
 
+  /** Only one appeal per submission is allowed, ever. */
+  const hasAppeal = (s: SubRow) => (s.submission_appeals ?? []).length > 0;
   const pendingAppeal = (s: SubRow) =>
     (s.submission_appeals ?? []).some((a) => a.status === "pending");
+
 
   const latestAppealNote = (s: SubRow) => {
     const withNote = (s.submission_appeals ?? [])
