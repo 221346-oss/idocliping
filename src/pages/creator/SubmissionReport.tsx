@@ -128,7 +128,6 @@ export default function CreatorSubmissionReport() {
                   <DataRow
                     label="Eligible views"
                     value={(eligibleViews ?? views).toLocaleString()}
-                    hint="Only views accrued after submission count toward earnings."
                   />
                   <DataRow
                     label="Engagement rate"
