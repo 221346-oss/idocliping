@@ -319,7 +319,7 @@ export default function CreatorSubmissions() {
               </div>
             ) : (
               <div className="surface-card mt-4 divide-y divide-border/60 overflow-hidden">
-                {allSubmissions.map((s) => {
+                {filteredSubmissions.map((s) => {
                   const earned = (s.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0);
                   return (
                     <button
