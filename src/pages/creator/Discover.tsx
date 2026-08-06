@@ -85,7 +85,8 @@ export default function CreatorMarketplace() {
     if (sort === "budget")
       list = [...list].sort((a, b) => Number(b.budget_remaining ?? 0) - Number(a.budget_remaining ?? 0));
     return list;
-  }, [campaigns, tab, platforms, sort, query, saved]);
+  }, [campaigns, tab, platforms, sort, query]);
+
 
   const togglePlatform = (p: string) =>
     setPlatforms((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
