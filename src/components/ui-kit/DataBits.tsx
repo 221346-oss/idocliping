@@ -1,6 +1,23 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
+/** Fill colour follows how full the budget is: accent → amber → complete. */
+export function progressFillClass(percent: number) {
+  if (percent >= 100) return "bg-muted-foreground/60";
+  if (percent >= 80) return "bg-warning";
+  return "bg-primary";
+}
+
+/** Standalone budget bar. */
+export function ProgressBar({ percent, className }: { percent: number; className?: string }) {
+  const pct = Math.max(0, Math.min(100, Math.round(percent)));
+  return (
+    <div className={cn("bar-track", className)}>
+      <div className={cn("bar-fill", progressFillClass(pct))} style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
 /** Thin budget/progress bar with the "xx% / $total" + "$rate / 1M" line above it. */
 export function ProgressRate({
   percent,
@@ -38,15 +55,11 @@ export function ProgressRate({
           </div>
         )}
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
-        <div
-          className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
+      <ProgressBar percent={pct} />
     </div>
   );
 }
+
 
 /** Three evenly-split stats separated by nothing — used on Profile and Activity. */
 export function StatTrio({
