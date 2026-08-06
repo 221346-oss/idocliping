@@ -41,6 +41,8 @@ type SubRow = {
   platform: string;
   post_url: string;
   manual_views: number;
+  total_views?: number | null;
+
   status: string;
   created_at: string;
   reject_reason: string | null;
