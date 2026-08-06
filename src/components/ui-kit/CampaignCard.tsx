@@ -112,19 +112,22 @@ export function CampaignCard({ campaign, index = 0 }: { campaign: CampaignCardDa
         </div>
       </div>
 
-      <div className="flex items-end justify-between px-3 pb-2.5">
-        <div className="text-[14px] font-semibold text-foreground">
+      <div className="flex items-end justify-between px-3 pb-2">
+        <div className="text-[15px] font-semibold text-foreground">
           {used}%
-          <span className="text-[13px] font-medium text-muted-foreground"> / ${total.toLocaleString()}</span>
+          <span className="text-[13.5px] font-medium text-muted-foreground"> / ${total.toLocaleString()}</span>
         </div>
-        <div className="text-[14px] font-semibold text-foreground">
+        <div className="text-[15px] font-semibold text-foreground">
           ${rate.toLocaleString()}
           <span className="text-[11px] font-medium text-muted-foreground"> / 1M</span>
         </div>
       </div>
 
-      <div className="h-1 w-full bg-foreground/10">
-        <div className={cn("h-full transition-[width] duration-700 ease-out", barColor(used))} style={{ width: `${used}%` }} />
+      <div className="mx-3 mb-3 h-[3px] overflow-hidden rounded-full bg-foreground/10">
+        <div
+          className={cn("h-full rounded-full transition-[width] duration-700 ease-out", barColor(used))}
+          style={{ width: `${used}%` }}
+        />
       </div>
     </Link>
   );

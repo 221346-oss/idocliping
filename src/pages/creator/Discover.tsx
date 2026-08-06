@@ -115,109 +115,116 @@ export default function CreatorMarketplace() {
         </div>
 
 
-        {/* Search + filter trigger */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search campaigns"
-              aria-label="Search campaigns"
-              className="h-12 w-full rounded-full border border-border/70 bg-surface-raised pl-11 pr-10 text-[15px] text-foreground placeholder:text-muted-foreground focus-ring transition-colors hover:border-border"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:text-foreground press-scale focus-ring"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-
-          <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-            <SheetTrigger asChild>
-              <button
-                type="button"
-                aria-label="Filters"
-                className={cn("icon-pill h-12 w-12 shrink-0", filtersDirty && "text-primary")}
-              >
-                <SlidersHorizontal className="h-[18px] w-[18px]" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="rounded-t-3xl border-border/70 bg-surface pb-8">
-              <SheetHeader className="text-left">
-                <SheetTitle className="font-display text-[20px]">Filters</SheetTitle>
-              </SheetHeader>
-
-              <div className="mt-5 space-y-6">
-                <div>
-                  <div className="mb-2.5 text-[13px] font-semibold text-muted-foreground">Platforms</div>
-                  <div className="flex flex-wrap gap-2">
-                    {PLATFORMS.map((p) => {
-                      const Glyph = PLATFORM_GLYPHS[p];
-                      return (
-                        <button
-                          key={p}
-                          type="button"
-                          data-active={platforms.includes(p)}
-                          onClick={() => togglePlatform(p)}
-                          className="chip"
-                        >
-                          {Glyph && <Glyph size={15} />}
-                          {PLATFORM_LABEL[p]}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="mb-2.5 text-[13px] font-semibold text-muted-foreground">Sort by</div>
-                  <div className="flex flex-wrap gap-2">
-                    {SORTS.map((s) => (
-                      <button
-                        key={s.value}
-                        type="button"
-                        data-active={sort === s.value}
-                        onClick={() => setSort(s.value)}
-                        className="chip"
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={resetAll}
-                    className="h-12 flex-1 rounded-full border border-border text-[15px] font-semibold press-scale focus-ring transition-colors hover:bg-accent"
-                  >
-                    Reset
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFiltersOpen(false)}
-                    className="h-12 flex-1 rounded-full bg-primary text-[15px] font-semibold text-primary-foreground press-scale focus-ring transition-opacity hover:opacity-90"
-                  >
-                    Show {filtered.length}
-                  </button>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+        {/* Search */}
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-[17px] w-[17px] -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search for a campaign..."
+            aria-label="Search campaigns"
+            className="h-12 w-full rounded-2xl border border-border/70 bg-surface-raised pl-11 pr-10 text-[15px] text-foreground placeholder:text-muted-foreground focus-ring transition-colors hover:border-border"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:text-foreground press-scale focus-ring"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
-        <FilterPills className="mt-3" options={tabs} value={tab} onChange={setTab} />
+        <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+          <FilterPills
+            className="mt-3"
+            options={tabs}
+            value={tab}
+            onChange={setTab}
+            leading={
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Filters"
+                  className={cn(
+                    "icon-pill h-9 w-9 shrink-0 rounded-full",
+                    filtersDirty && "text-primary",
+                  )}
+                >
+                  <SlidersHorizontal className="h-[16px] w-[16px]" />
+                </button>
+              </SheetTrigger>
+            }
+          />
+          <SheetContent side="bottom" className="rounded-t-3xl border-border/70 bg-surface pb-8">
+            <SheetHeader className="text-left">
+              <SheetTitle className="font-display text-[20px]">Filters</SheetTitle>
+            </SheetHeader>
+
+            <div className="mt-5 space-y-6">
+              <div>
+                <div className="mb-2.5 text-[13px] font-semibold text-muted-foreground">Platforms</div>
+                <div className="flex flex-wrap gap-2">
+                  {PLATFORMS.map((p) => {
+                    const Glyph = PLATFORM_GLYPHS[p];
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        data-active={platforms.includes(p)}
+                        onClick={() => togglePlatform(p)}
+                        className="chip"
+                      >
+                        {Glyph && <Glyph size={15} />}
+                        {PLATFORM_LABEL[p]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2.5 text-[13px] font-semibold text-muted-foreground">Sort by</div>
+                <div className="flex flex-wrap gap-2">
+                  {SORTS.map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      data-active={sort === s.value}
+                      onClick={() => setSort(s.value)}
+                      className="chip"
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={resetAll}
+                  className="h-12 flex-1 rounded-full border border-border text-[15px] font-semibold press-scale focus-ring transition-colors hover:bg-accent"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen(false)}
+                  className="h-12 flex-1 rounded-full bg-primary text-[15px] font-semibold text-primary-foreground press-scale focus-ring transition-opacity hover:opacity-90"
+                >
+                  Show {filtered.length}
+                </button>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
 
         {!loading && (
-          <div className="mt-2.5 px-0.5 text-[12px] text-muted-foreground">
-            {filtered.length} of {campaigns.length} campaigns
+          <div className="mt-3 px-0.5 text-[12.5px] text-muted-foreground">
+            <span className="font-semibold text-foreground">{filtered.length}</span> of {campaigns.length} campaigns
           </div>
         )}
 
