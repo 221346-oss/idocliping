@@ -108,7 +108,7 @@ export default function Auth() {
     try {
       const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
       if (error) throw error;
-      toast({ title: "Welcome to Clipper" });
+      toast({ title: "Welcome to iClips" });
     } catch (err) {
       setCode("");
       toast({
@@ -129,7 +129,7 @@ export default function Auth() {
             <StackedLogo size={30} />
           </Link>
           <h1 className="font-display text-[24px] font-semibold leading-tight tracking-tight">
-            {step === "email" ? "Welcome to Clipper" : "Check your email"}
+            {step === "email" ? "Welcome to iClips" : "Check your email"}
           </h1>
           {step === "code" ? (
             <p className="text-[13px] text-muted-foreground">
