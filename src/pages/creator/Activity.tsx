@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreatorShell, PageContainer, PageTitle, DetailHeader } from "@/components/shell/CreatorShell";
-import { UnderlineTabs } from "@/components/ui-kit/Pills";
+import { FilterPills, UnderlineTabs } from "@/components/ui-kit/Pills";
 import { StatusChip, normalizeStatus } from "@/components/ui-kit/StatusChip";
 import { RowListSkeleton, StatBlockSkeleton } from "@/components/ui-kit/Skeletons";
 import { Film, Megaphone, ArrowLeft, Trash2, Loader2, Info, LayoutDashboard, TrendingUp, Clock } from "lucide-react";
@@ -21,7 +21,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { submissionStatusBadgeClass, submissionStatusLabel } from "@/lib/submission-status";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -63,6 +62,8 @@ export default function CreatorSubmissions() {
   const [rows, setRows] = useState<SubRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("campaigns");
+  const [campFilter, setCampFilter] = useState("all");
+  const [subFilter, setSubFilter] = useState("all");
 
   const missingAppealsWarned = useRef(false);
 
