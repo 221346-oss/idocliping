@@ -53,6 +53,14 @@ const PLATFORM_LABEL: Record<string, string> = {
   youtube: "YouTube",
   x: "X",
 };
+/** Derived campaign lifecycle state used by the Campaigns filter pills. */
+function campaignPayoutState(status: string | null | undefined): "active" | "pending" | "paid" {
+  const s = (status ?? "").toLowerCase();
+  if (["completed", "ended", "paid", "paid_out"].includes(s)) return "paid";
+  if (["paused", "pending", "draft"].includes(s)) return "pending";
+  return "active";
+}
+
 
 export default function CreatorSubmissions() {
   const { user } = useAuth();
