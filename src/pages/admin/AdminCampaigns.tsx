@@ -4,164 +4,170 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Loader2, Plus, Pencil, Pause, Play } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-const CATEGORIES = ["music", "clipping", "gaming", "logo", "ugc", "other"];
-const STATUSES = ["draft", "active", "paused", "ended"];
-const PLATFORMS = ["tiktok", "instagram", "youtube", "x"];
+import {
+  CampaignForm,
+  campaignToForm,
+  emptyCampaignForm,
+  formToCampaignPayload,
+  STATUSES,
+  type CampaignFormValues,
+} from "@/components/admin/CampaignForm";
 
 export default function AdminCampaigns() {
   const { toast } = useToast();
   const [rows, setRows] = useState<any[]>([]);
-  const [brands, setBrands] = useState<any[]>([]);
+  const [brands, setBrands] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-
-  const [form, setForm] = useState({
-    brand_id: "", title: "", description: "", instructions: "", thumbnail_url: "",
-    category: "ugc", payout_per_1m_views: "1000", budget_total: "1000", status: "active",
-    platforms: ["tiktok"] as string[],
-    discord_link: "", max_earnings_per_post: "", max_submissions_per_day: "",
-    min_followers_per_account: "", min_views_for_earnings: "", min_engagement_rate: "",
-    min_duration_seconds: "", account_audience_requirements: "",
-  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<CampaignFormValues>(emptyCampaignForm);
 
   const load = async () => {
     const [{ data: c }, { data: b }] = await Promise.all([
       supabase.from("campaigns").select("*, brands(name)").order("created_at", { ascending: false }),
       supabase.from("brands").select("id, name").order("name"),
     ]);
-    setRows(c ?? []); setBrands(b ?? []); setLoading(false);
+    setRows(c ?? []);
+    setBrands((b ?? []) as any);
+    setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    void load();
+  }, []);
 
-  const num = (v: string) => (v.trim() === "" ? null : Number(v) || 0);
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(emptyCampaignForm);
+    setOpen(true);
+  };
 
-  const create = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const openEdit = (row: any) => {
+    setEditingId(row.id);
+    setForm(campaignToForm(row));
+    setOpen(true);
+  };
+
+  const save = async () => {
     setBusy(true);
-    const total = Number(form.budget_total) || 0;
-    const { error } = await supabase.from("campaigns").insert({
-      brand_id: form.brand_id || null,
-      title: form.title, description: form.description, instructions: form.instructions, thumbnail_url: form.thumbnail_url,
-      category: form.category as any, status: form.status as any, platforms: form.platforms,
-      payout_per_1m_views: Number(form.payout_per_1m_views) || 0,
-      budget_total: total, budget_remaining: total,
-      discord_link: form.discord_link.trim() || null,
-      max_earnings_per_post: num(form.max_earnings_per_post),
-      max_submissions_per_day: num(form.max_submissions_per_day),
-      min_followers_per_account: num(form.min_followers_per_account),
-      min_views_for_earnings: num(form.min_views_for_earnings),
-      min_engagement_rate: num(form.min_engagement_rate),
-      min_duration_seconds: num(form.min_duration_seconds),
-      account_audience_requirements: form.account_audience_requirements.trim() || null,
-    } as any);
+    const payload = formToCampaignPayload(form, { isNew: !editingId });
+    const { error } = editingId
+      ? await supabase.from("campaigns").update(payload as any).eq("id", editingId)
+      : await supabase.from("campaigns").insert(payload as any);
     setBusy(false);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
-    toast({ title: "Campaign created" });
-    setOpen(false); load();
+    toast({ title: editingId ? "Campaign updated" : "Campaign created" });
+    setOpen(false);
+    void load();
   };
 
   const updateStatus = async (id: string, status: string) => {
-    await supabase.from("campaigns").update({ status: status as any }).eq("id", id);
-    load();
+    const { error } = await supabase.from("campaigns").update({ status } as any).eq("id", id);
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+    void load();
   };
-
-  const togglePlatform = (p: string) => setForm(f => ({ ...f, platforms: f.platforms.includes(p) ? f.platforms.filter(x => x !== p) : [...f.platforms, p] }));
 
   return (
     <AppLayout>
-      <PageHeader title="Campaigns" description="Create and manage campaigns on behalf of brands." actions={
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button size="sm"><Plus className="h-3.5 w-3.5" /> New campaign</Button></DialogTrigger>
-          <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>Create campaign</DialogTitle></DialogHeader>
-            <form onSubmit={create} className="space-y-3">
-              <div className="space-y-1"><Label>Brand</Label>
-                <Select value={form.brand_id} onValueChange={(v) => setForm(f => ({ ...f, brand_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Choose brand" /></SelectTrigger>
-                  <SelectContent>{brands.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1"><Label>Title</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} required /></div>
-              <div className="space-y-1"><Label>Description</Label><Textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} /></div>
-              <div className="space-y-1"><Label>Instructions for creators</Label><Textarea value={form.instructions} onChange={(e) => setForm(f => ({ ...f, instructions: e.target.value }))} /></div>
-              <div className="space-y-1"><Label>Thumbnail URL</Label><Input value={form.thumbnail_url} onChange={(e) => setForm(f => ({ ...f, thumbnail_url: e.target.value }))} /></div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1"><Label>Category</Label>
-                  <Select value={form.category} onValueChange={(v) => setForm(f => ({ ...f, category: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1"><Label>Status</Label>
-                  <Select value={form.status} onValueChange={(v) => setForm(f => ({ ...f, status: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1"><Label>Payout per 1M views ($)</Label><Input type="number" step="0.01" value={form.payout_per_1m_views} onChange={(e) => setForm(f => ({ ...f, payout_per_1m_views: e.target.value }))} /></div>
-                <div className="space-y-1"><Label>Total budget ($)</Label><Input type="number" step="0.01" value={form.budget_total} onChange={(e) => setForm(f => ({ ...f, budget_total: e.target.value }))} /></div>
-              </div>
-              <div className="space-y-1"><Label>Platforms</Label>
-                <div className="flex flex-wrap gap-2">
-                  {PLATFORMS.map(p => (
-                    <button type="button" key={p} onClick={() => togglePlatform(p)} className={`text-[12px] px-2 py-1 border rounded uppercase tracking-wide ${form.platforms.includes(p) ? "bg-foreground text-background border-foreground" : "border-border"}`}>{p}</button>
-                  ))}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1"><Label>Max earnings per post ($)</Label><Input type="number" step="0.01" value={form.max_earnings_per_post} onChange={(e) => setForm(f => ({ ...f, max_earnings_per_post: e.target.value }))} /></div>
-                <div className="space-y-1"><Label>Max submissions / day</Label><Input type="number" value={form.max_submissions_per_day} onChange={(e) => setForm(f => ({ ...f, max_submissions_per_day: e.target.value }))} /></div>
-                <div className="space-y-1"><Label>Min followers per account</Label><Input type="number" value={form.min_followers_per_account} onChange={(e) => setForm(f => ({ ...f, min_followers_per_account: e.target.value }))} /></div>
-                <div className="space-y-1"><Label>Min views for earnings</Label><Input type="number" value={form.min_views_for_earnings} onChange={(e) => setForm(f => ({ ...f, min_views_for_earnings: e.target.value }))} /></div>
-                <div className="space-y-1"><Label>Min engagement rate (%)</Label><Input type="number" step="0.01" value={form.min_engagement_rate} onChange={(e) => setForm(f => ({ ...f, min_engagement_rate: e.target.value }))} /></div>
-                <div className="space-y-1"><Label>Min duration (seconds)</Label><Input type="number" value={form.min_duration_seconds} onChange={(e) => setForm(f => ({ ...f, min_duration_seconds: e.target.value }))} /></div>
-              </div>
-              <div className="space-y-1"><Label>Campaign Discord link</Label><Input value={form.discord_link} onChange={(e) => setForm(f => ({ ...f, discord_link: e.target.value }))} placeholder="https://discord.gg/…" /></div>
-              <div className="space-y-1"><Label>Account audience requirement</Label><Input value={form.account_audience_requirements} onChange={(e) => setForm(f => ({ ...f, account_audience_requirements: e.target.value }))} placeholder="Account audience must be mostly US" /></div>
-              <Button type="submit" disabled={busy} className="w-full">{busy && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}Create</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      } />
+      <PageHeader
+        title="Campaigns"
+        description="Create, edit, pause and publish campaigns."
+        actions={
+          <Button size="sm" onClick={openCreate}>
+            <Plus className="h-3.5 w-3.5" /> New campaign
+          </Button>
+        }
+      />
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-h-[88vh] max-w-xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingId ? "Edit campaign" : "Create campaign"}</DialogTitle>
+          </DialogHeader>
+          <CampaignForm
+            value={form}
+            onChange={setForm}
+            onSubmit={() => void save()}
+            busy={busy}
+            brands={brands}
+            submitLabel={editingId ? "Save changes" : "Create campaign"}
+          />
+        </DialogContent>
+      </Dialog>
+
       <div className="p-6">
-        {loading ? <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div> :
-        rows.length === 0 ? <div className="text-center text-[13px] text-muted-foreground py-12">No campaigns yet.</div> :
-        <div className="border border-border rounded-md overflow-hidden">
-          <table className="w-full text-[13px]">
-            <thead className="bg-muted/30 text-muted-foreground text-[11px] uppercase tracking-wide">
-              <tr><th className="text-left p-3">Title</th><th className="text-left p-3">Brand</th><th className="text-left p-3">Category</th><th className="text-right p-3">Budget</th><th className="text-left p-3">Status</th></tr>
-            </thead>
-            <tbody>
-              {rows.map(r => (
-                <tr key={r.id} className="border-t border-border">
-                  <td className="p-3 font-medium">
-                    <Link to={`/admin/campaigns/${r.id}`} className="hover:underline text-primary">{r.title}</Link>
-                  </td>
-                  <td className="p-3">{r.brands?.name ?? "—"}</td>
-                  <td className="p-3 capitalize">{r.category}</td>
-                  <td className="p-3 text-right">${Number(r.budget_remaining).toFixed(0)} / ${Number(r.budget_total).toFixed(0)}</td>
-                  <td className="p-3">
-                    <Select value={r.status} onValueChange={(v) => updateStatus(r.id, v)}>
-                      <SelectTrigger className="h-7 text-[12px] w-28"><SelectValue /></SelectTrigger>
-                      <SelectContent>{STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                    </Select>
-                  </td>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="py-12 text-center text-[13px] text-muted-foreground">No campaigns yet.</div>
+        ) : (
+          <div className="overflow-x-auto rounded-md border border-border">
+            <table className="w-full min-w-[720px] text-[13px]">
+              <thead className="bg-muted/30 text-[11px] uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="p-3 text-left">Title</th>
+                  <th className="p-3 text-left">Brand</th>
+                  <th className="p-3 text-left">Category</th>
+                  <th className="p-3 text-right">Budget left</th>
+                  <th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>}
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.id} className="border-t border-border">
+                    <td className="p-3 font-medium">
+                      <Link to={`/admin/campaigns/${r.id}`} className="text-primary hover:underline">
+                        {r.title}
+                      </Link>
+                    </td>
+                    <td className="p-3">{r.brands?.name ?? "—"}</td>
+                    <td className="p-3 capitalize">{r.category}</td>
+                    <td className="p-3 text-right">
+                      ${Number(r.budget_remaining).toFixed(0)} / ${Number(r.budget_total).toFixed(0)}
+                    </td>
+                    <td className="p-3">
+                      <Select value={r.status} onValueChange={(v) => void updateStatus(r.id, v)}>
+                        <SelectTrigger className="h-7 w-28 text-[12px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {STATUSES.map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {s}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex justify-end gap-1.5">
+                        <Button size="sm" variant="outline" className="h-7 text-[12px]" onClick={() => openEdit(r)}>
+                          <Pencil className="mr-1 h-3.5 w-3.5" /> Edit
+                        </Button>
+                        {r.status === "active" ? (
+                          <Button size="sm" variant="secondary" className="h-7 text-[12px]" onClick={() => void updateStatus(r.id, "paused")}>
+                            <Pause className="mr-1 h-3.5 w-3.5" /> Pause
+                          </Button>
+                        ) : (
+                          <Button size="sm" variant="secondary" className="h-7 text-[12px]" onClick={() => void updateStatus(r.id, "active")}>
+                            <Play className="mr-1 h-3.5 w-3.5" /> Go live
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </AppLayout>
   );
