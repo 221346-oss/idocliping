@@ -84,7 +84,7 @@ export default function CreatorProfile() {
           action={
             isOwnProfile && !isAccountView ? (
               <Link
-                to="/creator/profile/edit"
+                to="/profile/edit"
                 className="press-scale focus-ring inline-flex h-10 items-center gap-2 rounded-full border border-border/70 bg-surface-raised px-4 text-[14px] font-semibold transition-colors hover:border-border"
               >
                 <Pencil className="h-[15px] w-[15px]" />

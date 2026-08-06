@@ -103,7 +103,7 @@ export function ProfileRightCard({ profile, isOwnProfile }: ProfileRightCardProp
 
         {isOwnProfile ? (
           <Button asChild variant="outline" className="w-full h-8 text-[12px] border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50">
-            <Link to="/creator/profile/edit">Edit profile</Link>
+            <Link to="/profile/edit">Edit profile</Link>
           </Button>
         ) : null}
       </div>

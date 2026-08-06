@@ -35,7 +35,7 @@ export function TopNav() {
   return (
     <header className="hidden md:block sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-2 px-6">
-        <Link to="/creator/campaigns" className="mr-4 focus-ring rounded-xl press-scale">
+        <Link to="/discover" className="mr-4 focus-ring rounded-xl press-scale">
           <ClipperWordmark size={22} />
         </Link>
 
@@ -64,7 +64,7 @@ export function TopNav() {
 
         <div className="ml-auto flex items-center gap-1.5">
           <Link
-            to="/creator/wallet"
+            to="/wallet"
             className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-2 text-[14px] font-semibold text-foreground transition-colors hover:bg-primary/20 press-scale focus-ring"
           >
             <WalletGlyph size={18} className="text-primary" />
@@ -72,7 +72,7 @@ export function TopNav() {
           </Link>
 
           <Link
-            to="/creator/referrals"
+            to="/referrals"
             className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-[14px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground press-scale focus-ring"
           >
             <UserPlus className="h-[18px] w-[18px]" />
@@ -80,7 +80,7 @@ export function TopNav() {
           </Link>
 
           <Link
-            to="/creator/support"
+            to="/support"
             aria-label="Notifications"
             className="icon-pill h-10 w-10"
           >
@@ -102,13 +102,13 @@ export function TopNav() {
                 <div className="truncate text-[12px] font-normal text-muted-foreground">{user?.email}</div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="gap-2.5 rounded-xl px-3 py-2.5 text-[14px]" onClick={() => navigate("/profile/me")}>
+              <DropdownMenuItem className="gap-2.5 rounded-xl px-3 py-2.5 text-[14px]" onClick={() => navigate("/profile")}>
                 <UserIcon className="h-4 w-4" /> Profile
               </DropdownMenuItem>
               <DropdownMenuItem className="gap-2.5 rounded-xl px-3 py-2.5 text-[14px]" onClick={() => navigate("/settings")}>
                 <SettingsIcon className="h-4 w-4" /> Settings
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2.5 rounded-xl px-3 py-2.5 text-[14px]" onClick={() => navigate("/creator/support")}>
+              <DropdownMenuItem className="gap-2.5 rounded-xl px-3 py-2.5 text-[14px]" onClick={() => navigate("/support")}>
                 <HelpCircle className="h-4 w-4" /> Help
               </DropdownMenuItem>
               <DropdownMenuSeparator />

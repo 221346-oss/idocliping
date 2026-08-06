@@ -401,7 +401,7 @@ export default function CreatorCampaignDetail() {
       setSubmitModalOpen(false);
       setPostUrl("");
       toast({ title: "Submitted!", description: "Admin will verify your post shortly." });
-      navigate(`/creator/submissions/${id}`);
+      navigate(`/activity/${id}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Try again";
       toast({ title: "Submission failed", description: msg, variant: "destructive" });
@@ -436,7 +436,7 @@ export default function CreatorCampaignDetail() {
               title="Campaign not found"
               description="This campaign may have ended or been removed."
               actionLabel="Back to Explore"
-              actionTo="/creator/campaigns"
+              actionTo="/discover"
             />
           </div>
         </PageContainer>
@@ -487,7 +487,7 @@ export default function CreatorCampaignDetail() {
       <PageContainer>
         <DetailHeader
           title="Campaign Details"
-          onBack={() => navigate("/creator/campaigns")}
+          onBack={() => navigate("/discover")}
           action={
             <button type="button" onClick={() => void shareCampaign()} aria-label="Share campaign" className="icon-pill h-10 w-10">
               <Share2 className="h-[18px] w-[18px]" />
@@ -743,7 +743,7 @@ export default function CreatorCampaignDetail() {
                       <button
                         key={s.id}
                         type="button"
-                        onClick={() => navigate(`/creator/submissions/report/${s.id}`)}
+                        onClick={() => navigate(`/submissions/${s.id}`)}
                         className="press-row focus-ring flex w-full items-center gap-3 px-4 py-3.5 text-left"
                       >
                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface-raised text-muted-foreground">

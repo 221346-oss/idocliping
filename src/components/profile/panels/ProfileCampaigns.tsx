@@ -35,7 +35,7 @@ export function ProfileCampaigns({ profile }: ProfileCampaignsProps) {
                       {campaign.status}
                     </Badge>
                   </div>
-                  <Link to={`/creator/campaigns/${campaign.id}`} className="text-[11px] text-primary hover:underline mt-1 inline-block">
+                  <Link to={`/campaigns/${campaign.id}`} className="text-[11px] text-primary hover:underline mt-1 inline-block">
                     View campaign
                   </Link>
                 </div>

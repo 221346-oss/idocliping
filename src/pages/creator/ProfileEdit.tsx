@@ -92,7 +92,7 @@ export default function CreatorProfileEdit() {
       if (error) throw error;
       await refreshProfile();
       toast({ title: "Profile saved" });
-      navigate("/profile/me");
+      navigate("/profile");
     } catch (err) {
       toast({ title: "Save failed", description: err instanceof Error ? err.message : "", variant: "destructive" });
     } finally {
@@ -105,7 +105,7 @@ export default function CreatorProfileEdit() {
   return (
     <CreatorShell>
       <PageContainer className="max-w-[560px]">
-        <DetailHeader title="Edit profile" onBack={() => navigate("/profile/me")} />
+        <DetailHeader title="Edit profile" onBack={() => navigate("/profile")} />
 
         {loading ? (
           <div className="flex justify-center py-20">

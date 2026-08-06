@@ -81,7 +81,7 @@ export default function CreatorSupportNew() {
         title: "Ticket submitted",
         description: `${data.ticket_number} — we’ll respond within 24–48 hours.`,
       });
-      navigate(`/creator/support/${data.id}`);
+      navigate(`/support/${data.id}`);
     } catch (err: unknown) {
       toast({
         title: "Could not submit",
@@ -112,7 +112,7 @@ export default function CreatorSupportNew() {
     <AppLayout>
       <div className="flex flex-col h-full max-w-xl mx-auto w-full px-4 py-4">
         <Button variant="ghost" size="sm" className="h-8 w-fit mb-4 -ml-2" asChild>
-          <Link to="/creator/support">
+          <Link to="/support">
             <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back
           </Link>
         </Button>

@@ -86,7 +86,7 @@ export default function CreatorSubmissionReport() {
               title="Report not found"
               description="This submission no longer exists."
               actionLabel="Back to activity"
-              actionTo="/creator/submissions"
+              actionTo="/activity"
             />
           </div>
         ) : (
@@ -139,7 +139,7 @@ export default function CreatorSubmissionReport() {
                 <button
                   type="button"
                   className="btn-primary-pill"
-                  onClick={() => navigate(`/creator/campaigns/${row.campaigns!.id}`)}
+                  onClick={() => navigate(`/campaigns/${row.campaigns!.id}`)}
                 >
                   Open campaign
                 </button>

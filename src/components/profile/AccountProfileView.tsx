@@ -130,7 +130,7 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
 
         <div className="surface-card px-5 pb-5 pt-12 text-center">
           <Link
-            to="/creator/profile/edit"
+            to="/profile/edit"
             aria-label="Edit profile"
             className="icon-pill absolute right-3 top-3 h-9 w-9"
           >
@@ -152,11 +152,11 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       </div>
 
       <div className="list-group">
-        <Row icon={Link2} label="Connected accounts" to="/creator/social" highlight />
+        <Row icon={Link2} label="Connected accounts" to="/accounts" highlight />
       </div>
 
       <div className="list-group">
-        <Row icon={UserPlus} label="Referrals" value="Earn 10%" to="/creator/referrals" />
+        <Row icon={UserPlus} label="Referrals" value="Earn 10%" to="/referrals" />
       </div>
 
       <div className="list-group">
@@ -166,9 +166,9 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       </div>
 
       <div className="list-group">
-        <Row icon={HelpCircle} label="FAQ" to="/creator/support" />
-        <Row icon={BookOpen} label="Resources" to="/creator/support" />
-        <Row icon={LifeBuoy} label="Support" to="/creator/support/new" />
+        <Row icon={HelpCircle} label="FAQ" to="/support" />
+        <Row icon={BookOpen} label="Resources" to="/support" />
+        <Row icon={LifeBuoy} label="Support" to="/support/new" />
       </div>
 
       <div className="list-group">
@@ -192,7 +192,7 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       </div>
 
       <div className="list-group">
-        <Row icon={UserX} label="Delete" tone="danger" to="/creator/support/new" />
+        <Row icon={UserX} label="Delete" tone="danger" to="/support/new" />
       </div>
 
       <div className="flex flex-col items-center gap-1 pt-4">

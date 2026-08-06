@@ -101,24 +101,24 @@ const App = () => (
               <Route path="/bugs/:id" element={<RoleRoute roles={["admin"]}><BugDetail /></RoleRoute>} />
 
               {/* Creator */}
-              <Route path="/creator" element={<RoleRoute roles={["creator", "user"]}><CreatorMarketplace /></RoleRoute>} />
-              <Route path="/creator/campaigns" element={<RoleRoute roles={["creator", "user"]}><CreatorMarketplace /></RoleRoute>} />
-              <Route path="/creator/campaigns/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorCampaignDetail /></RoleRoute>} />
-              <Route path="/creator/leaderboard" element={<RoleRoute roles={["creator", "user"]}><CreatorLeaderboard /></RoleRoute>} />
-              <Route path="/creator/profile/me" element={<RoleRoute roles={["creator", "user"]}><CreatorProfile /></RoleRoute>} />
-              <Route path="/creator/profile/edit" element={<RoleRoute roles={["creator", "user"]}><CreatorProfileEdit /></RoleRoute>} />
-              <Route path="/creator/profile/:username" element={<ProtectedRoute><CreatorProfile /></ProtectedRoute>} />
-              <Route path="/creator/submissions" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
-              <Route path="/creator/submissions/report/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissionReport /></RoleRoute>} />
-              <Route path="/creator/submissions/:campaignId" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
-              <Route path="/creator/wallet" element={<RoleRoute roles={["creator", "user"]}><CreatorWallet /></RoleRoute>} />
-              <Route path="/creator/wallet/transactions" element={<RoleRoute roles={["creator", "user"]}><CreatorTransactions /></RoleRoute>} />
-              <Route path="/creator/referrals" element={<RoleRoute roles={["creator", "user"]}><CreatorReferrals /></RoleRoute>} />
-              <Route path="/creator/social" element={<RoleRoute roles={["creator", "user"]}><CreatorSocial /></RoleRoute>} />
-              <Route path="/creator/support" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportList /></RoleRoute>} />
-              <Route path="/creator/support/new" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportNew /></RoleRoute>} />
-              <Route path="/creator/support/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportDetail /></RoleRoute>} />
-              <Route path="/profile/me" element={<RoleRoute roles={["creator", "user"]}><CreatorProfile /></RoleRoute>} />
+              <Route path="/discover" element={<RoleRoute roles={["creator", "user"]}><CreatorMarketplace /></RoleRoute>} />
+              <Route path="/discover" element={<RoleRoute roles={["creator", "user"]}><CreatorMarketplace /></RoleRoute>} />
+              <Route path="/campaigns/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorCampaignDetail /></RoleRoute>} />
+              <Route path="/leaderboard" element={<RoleRoute roles={["creator", "user"]}><CreatorLeaderboard /></RoleRoute>} />
+              <Route path="/profile" element={<RoleRoute roles={["creator", "user"]}><CreatorProfile /></RoleRoute>} />
+              <Route path="/profile/edit" element={<RoleRoute roles={["creator", "user"]}><CreatorProfileEdit /></RoleRoute>} />
+              <Route path="/u/:username" element={<ProtectedRoute><CreatorProfile /></ProtectedRoute>} />
+              <Route path="/activity" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
+              <Route path="/submissions/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissionReport /></RoleRoute>} />
+              <Route path="/activity/:campaignId" element={<RoleRoute roles={["creator", "user"]}><CreatorSubmissions /></RoleRoute>} />
+              <Route path="/wallet" element={<RoleRoute roles={["creator", "user"]}><CreatorWallet /></RoleRoute>} />
+              <Route path="/wallet/transactions" element={<RoleRoute roles={["creator", "user"]}><CreatorTransactions /></RoleRoute>} />
+              <Route path="/referrals" element={<RoleRoute roles={["creator", "user"]}><CreatorReferrals /></RoleRoute>} />
+              <Route path="/accounts" element={<RoleRoute roles={["creator", "user"]}><CreatorSocial /></RoleRoute>} />
+              <Route path="/support" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportList /></RoleRoute>} />
+              <Route path="/support/new" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportNew /></RoleRoute>} />
+              <Route path="/support/:id" element={<RoleRoute roles={["creator", "user"]}><CreatorSupportDetail /></RoleRoute>} />
+              <Route path="/profile" element={<RoleRoute roles={["creator", "user"]}><CreatorProfile /></RoleRoute>} />
               <Route path="/profile/:username" element={<ProtectedRoute><CreatorProfile /></ProtectedRoute>} />
 
               {/* Brand */}
