@@ -77,7 +77,10 @@ export default function CreatorSubmissions() {
 
   const loadRows = useCallback(async () => {
     if (!user) return;
+    // flips posts whose 6s processing window has passed to Eligible
+    await supabase.rpc("promote_eligible_submissions" as any);
     const { data, error } = await supabase
+
       .from("submissions")
       .select(
         "*, earnings(amount), campaigns(id, title, thumbnail_url, status, category, platforms), submission_appeals(id, status, message, admin_note, created_at)",
