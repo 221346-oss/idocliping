@@ -109,21 +109,40 @@ export default function Accounts() {
     void load();
   };
 
-  const requestVerify = async (a: Account) => {
-    const code = a.verification_code || makeCode();
-    const { error } = await supabase
-      .from("social_accounts")
-      .update({
-        verification_code: code,
-        verification_status: "pending",
-        verification_requested_at: new Date().toISOString(),
-      })
-      .eq("id", a.id);
-    if (error) return toast({ title: "Couldn't submit", description: error.message, variant: "destructive" });
-    toast({ title: "Sent for review", description: "We'll check your bio and confirm shortly." });
-    setVerifyFor(null);
+  const runAutoCheck = async (a: Account) => {
+    setChecking(true);
+    const { data, error } = await supabase.functions.invoke("verify-social-bio", {
+      body: { account_id: a.id },
+    });
+    setChecking(false);
+
+    if (error) {
+      return toast({
+        title: "Check failed",
+        description: "We couldn't reach the verifier. Try again in a moment.",
+        variant: "destructive",
+      });
+    }
+
+    const status = (data as { status?: string; message?: string } | null)?.status;
+    const message = (data as { message?: string } | null)?.message;
+
+    if (status === "verified") {
+      toast({ title: "Account verified", description: message });
+      setVerifyFor(null);
+    } else if (status === "pending") {
+      toast({ title: "Sent for review", description: message });
+      setVerifyFor(null);
+    } else {
+      toast({
+        title: "Code not found yet",
+        description: message ?? "Save the code in your bio, then check again.",
+        variant: "destructive",
+      });
+    }
     void load();
   };
+
 
   const openVerify = async (a: Account) => {
     if (!a.verification_code) {
