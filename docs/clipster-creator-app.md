@@ -70,6 +70,10 @@ Old `/creator/*` and `/profile/me` paths redirect to the new ones (see `src/App.
 | `/admin/withdrawals` | Approve / mark paid / reject |
 | `/admin/rewards` | Create + publish weekly rewards, review the account verification queue |
 | `/admin/rules`, `/admin/badges`, `/admin/cosmetics`, `/admin/users`, `/admin/tickets` | Platform rules, leaderboard tiers, cosmetics, roles, support |
+| `/admin` | Overview: active campaigns, submissions to review, pending withdrawals, open tickets, creators, total creator earnings |
+| `/analytics` | Platform analytics: submission status split, submissions/day, earnings/day, top campaigns by views |
+
+The legacy BugTrackr scaffold (`/bugs*`) has been removed.
 
 ## 7. Data model touchpoints
 
