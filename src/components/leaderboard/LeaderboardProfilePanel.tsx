@@ -8,7 +8,7 @@ import { formatCurrencySimple } from "@/lib/format-currency";
 import type { EarningsTier } from "@/lib/leaderboard-compute";
 import { EarningsTierBadge } from "./EarningsTierBadge";
 import { ProfilePanelSkeleton } from "./LeaderboardSkeletons";
-import { submissionStatusLabel } from "@/lib/submission-status";
+import { normalizeStatus, StatusChip } from "@/components/ui-kit/StatusChip";
 import { Instagram, Youtube, ExternalLink, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -273,9 +273,7 @@ export function LeaderboardProfilePanel({
                   <span className="font-medium truncate max-w-[140px]">{s.campaignTitle ?? "Campaign"}</span>
                   <span className="text-muted-foreground">{PLATFORM_ICONS[s.platform]}</span>
                   <span className="tabular-nums">{formatViewCount(Number(s.manual_views ?? 0))} views</span>
-                  <Badge variant="outline" className="text-[9px] h-5 px-1.5">
-                    {submissionStatusLabel(s.status)}
-                  </Badge>
+                  <StatusChip status={normalizeStatus(s.status)} size="sm" />
                 </li>
               ))
             )}

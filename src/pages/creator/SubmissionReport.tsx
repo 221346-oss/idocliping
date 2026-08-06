@@ -24,6 +24,11 @@ type ReportRow = {
   status: string;
   created_at: string;
   reject_reason: string | null;
+  total_views: number | null;
+  eligible_views: number | null;
+  engagement_rate: number | null;
+  next_refresh_at: string | null;
+  status_reason: string | null;
   earnings?: { amount: number; created_at: string }[];
   campaigns?: { id: string; title: string; thumbnail_url: string | null; payout_per_1m_views?: number | null } | null;
 };
@@ -68,6 +73,10 @@ export default function CreatorSubmissionReport() {
   const earned = (row?.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0);
   const views = Number(row?.manual_views ?? 0);
   const rate = Number(row?.campaigns?.payout_per_1m_views ?? 0);
+  const totalViews = row?.total_views != null ? Number(row.total_views) : null;
+  const eligibleViews = row?.eligible_views != null ? Number(row.eligible_views) : null;
+  const engagement = row?.engagement_rate != null ? Number(row.engagement_rate) : null;
+  const nextRefresh = row?.next_refresh_at ? new Date(row.next_refresh_at) : null;
 
   return (
     <CreatorShell>
@@ -112,12 +121,37 @@ export default function CreatorSubmissionReport() {
 
               <ListSection title="Performance">
                 <div className="px-4 py-1">
-                  <DataRow label="Views counted" value={views.toLocaleString()} />
+                  <DataRow
+                    label="Total views"
+                    value={(totalViews ?? views).toLocaleString()}
+                  />
+                  <DataRow
+                    label="Eligible views"
+                    value={(eligibleViews ?? views).toLocaleString()}
+                  />
+                  <DataRow
+                    label="Engagement rate"
+                    value={engagement != null ? `${engagement.toFixed(2)}%` : "—"}
+                  />
                   <DataRow label="Rate" value={rate ? `$${rate.toFixed(2)} / 1M views` : "—"} />
                   <DataRow label="Platform" value={PLATFORM_LABEL[row.platform] ?? row.platform} />
                   <DataRow label="Submitted" value={new Date(row.created_at).toLocaleDateString()} />
+                  <DataRow
+                    label="Next stats refresh"
+                    value={nextRefresh ? nextRefresh.toLocaleString() : "Within 24h"}
+                  />
                 </div>
               </ListSection>
+
+              {row.status_reason && !row.reject_reason && (
+                <section className="surface-card space-y-2 p-5">
+                  <h2 className="font-display text-[15px] font-semibold">Status detail</h2>
+                  <p className="flex gap-2 text-[13.5px] leading-relaxed text-muted-foreground">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    {row.status_reason}
+                  </p>
+                </section>
+              )}
 
               {row.reject_reason && (
                 <section className="surface-card space-y-2 p-5">

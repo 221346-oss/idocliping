@@ -138,7 +138,7 @@ export function GeneralRulesGate() {
           <div className="text-destructive">
             <StackedLogo size={22} />
           </div>
-          <h2 className="mt-3 text-[18px] font-semibold text-foreground">iClip General Rules</h2>
+          <h2 className="mt-3 text-[18px] font-semibold text-foreground">iClips General Rules</h2>
           {communityLink && (
             <p className="mt-1 text-[12px] text-muted-foreground">Please review before submitting</p>
           )}

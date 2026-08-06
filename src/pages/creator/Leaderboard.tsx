@@ -2,8 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { AppLayout } from "@/components/AppLayout";
-import { Button } from "@/components/ui/button";
+import { CreatorShell, PageContainer, PageTitle } from "@/components/shell/CreatorShell";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -248,40 +247,107 @@ export default function CreatorLeaderboard() {
     return "Filtered by campaign category.";
   }, [scope]);
 
-  return (
-    <AppLayout>
-      <div className="flex flex-col min-h-0">
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 md:px-6 h-11 border-b border-border shrink-0">
-          <h1 className="text-[13px] font-medium">Leaderboard</h1>
-          {communityLink ? (
-            <Button variant="outline" size="sm" className="h-7 text-[11px]" asChild>
-              <a href={communityLink} target="_blank" rel="noreferrer">
-                Community <ExternalLink className="h-3 w-3 ml-1" />
-              </a>
-            </Button>
-          ) : null}
-        </div>
+  const RowCard = ({
+    rank,
+    rankNode,
+    avatarUrl,
+    bannerUrl,
+    displayName,
+    tier,
+    subtitle,
+    points,
+    pointsCaption,
+    mine,
+    onSelect,
+    onHover,
+  }: {
+    rank?: number;
+    rankNode?: React.ReactNode;
+    avatarUrl: string | null;
+    bannerUrl: string | null;
+    displayName: string;
+    tier: EarningsTier;
+    subtitle?: string | null;
+    points: number;
+    pointsCaption?: string;
+    mine?: boolean;
+    onSelect?: () => void;
+    onHover?: (v: boolean) => void;
+  }) => (
+    <div
+      role="button"
+      tabIndex={0}
+      onMouseEnter={() => onHover?.(true)}
+      onMouseLeave={() => onHover?.(false)}
+      onClick={onSelect}
+      onKeyDown={(ev) => {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          onSelect?.();
+        }
+      }}
+      className={cn(
+        "focus-ring flex cursor-pointer items-center gap-3 px-3 py-3 transition-colors hover:bg-muted/35 sm:px-4",
+        rank ? rankRowTint(rank) : undefined,
+        rank === 1 && "ring-1 ring-inset ring-warning/35",
+        mine && "bg-muted/40 ring-1 ring-inset ring-primary/30",
+      )}
+    >
+      <div className="w-[54px] shrink-0 sm:w-[80px]">
+        {rankNode ?? <RankTrophy rank={rank ?? 0} className="origin-left sm:scale-110" />}
+      </div>
+      <div className="min-w-0 flex-1">
+        <LeaderboardCreatorStrip
+          avatarUrl={avatarUrl}
+          bannerUrl={bannerUrl}
+          displayName={displayName}
+          tier={tier}
+          subtitle={subtitle}
+        />
+      </div>
+      <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
+        <span className="display-figure text-[17px] tabular-nums sm:text-[20px]">{Math.round(points)}</span>
+        <span className="text-[9px] uppercase tracking-wide text-muted-foreground">
+          {pointsCaption ?? "pts"}
+        </span>
+      </div>
+    </div>
+  );
 
-        <div className="flex-1 overflow-auto px-4 md:px-6 py-4 space-y-4">
+  return (
+    <CreatorShell>
+      <PageContainer className="pb-10">
+        <PageTitle
+          action={
+            communityLink ? (
+              <a href={communityLink} target="_blank" rel="noreferrer" className="btn-outline-pill h-10 gap-1.5 px-4 text-[13px]">
+                Community <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            ) : undefined
+          }
+        >
+          Leaderboard
+        </PageTitle>
+
+        <div className="space-y-4">
           {/* Filter bar */}
-          <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between border border-border rounded-lg bg-muted/15 p-3">
-            <div className="flex flex-wrap gap-2 items-center">
-              <span className="text-[10px] uppercase tracking-wide text-muted-foreground w-full xl:w-auto">Scope</span>
+          <div className="surface-card flex flex-col gap-3 p-3 xl:flex-row xl:items-end xl:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="w-full text-[10px] uppercase tracking-wide text-muted-foreground xl:w-auto">Scope</span>
               {(["platform", "campaign", "category"] as Scope[]).map((s) => (
-                <Button
+                <button
                   key={s}
                   type="button"
-                  variant={scope === s ? "default" : "outline"}
-                  size="sm"
-                  className={cn("h-7 text-[11px] px-3", scope === s ? "" : "bg-transparent")}
                   onClick={() => setScope(s)}
+                  data-active={scope === s}
+                  className="chip"
                 >
                   {s === "campaign" ? "Per Campaign" : s === "category" ? "Per Category" : "Platform"}
-                </Button>
+                </button>
               ))}
               {scope === "campaign" ? (
                 <Select value={campaignId || undefined} onValueChange={setCampaignId}>
-                  <SelectTrigger className="h-7 w-[min(100%,220px)] text-[11px]">
+                  <SelectTrigger className="h-9 w-[min(100%,220px)] rounded-full text-[12px]">
                     <SelectValue placeholder="Campaign" />
                   </SelectTrigger>
                   <SelectContent>
@@ -295,7 +361,7 @@ export default function CreatorLeaderboard() {
               ) : null}
               {scope === "category" ? (
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger className="h-7 w-[160px] text-[11px]">
+                  <SelectTrigger className="h-9 w-[160px] rounded-full text-[12px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -309,7 +375,7 @@ export default function CreatorLeaderboard() {
               ) : null}
               {scope === "platform" ? (
                 <Select value={platformFilter} onValueChange={setPlatformFilter}>
-                  <SelectTrigger className="h-7 w-[130px] text-[11px]">
+                  <SelectTrigger className="h-9 w-[140px] rounded-full text-[12px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -323,148 +389,117 @@ export default function CreatorLeaderboard() {
               ) : null}
             </div>
 
-            <div className="flex flex-wrap gap-2 items-center xl:justify-end">
-              <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Time</span>
+            <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+              <span className="w-full text-[10px] uppercase tracking-wide text-muted-foreground xl:w-auto">Time</span>
               {(["week", "month", "all"] as PeriodFilter[]).map((p) => (
-                <Button
+                <button
                   key={p}
                   type="button"
-                  variant={period === p ? "secondary" : "ghost"}
-                  size="sm"
-                  className="h-7 text-[11px] px-3"
                   onClick={() => setPeriod(p)}
+                  data-active={period === p}
+                  className="chip"
                 >
                   {p === "week" ? "This Week" : p === "month" ? "This Month" : "All Time"}
-                </Button>
+                </button>
               ))}
               {period !== "all" && resetLabel ? (
-                <span className="text-[11px] text-muted-foreground whitespace-nowrap">
-                  Resets in <span className="text-foreground font-medium">{resetLabel}</span>
+                <span className="whitespace-nowrap text-[11px] text-muted-foreground">
+                  Resets in <span className="font-medium text-foreground">{resetLabel}</span>
                 </span>
               ) : null}
             </div>
           </div>
 
-          <p className="text-[11px] text-muted-foreground flex gap-2 items-start">
-            <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-            <span>{filterHint} Points = ⌊views/1000⌋ + 50 per approved post in period + campaign bonuses in lifetime totals. Tier badge uses all-time earnings.</span>
+          <p className="flex items-start gap-2 text-[11.5px] text-muted-foreground">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span>
+              {filterHint} Points = ⌊views/1000⌋ + 50 per approved post in period + campaign bonuses in lifetime
+              totals. Tier badge uses all-time earnings.
+            </span>
           </p>
 
-          {/* 2:1 grid keeps both panels in view — no horizontal overflow from % widths + gap */}
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-6 lg:gap-6 items-start min-w-0 w-full max-w-full overflow-x-hidden">
-            {/* Left: Rank | Creator | Points */}
+          <div className="grid w-full min-w-0 max-w-full grid-cols-1 items-start gap-6 overflow-x-hidden lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <div className="min-w-0 max-w-full space-y-3">
               {loading ? (
                 <LeaderboardRowsSkeleton rows={10} />
               ) : top100.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border py-16 text-center text-[13px] text-muted-foreground">
+                <div className="surface-card py-16 text-center text-[13px] text-muted-foreground">
                   No ranked creators for these filters yet.
                 </div>
               ) : (
-                <div className="rounded-lg border border-border overflow-hidden bg-card/30">
-                  <table className="w-full table-fixed text-[13px] border-collapse">
-                    <thead className="bg-muted/50 text-muted-foreground text-[10px] uppercase tracking-[0.12em] border-b border-border">
-                      <tr>
-                        <th className="text-left p-3 w-[88px] font-bold align-bottom">Rank</th>
-                        <th className="text-left p-3 font-bold align-bottom">Creator</th>
-                        <th className="text-right p-3 w-[104px] md:w-[120px] font-bold align-bottom">Points</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {top100.map((e) => (
-                        <tr
-                          key={e.creatorId}
-                          className={cn(
-                            "border-t border-border cursor-pointer transition-colors hover:bg-muted/35",
-                            rankRowTint(e.rank),
-                            e.rank === 1 && "ring-1 ring-inset ring-warning/35 shadow-[inset_0_0_24px_hsl(var(--warning)/0.08)]",
-                            user?.id === e.creatorId && "ring-1 ring-inset ring-primary/30",
-                          )}
-                          onMouseEnter={() => isMd && setHoverId(e.creatorId)}
-                          onMouseLeave={() => isMd && setHoverId(null)}
-                          onClick={() => {
-                            setLockId(e.creatorId);
-                            if (!isMd) setMobileSheetOpen(true);
-                          }}
-                        >
-                          <td className="p-3 align-middle w-[88px]">
-                            <RankTrophy rank={e.rank} className="scale-110 origin-left" />
-                          </td>
-                          <td className="p-3 align-middle min-w-0">
-                            <LeaderboardCreatorStrip
-                              avatarUrl={e.avatarUrl}
-                              bannerUrl={e.bannerUrl}
-                              displayName={e.displayName}
-                              tier={e.tier}
-                            />
-                          </td>
-                          <td className="p-3 align-middle text-right">
-                            <span className="text-lg md:text-xl font-bold tabular-nums text-foreground">{Math.round(e.points)}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    {user ? (
-                      <tbody>
-                        <tr className="border-t-2 border-border bg-muted/30">
-                          <td colSpan={3} className="px-3 py-1.5">
-                            <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-semibold">You</span>
-                          </td>
-                        </tr>
-                        <tr
-                          className={cn(
-                            "border-t border-border bg-muted/40 hover:bg-muted/45",
-                            userRank === 1 && "ring-1 ring-inset ring-warning/25",
-                          )}
-                        >
-                          <td className="p-3 align-middle w-[88px]">
-                            {userRank && userRank <= 100 ? (
-                              <RankTrophy rank={userRank} className="scale-110 origin-left" />
-                            ) : (
-                              <Badge variant="outline" className="text-[10px] font-mono font-normal w-fit px-1.5 py-0.5">
-                                &lt; 100
-                              </Badge>
-                            )}
-                          </td>
-                          <td className="p-3 align-middle min-w-0">
-                            <LeaderboardCreatorStrip
-                              avatarUrl={userEntry?.avatarUrl ?? profile?.avatar_url ?? null}
-                              bannerUrl={userEntry?.bannerUrl ?? null}
-                              displayName={userEntry?.displayName ?? profile?.full_name ?? "You"}
-                              tier={userEntry?.tier ?? "rookie"}
-                              subtitle={notOnBoard ? "Not on leaderboard" : undefined}
-                            />
-                          </td>
-                          <td className="p-3 align-middle text-right">
-                            <div className="flex flex-col items-end gap-0.5">
-                              <span className="text-lg md:text-xl font-bold tabular-nums">{userEntry ? Math.round(userEntry.points) : 0}</span>
-                              <span className="text-[9px] uppercase tracking-wide text-muted-foreground">This period</span>
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    ) : null}
-                  </table>
+                <div className="surface-card divide-y divide-border/60 overflow-hidden">
+                  {top100.map((e) => (
+                    <RowCard
+                      key={e.creatorId}
+                      rank={e.rank}
+                      avatarUrl={e.avatarUrl}
+                      bannerUrl={e.bannerUrl}
+                      displayName={e.displayName}
+                      tier={e.tier}
+                      points={e.points}
+                      mine={user?.id === e.creatorId}
+                      onHover={(v) => isMd && setHoverId(v ? e.creatorId : null)}
+                      onSelect={() => {
+                        setLockId(e.creatorId);
+                        if (!isMd) setMobileSheetOpen(true);
+                      }}
+                    />
+                  ))}
+
+                  {user ? (
+                    <>
+                      <div className="bg-muted/30 px-4 py-1.5">
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                          You
+                        </span>
+                      </div>
+                      <RowCard
+                        rank={userRank && userRank <= 100 ? userRank : undefined}
+                        rankNode={
+                          userRank && userRank <= 100 ? undefined : (
+                            <Badge variant="outline" className="w-fit px-1.5 py-0.5 font-mono text-[10px] font-normal">
+                              &lt; 100
+                            </Badge>
+                          )
+                        }
+                        avatarUrl={userEntry?.avatarUrl ?? profile?.avatar_url ?? null}
+                        bannerUrl={userEntry?.bannerUrl ?? null}
+                        displayName={userEntry?.displayName ?? profile?.full_name ?? "You"}
+                        tier={userEntry?.tier ?? "rookie"}
+                        subtitle={notOnBoard ? "Not on leaderboard" : undefined}
+                        points={userEntry ? userEntry.points : 0}
+                        pointsCaption="This period"
+                        mine
+                        onSelect={() => {
+                          if (user) setLockId(user.id);
+                          if (!isMd) setMobileSheetOpen(true);
+                        }}
+                      />
+                    </>
+                  ) : null}
                 </div>
               )}
             </div>
 
-            {/* Right: profile preview — constrained to grid cell */}
-            <aside className="hidden lg:block min-w-0 max-w-full lg:sticky lg:top-4 lg:self-start max-h-[calc(100vh-8rem)] overflow-y-auto overflow-x-hidden">
+            <aside className="hidden min-w-0 max-w-full overflow-y-auto overflow-x-hidden lg:sticky lg:top-4 lg:block lg:max-h-[calc(100vh-8rem)] lg:self-start">
               <LeaderboardProfilePanel entry={panelEntry} />
             </aside>
           </div>
         </div>
-      </div>
+      </PageContainer>
 
-      <Sheet open={mobileSheetOpen} onOpenChange={(o) => {
-        setMobileSheetOpen(o);
-        if (!o) setLockId(null);
-      }}>
+      <Sheet
+        open={mobileSheetOpen}
+        onOpenChange={(o) => {
+          setMobileSheetOpen(o);
+          if (!o) setLockId(null);
+        }}
+      >
         <SheetContent side="bottom" className="h-[85vh] overflow-y-auto pt-6">
           <LeaderboardProfilePanel entry={panelEntry} compact />
         </SheetContent>
       </Sheet>
-    </AppLayout>
+    </CreatorShell>
   );
 }
+

@@ -136,7 +136,7 @@ function WithdrawSheet({
         {!active ? (
           <div className="mt-4 space-y-3">
             <p className="text-[13.5px] leading-snug text-muted-foreground">
-              Choose a method to withdraw your earnings from Clipper.
+              Choose a method to withdraw your earnings from iClips.
             </p>
             <div className="list-group">
               {WITHDRAW_METHODS.map((m) => (

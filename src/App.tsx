@@ -14,15 +14,13 @@ import Auth from "./pages/Auth";
 import OnboardingUsername from "./pages/OnboardingUsername";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { TermsPage, PrivacyPage, DoNotSellPage } from "./pages/Legal";
 import Settings from "./pages/Settings";
 import Analytics from "./pages/Analytics";
 
 
-// Admin (legacy bug tracker stays under /bugs and existing Dashboard becomes admin home)
+// Admin
 import Dashboard from "./pages/Dashboard";
-import BugCreate from "./pages/BugCreate";
-import BugDetail from "./pages/BugDetail";
-import BugList from "./pages/BugList";
 import AdminBrands from "./pages/admin/AdminBrands";
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
 import AdminRulesManager from "./pages/admin/AdminRulesManager";
@@ -98,11 +96,6 @@ const App = () => (
               <Route path="/admin/creator-profiles" element={<RoleRoute roles={["admin"]}><AdminCreatorProfiles /></RoleRoute>} />
               <Route path="/analytics" element={<RoleRoute roles={["admin"]}><Analytics /></RoleRoute>} />
 
-              {/* Bug tracker — admin-only internal tool */}
-              <Route path="/bugs" element={<RoleRoute roles={["admin"]}><BugList /></RoleRoute>} />
-              <Route path="/bugs/new" element={<RoleRoute roles={["admin"]}><BugCreate /></RoleRoute>} />
-              <Route path="/bugs/:id" element={<RoleRoute roles={["admin"]}><BugDetail /></RoleRoute>} />
-
               {/* Creator */}
               <Route path="/discover" element={<RoleRoute roles={["creator", "user"]}><Discover /></RoleRoute>} />
               <Route path="/campaigns/:id" element={<RoleRoute roles={["creator", "user"]}><CampaignDetail /></RoleRoute>} />
@@ -121,6 +114,11 @@ const App = () => (
               <Route path="/profile" element={<RoleRoute roles={["creator", "user"]}><Profile /></RoleRoute>} />
               <Route path="/profile/edit" element={<RoleRoute roles={["creator", "user"]}><ProfileEdit /></RoleRoute>} />
               <Route path="/u/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+
+              {/* Legal */}
+              <Route path="/legal/terms" element={<TermsPage />} />
+              <Route path="/legal/privacy" element={<PrivacyPage />} />
+              <Route path="/legal/do-not-sell" element={<DoNotSellPage />} />
 
               {/* Legacy path redirects */}
               <Route path="/creator" element={<Navigate to="/discover" replace />} />

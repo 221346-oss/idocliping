@@ -1,4 +1,4 @@
-import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, Medal, LifeBuoy, Ticket, Palette, Contact, FlaskConical, Gift } from "lucide-react";
+import { LayoutDashboard, Plus, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, Medal, LifeBuoy, Ticket, Palette, Contact, FlaskConical, Gift } from "lucide-react";
 import { StackedLogo } from "./StackedLogo";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,6 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Ticket, label: "Tickets", path: "/admin/tickets" },
     { icon: Palette, label: "Cosmetics", path: "/admin/cosmetics" },
     { icon: BarChart3, label: "Analytics", path: "/analytics" },
-    { icon: Bug, label: "Bug Tracker", path: "/bugs" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
   brand: [
@@ -68,7 +67,7 @@ export function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: 
         <StackedLogo size={16} color="currentColor" />
         {!collapsed && (
           <span className="font-bold uppercase tracking-[0.08em] text-[14px] text-sidebar-accent-foreground">
-            Clipper
+            iClips
           </span>
         )}
       </div>

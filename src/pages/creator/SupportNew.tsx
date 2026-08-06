@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { AppLayout } from "@/components/AppLayout";
+import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/CreatorShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -109,15 +109,10 @@ export default function CreatorSupportNew() {
   };
 
   return (
-    <AppLayout>
-      <div className="flex flex-col h-full max-w-xl mx-auto w-full px-4 py-4">
-        <Button variant="ghost" size="sm" className="h-8 w-fit mb-4 -ml-2" asChild>
-          <Link to="/support">
-            <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back
-          </Link>
-        </Button>
-        <h1 className="text-[15px] font-semibold mb-1">Submit a Ticket</h1>
-        <p className="text-[12px] text-muted-foreground mb-6">Describe your issue and we’ll get back to you.</p>
+    <CreatorShell>
+      <PageContainer className="max-w-[640px] pb-12">
+        <DetailHeader title="Submit a ticket" />
+        <p className="mb-5 text-[13.5px] text-muted-foreground">Describe your issue and we’ll get back to you.</p>
 
         <form onSubmit={(e) => void submit(e)} className="space-y-4">
           <div className="space-y-1">
@@ -177,12 +172,12 @@ export default function CreatorSupportNew() {
             ) : null}
           </div>
 
-          <Button type="submit" disabled={busy} className="w-full sm:w-auto">
-            {busy ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Submit Ticket
-          </Button>
+          <button type="submit" disabled={busy} className="btn-primary-pill h-12 w-full gap-2 disabled:opacity-50">
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Submit ticket
+          </button>
         </form>
-      </div>
-    </AppLayout>
+      </PageContainer>
+    </CreatorShell>
   );
 }

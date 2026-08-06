@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AppLayout } from "@/components/AppLayout";
+import { CreatorShell, PageContainer, PageTitle } from "@/components/shell/CreatorShell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -454,34 +454,32 @@ export default function Settings() {
   );
 
   return (
-    <AppLayout>
-      <div className="flex flex-col h-full">
-        <div className="px-4 md:px-6 h-11 border-b border-border flex items-center shrink-0">
-          <h1 className="text-[13px] font-medium">Settings</h1>
-        </div>
+    <CreatorShell>
+      <PageContainer className="pb-12">
+        <PageTitle>Settings</PageTitle>
 
-        <div className="flex-1 overflow-auto">
-          <Tabs value={tab} onValueChange={onTabChange} className="flex flex-col md:flex-row h-full">
-            <div className="md:w-44 shrink-0 border-b md:border-b-0 md:border-r border-border">
-              <TabsList className="flex md:flex-col items-stretch w-full bg-transparent h-auto p-1.5 gap-px">
-                <TabsTrigger value="profile" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
+        <div>
+          <Tabs value={tab} onValueChange={onTabChange} className="flex flex-col gap-4 md:flex-row">
+            <div className="-mx-4 shrink-0 overflow-x-auto px-4 md:mx-0 md:w-48 md:overflow-visible md:px-0">
+              <TabsList className="flex w-max min-w-full items-stretch gap-1 bg-transparent p-0 md:w-full md:flex-col">
+                <TabsTrigger value="profile" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                   <User className="h-3.5 w-3.5" /> Profile
                 </TabsTrigger>
                 {showAppearance ? (
-                  <TabsTrigger value="appearance" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
+                  <TabsTrigger value="appearance" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                     <Palette className="h-3.5 w-3.5" /> Appearance
                   </TabsTrigger>
                 ) : null}
-                <TabsTrigger value="company" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
+                <TabsTrigger value="company" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                   <Building2 className="h-3.5 w-3.5" /> Company
                 </TabsTrigger>
-                <TabsTrigger value="team" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
+                <TabsTrigger value="team" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                   <Users className="h-3.5 w-3.5" /> Team
                 </TabsTrigger>
-                <TabsTrigger value="email" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
+                <TabsTrigger value="email" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                   <Bell className="h-3.5 w-3.5" /> Notifications
                 </TabsTrigger>
-                <TabsTrigger value="general" className="justify-start gap-1.5 text-[12px] h-7 px-2 data-[state=active]:bg-muted w-full">
+                <TabsTrigger value="general" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                   <SettingsIcon className="h-3.5 w-3.5" /> General
                 </TabsTrigger>
               </TabsList>
@@ -499,7 +497,7 @@ export default function Settings() {
             </div>
           </Tabs>
         </div>
-      </div>
-    </AppLayout>
+      </PageContainer>
+    </CreatorShell>
   );
 }
