@@ -287,8 +287,9 @@ export default function CreatorCampaignDetail() {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, full_name")
+        .select("user_id, full_name, profile_slug")
         .in("user_id", creatorIds);
+
 
       const subCountByCreator = new Map<string, number>();
       for (const s of approvedSubs) subCountByCreator.set(s.creator_id, (subCountByCreator.get(s.creator_id) ?? 0) + 1);
