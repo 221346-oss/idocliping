@@ -19,11 +19,8 @@ import Settings from "./pages/Settings";
 import Analytics from "./pages/Analytics";
 
 
-// Admin (legacy bug tracker stays under /bugs and existing Dashboard becomes admin home)
+// Admin
 import Dashboard from "./pages/Dashboard";
-import BugCreate from "./pages/BugCreate";
-import BugDetail from "./pages/BugDetail";
-import BugList from "./pages/BugList";
 import AdminBrands from "./pages/admin/AdminBrands";
 import AdminCampaigns from "./pages/admin/AdminCampaigns";
 import AdminRulesManager from "./pages/admin/AdminRulesManager";
@@ -98,11 +95,6 @@ const App = () => (
               <Route path="/admin/cosmetics" element={<RoleRoute roles={["admin"]}><AdminCosmetics /></RoleRoute>} />
               <Route path="/admin/creator-profiles" element={<RoleRoute roles={["admin"]}><AdminCreatorProfiles /></RoleRoute>} />
               <Route path="/analytics" element={<RoleRoute roles={["admin"]}><Analytics /></RoleRoute>} />
-
-              {/* Bug tracker — admin-only internal tool */}
-              <Route path="/bugs" element={<RoleRoute roles={["admin"]}><BugList /></RoleRoute>} />
-              <Route path="/bugs/new" element={<RoleRoute roles={["admin"]}><BugCreate /></RoleRoute>} />
-              <Route path="/bugs/:id" element={<RoleRoute roles={["admin"]}><BugDetail /></RoleRoute>} />
 
               {/* Creator */}
               <Route path="/discover" element={<RoleRoute roles={["creator", "user"]}><Discover /></RoleRoute>} />
