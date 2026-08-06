@@ -83,7 +83,7 @@ export default function Rewards() {
         <DetailHeader title="Rewards" />
 
         {loading ? (
-          <RowListSkeleton rows={5} />
+          <RowListSkeleton count={5} />
         ) : (
           <div className="space-y-5 pb-8">
             <section className="space-y-3">
