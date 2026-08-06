@@ -37,7 +37,7 @@ export function ClipperWordmark({
       <ClipperMark size={size} />
       {showText && (
         <span className="font-display font-extrabold uppercase tracking-[0.08em] text-[15px] leading-none">
-          Clipper
+          iClips
         </span>
       )}
     </span>
