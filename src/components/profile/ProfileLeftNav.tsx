@@ -5,7 +5,6 @@ import {
   Target, 
   Send, 
   Trophy, 
-  Palette, 
   ShieldCheck, 
   Bookmark 
 } from "lucide-react";
