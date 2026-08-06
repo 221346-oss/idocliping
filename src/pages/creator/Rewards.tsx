@@ -143,7 +143,7 @@ export default function Rewards() {
                         {i + 1}
                       </span>
                       <span className="min-w-0 flex-1 truncate text-[14px] font-medium">{t.name}</span>
-                      <span className="font-display text-[14px] font-semibold tabular-nums text-money">
+                      <span className="font-display text-[14px] font-semibold tabular-nums text-success">
                         ${money(t.amount)}
                       </span>
                     </div>
