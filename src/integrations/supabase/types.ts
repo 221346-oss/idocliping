@@ -956,7 +956,23 @@ export type Database = {
       }
     }
     Functions: {
+      admin_approve_submission: {
+        Args: { p_submission_id: string }
+        Returns: undefined
+      }
       admin_payout_campaign: { Args: { p_campaign_id: string }; Returns: Json }
+      admin_reactivate_campaign: {
+        Args: { p_campaign_id: string }
+        Returns: undefined
+      }
+      admin_reject_submission: {
+        Args: { p_reason: string; p_submission_id: string }
+        Returns: undefined
+      }
+      admin_set_campaign_review: {
+        Args: { p_campaign_id: string }
+        Returns: undefined
+      }
       admin_update_submission_views: {
         Args: { p_submission_id: string; p_views: number }
         Returns: Json
@@ -986,6 +1002,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      promote_eligible_submissions: { Args: never; Returns: number }
       sync_creator_leaderboard_points_delta: {
         Args: { p_delta_pts: number; p_user: string }
         Returns: undefined
