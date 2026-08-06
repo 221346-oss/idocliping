@@ -190,7 +190,7 @@ export default function Accounts() {
                   </div>
                   <p className="mt-0.5 text-[12px] capitalize text-muted-foreground">{a.platform}</p>
                 </div>
-                {!a.verified && a.verification_status !== "verified" && a.verification_status !== "pending" && (
+                {!a.verified && a.verification_status !== "verified" && (
                   <button
                     type="button"
                     onClick={() => void openVerify(a)}
