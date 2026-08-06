@@ -75,12 +75,14 @@ function normalizeUrlList(value: unknown): string[] {
   return list.filter((u) => /^https?:\/\//i.test(u));
 }
 
-function maskCreatorName(fullName: string | null | undefined) {
-  const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
-  const first = parts[0] ?? "User";
-  const c0 = first[0]?.toUpperCase() ?? "U";
-  return `${c0}••••`;
+/** "basitmemon" -> "b***n" — never expose a full handle on a public leaderboard. */
+function maskCreatorName(handle: string | null | undefined) {
+  const raw = (handle ?? "").trim().replace(/^@/, "");
+  if (!raw) return "u***r";
+  if (raw.length === 1) return `${raw}***`;
+  return `${raw[0]}***${raw[raw.length - 1]}`;
 }
+
 
 function getFirstDefinedNumber(campaign: any, keys: string[]): number | null {
   for (const k of keys) {
