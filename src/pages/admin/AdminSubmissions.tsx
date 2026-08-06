@@ -316,25 +316,43 @@ export default function AdminSubmissions() {
                       </a>
                     </td>
                     <td className="p-3">
-                      {r.status === "pending" ? (
-                        <Input
-                          type="number"
-                          defaultValue={r.manual_views}
-                          onChange={(e) => setEditing((p) => ({ ...p, [r.id]: e.target.value }))}
-                          className="h-7 w-28 text-[12px]"
-                        />
+                      {["processing", "eligible", "pending"].includes(r.status) ? (
+                        <div className="flex items-center gap-1.5">
+                          <Input
+                            type="number"
+                            defaultValue={r.manual_views}
+                            onChange={(e) => setEditing((p) => ({ ...p, [r.id]: e.target.value }))}
+                            className="h-7 w-28 text-[12px]"
+                          />
+                          <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => void saveViews(r)}>
+                            Save
+                          </Button>
+                        </div>
                       ) : (
                         Number(r.manual_views).toLocaleString()
                       )}
+                    </td>
+                    <td className="p-3 text-right tabular-nums">
+                      {r._earning ? `$${Number(r._earning.amount).toFixed(2)}` : "—"}
+                      {r._earning?.status === "paid" ? (
+                        <span className="ml-1 text-[10px] uppercase text-state-paid">paid</span>
+                      ) : null}
                     </td>
                     <td className="p-3">
                       <StatusChip status={normalizeStatus(r.status)} size="sm" />
                     </td>
 
                     <td className="p-3 text-right">
-                      {r.status === "pending" && (
+                      {["pending", "eligible"].includes(r.status) && (
                         <div className="inline-flex gap-1 justify-end">
-                          <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => approve(r)} title="Approve">
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-7 w-7"
+                            disabled={r.status !== "pending"}
+                            onClick={() => void approve(r)}
+                            title={r.status === "pending" ? "Approve & pay out" : "Approve once the campaign is in final review"}
+                          >
                             <Check className="h-3.5 w-3.5" />
                           </Button>
                           <Button
@@ -350,6 +368,7 @@ export default function AdminSubmissions() {
                             <X className="h-3.5 w-3.5" />
                           </Button>
                         </div>
+
                       )}
                     </td>
                   </tr>
