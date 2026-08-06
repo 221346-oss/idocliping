@@ -63,11 +63,11 @@ export default function CreatorMarketplace() {
   const tabs: PillOption[] = useMemo(
     () => [
       { value: "all", label: "All" },
-      { value: "saved", label: "Bookmarks", count: saved.length || undefined },
       ...categories.map((c) => ({ value: c, label: c[0].toUpperCase() + c.slice(1) })),
     ],
-    [categories, saved.length],
+    [categories],
   );
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
