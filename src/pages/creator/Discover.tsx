@@ -7,7 +7,6 @@ import { FilterPills, PillOption } from "@/components/ui-kit/Pills";
 import { CampaignCard, CampaignCardData } from "@/components/ui-kit/CampaignCard";
 import { CampaignListSkeleton } from "@/components/ui-kit/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
-import { useSavedCampaigns } from "@/hooks/useSavedCampaigns";
 import {
   Sheet,
   SheetContent,
@@ -40,7 +39,6 @@ export default function CreatorMarketplace() {
   const [platforms, setPlatforms] = useState<string[]>([...PLATFORMS]);
   const [sort, setSort] = useState("newest");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const { saved } = useSavedCampaigns();
 
   useEffect(() => {
     (async () => {
@@ -63,17 +61,17 @@ export default function CreatorMarketplace() {
   const tabs: PillOption[] = useMemo(
     () => [
       { value: "all", label: "All" },
-      { value: "saved", label: "Bookmarks", count: saved.length || undefined },
       ...categories.map((c) => ({ value: c, label: c[0].toUpperCase() + c.slice(1) })),
     ],
-    [categories, saved.length],
+    [categories],
   );
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = campaigns.filter((c) => {
-      if (tab === "saved" && !saved.includes(c.id)) return false;
-      if (tab !== "all" && tab !== "saved" && String(c.category ?? "").toLowerCase() !== tab) return false;
+      if (tab !== "all" && String(c.category ?? "").toLowerCase() !== tab) return false;
+
       const cp = (Array.isArray(c.platforms) ? (c.platforms as string[]) : []).map((p) => p.toLowerCase());
       if (cp.length && !cp.some((p) => platforms.includes(p))) return false;
       if (q && !String(c.title ?? "").toLowerCase().includes(q)) return false;
@@ -85,7 +83,8 @@ export default function CreatorMarketplace() {
     if (sort === "budget")
       list = [...list].sort((a, b) => Number(b.budget_remaining ?? 0) - Number(a.budget_remaining ?? 0));
     return list;
-  }, [campaigns, tab, platforms, sort, query, saved]);
+  }, [campaigns, tab, platforms, sort, query]);
+
 
   const togglePlatform = (p: string) =>
     setPlatforms((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]));
@@ -102,15 +101,19 @@ export default function CreatorMarketplace() {
   return (
     <CreatorShell>
       <PageContainer>
-        <PageTitle
-          action={
-            <Link to="/rewards" aria-label="Rewards" className="icon-pill h-10 w-10">
-              <Gift className="h-[18px] w-[18px]" />
-            </Link>
-          }
-        >
-          Discover
-        </PageTitle>
+        <div className="sticky top-0 z-40 -mx-4 bg-background/95 px-4 backdrop-blur-xl md:mx-0 md:px-0">
+          <PageTitle
+            className="pb-3 pt-5 md:pt-8 md:pb-5"
+            action={
+              <Link to="/rewards" aria-label="Rewards" className="icon-pill-solid">
+                <Gift className="h-[18px] w-[18px]" />
+              </Link>
+            }
+          >
+            Discover
+          </PageTitle>
+        </div>
+
 
         {/* Search + filter trigger */}
         <div className="flex items-center gap-2">
@@ -210,39 +213,32 @@ export default function CreatorMarketplace() {
           </Sheet>
         </div>
 
-        <FilterPills className="mt-3.5" options={tabs} value={tab} onChange={setTab} />
+        <FilterPills className="mt-3" options={tabs} value={tab} onChange={setTab} />
 
         {!loading && (
-          <div className="mt-3.5 px-1 text-[13px] text-muted-foreground">
-            Showing {filtered.length} of {campaigns.length} campaigns
+          <div className="mt-2.5 px-0.5 text-[12px] text-muted-foreground">
+            {filtered.length} of {campaigns.length} campaigns
           </div>
         )}
 
-        <div className="mt-3">
+        <div className="mt-2">
 
           {loading ? (
             <CampaignListSkeleton count={6} />
           ) : filtered.length === 0 ? (
             <EmptyState
               icon={Compass}
-              title={
-                tab === "saved" && saved.length === 0
-                  ? "No bookmarks yet"
-                  : campaigns.length === 0
-                    ? "No campaigns live yet"
-                    : "No matches found"
-              }
+              title={campaigns.length === 0 ? "No campaigns live yet" : "No matches found"}
               description={
-                tab === "saved" && saved.length === 0
-                  ? "Tap the bookmark icon on a campaign to keep it here for later."
-                  : campaigns.length === 0
-                    ? "New campaigns drop regularly — check back soon."
-                    : "Try clearing a filter or switching category."
+                campaigns.length === 0
+                  ? "New campaigns drop regularly — check back soon."
+                  : "Try clearing a filter or switching category."
               }
               actionLabel={campaigns.length === 0 ? undefined : "Reset filters"}
               onAction={campaigns.length === 0 ? undefined : resetAll}
             />
           ) : (
+
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {filtered.map((c, i) => (
                 <CampaignCard key={c.id} campaign={c} index={i} />

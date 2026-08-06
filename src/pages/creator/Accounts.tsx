@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { AtSign, Check, Copy, Loader2, Plus, ShieldCheck, Trash2, Clock } from "lucide-react";
+import { makeVerificationCode } from "@/lib/verification-code";
+
 
 const PLATFORMS = [
   { value: "tiktok", label: "TikTok" },
@@ -26,7 +28,7 @@ type Account = {
   verification_status: string;
 };
 
-const makeCode = () => `clipster-${Math.random().toString(36).slice(2, 8)}`;
+const makeCode = makeVerificationCode;
 
 function StatusPill({ account }: { account: Account }) {
   if (account.verified || account.verification_status === "verified") {
@@ -55,6 +57,8 @@ export default function Accounts() {
   const [addOpen, setAddOpen] = useState(false);
   const [verifyFor, setVerifyFor] = useState<Account | null>(null);
   const [saving, setSaving] = useState(false);
+  const [checking, setChecking] = useState(false);
+
   const [platform, setPlatform] = useState<string>("tiktok");
   const [handle, setHandle] = useState("");
   const [url, setUrl] = useState("");
@@ -107,21 +111,40 @@ export default function Accounts() {
     void load();
   };
 
-  const requestVerify = async (a: Account) => {
-    const code = a.verification_code || makeCode();
-    const { error } = await supabase
-      .from("social_accounts")
-      .update({
-        verification_code: code,
-        verification_status: "pending",
-        verification_requested_at: new Date().toISOString(),
-      })
-      .eq("id", a.id);
-    if (error) return toast({ title: "Couldn't submit", description: error.message, variant: "destructive" });
-    toast({ title: "Sent for review", description: "We'll check your bio and confirm shortly." });
-    setVerifyFor(null);
+  const runAutoCheck = async (a: Account) => {
+    setChecking(true);
+    const { data, error } = await supabase.functions.invoke("verify-social-bio", {
+      body: { account_id: a.id },
+    });
+    setChecking(false);
+
+    if (error) {
+      return toast({
+        title: "Check failed",
+        description: "We couldn't reach the verifier. Try again in a moment.",
+        variant: "destructive",
+      });
+    }
+
+    const status = (data as { status?: string; message?: string } | null)?.status;
+    const message = (data as { message?: string } | null)?.message;
+
+    if (status === "verified") {
+      toast({ title: "Account verified", description: message });
+      setVerifyFor(null);
+    } else if (status === "pending") {
+      toast({ title: "Sent for review", description: message });
+      setVerifyFor(null);
+    } else {
+      toast({
+        title: "Code not found yet",
+        description: message ?? "Save the code in your bio, then check again.",
+        variant: "destructive",
+      });
+    }
     void load();
   };
+
 
   const openVerify = async (a: Account) => {
     if (!a.verification_code) {
@@ -167,7 +190,7 @@ export default function Accounts() {
                   </div>
                   <p className="mt-0.5 text-[12px] capitalize text-muted-foreground">{a.platform}</p>
                 </div>
-                {!a.verified && a.verification_status !== "verified" && a.verification_status !== "pending" && (
+                {!a.verified && a.verification_status !== "verified" && (
                   <button
                     type="button"
                     onClick={() => void openVerify(a)}
@@ -237,8 +260,8 @@ export default function Accounts() {
             </SheetHeader>
             <div className="mt-3 space-y-4 pb-6">
               <p className="text-[13px] leading-relaxed text-muted-foreground">
-                Add this code anywhere in your {verifyFor?.platform} bio, then submit for review. You can remove it once
-                you're verified.
+                Add this code anywhere in your {verifyFor?.platform} bio, save it, then tap check — we read your public
+                profile and verify instantly. You can remove the code once verified.
               </p>
               <button
                 type="button"
@@ -253,11 +276,21 @@ export default function Accounts() {
               </button>
               <button
                 type="button"
-                onClick={() => verifyFor && void requestVerify(verifyFor)}
+                disabled={checking}
+                onClick={() => verifyFor && void runAutoCheck(verifyFor)}
                 className="btn-primary-pill w-full"
               >
-                <Check className="h-4 w-4" /> I've added it — review my account
+                {checking ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Checking your bio…
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" /> Check my bio
+                  </>
+                )}
               </button>
+
             </div>
           </SheetContent>
         </Sheet>

@@ -78,7 +78,7 @@
   /* Charcoal neutral grey scale (no blue/purple tint) */
   .dark {
     --background: 240 3% 6%;
-    --foreground: 0 0% 96%;
+    --foreground: 0 0% 100%;
 
     --surface: 240 3% 11%;
     --surface-raised: 240 3% 14%;
@@ -113,8 +113,8 @@
     --info: 0 0% 55%;
     --info-foreground: 0 0% 100%;
 
-    --border: 240 3% 18%;
-    --input: 240 3% 18%;
+    --border: 240 3% 26%;
+    --input: 240 3% 26%;
     --ring: 95 100% 46%;
 
     --sidebar-background: 240 3% 8%;
@@ -175,8 +175,14 @@
 
   /* Rounded surface card used across the whole app */
   .surface-card {
-    @apply bg-card rounded-[22px] border border-border;
+    @apply bg-card rounded-[20px] border border-border;
     box-shadow: var(--shadow-card);
+  }
+
+  /* White circular action button (header gift / share) */
+  .icon-pill-solid {
+    @apply inline-flex items-center justify-center h-10 w-10 rounded-full bg-foreground text-background
+           transition-opacity duration-150 press-scale focus-ring hover:opacity-90;
   }
 
 

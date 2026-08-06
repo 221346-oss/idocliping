@@ -491,6 +491,35 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_campaigns: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_campaigns_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_accounts: {
         Row: {
           created_at: string
@@ -540,6 +569,8 @@ export type Database = {
           creator_id: string
           id: string
           message: string
+          proof_url: string | null
+          proof_urls: string[]
           resolved_at: string | null
           resolved_by: string | null
           status: Database["public"]["Enums"]["submission_appeal_status"]
@@ -551,6 +582,8 @@ export type Database = {
           creator_id: string
           id?: string
           message: string
+          proof_url?: string | null
+          proof_urls?: string[]
           resolved_at?: string | null
           resolved_by?: string | null
           status?: Database["public"]["Enums"]["submission_appeal_status"]
@@ -562,6 +595,8 @@ export type Database = {
           creator_id?: string
           id?: string
           message?: string
+          proof_url?: string | null
+          proof_urls?: string[]
           resolved_at?: string | null
           resolved_by?: string | null
           status?: Database["public"]["Enums"]["submission_appeal_status"]
