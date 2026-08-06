@@ -7,7 +7,6 @@ import { FilterPills, PillOption } from "@/components/ui-kit/Pills";
 import { CampaignCard, CampaignCardData } from "@/components/ui-kit/CampaignCard";
 import { CampaignListSkeleton } from "@/components/ui-kit/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
-import { useSavedCampaigns } from "@/hooks/useSavedCampaigns";
 import {
   Sheet,
   SheetContent,
@@ -40,7 +39,6 @@ export default function CreatorMarketplace() {
   const [platforms, setPlatforms] = useState<string[]>([...PLATFORMS]);
   const [sort, setSort] = useState("newest");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const { saved } = useSavedCampaigns();
 
   useEffect(() => {
     (async () => {
