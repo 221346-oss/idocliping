@@ -17,7 +17,7 @@ const STATUS_LABEL: Record<StatusKind, string> = {
   rejected: "Rejected",
   paid: "Paid Out",
   active: "Active",
-  pending: "Pending",
+  pending: "In review",
   neutral: "—",
 };
 
@@ -33,18 +33,20 @@ const STATUS_CLASS: Record<StatusKind, string> = {
 };
 
 
-/** Maps every raw status string in the app onto the five reference states. */
+/** Maps every raw status string in the app onto the reference states. */
 export function normalizeStatus(raw: string | null | undefined): StatusKind {
   const s = (raw ?? "").toLowerCase().trim();
-  if (["paid", "paid_out", "paidout", "completed", "payout_complete"].includes(s)) return "paid";
-  if (["approved", "eligible", "verified"].includes(s)) return "eligible";
-  if (["pending", "processing", "in_review", "submitted", "review"].includes(s)) return "processing";
+  if (["paid", "paid_out", "paidout", "completed", "payout_complete", "approved"].includes(s)) return "paid";
+  if (["eligible", "verified"].includes(s)) return "eligible";
+  if (["processing", "submitted"].includes(s)) return "processing";
+  if (["pending", "in_review", "review"].includes(s)) return "pending";
   if (["rejected", "denied", "banned", "flagged"].includes(s)) return "rejected";
   if (["ineligible", "invalid", "expired", "disqualified"].includes(s)) return "ineligible";
   if (["active", "live", "running"].includes(s)) return "active";
   if (!s) return "neutral";
   return "pending";
 }
+
 
 export function StatusChip({
   status,
