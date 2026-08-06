@@ -101,7 +101,7 @@ export default function CreatorMarketplace() {
   return (
     <CreatorShell>
       <PageContainer>
-        <PageTitle>Explore</PageTitle>
+        <PageTitle>Discover</PageTitle>
 
         {/* Search + filter trigger */}
         <div className="flex items-center gap-2">
@@ -203,7 +203,14 @@ export default function CreatorMarketplace() {
 
         <FilterPills className="mt-3.5" options={tabs} value={tab} onChange={setTab} />
 
-        <div className="mt-4">
+        {!loading && (
+          <div className="mt-3.5 px-1 text-[13px] text-muted-foreground">
+            Showing {filtered.length} of {campaigns.length} campaigns
+          </div>
+        )}
+
+        <div className="mt-3">
+
           {loading ? (
             <CampaignListSkeleton count={6} />
           ) : filtered.length === 0 ? (
@@ -227,7 +234,7 @@ export default function CreatorMarketplace() {
               onAction={campaigns.length === 0 ? undefined : resetAll}
             />
           ) : (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {filtered.map((c, i) => (
                 <CampaignCard key={c.id} campaign={c} index={i} />
               ))}
