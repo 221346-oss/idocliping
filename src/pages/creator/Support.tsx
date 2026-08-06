@@ -48,58 +48,65 @@ export default function CreatorSupportList() {
   }, [user]);
 
   return (
-    <AppLayout>
-      <div className="flex flex-col h-full">
-        <div className="px-4 md:px-6 h-11 border-b border-border flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <LifeBuoy className="h-4 w-4 text-muted-foreground" />
-            <h1 className="text-[13px] font-medium">Help &amp; Support</h1>
-          </div>
-          <Button asChild size="sm" className="h-7 text-[12px]">
-            <Link to="/support/new">
-              <Plus className="h-3.5 w-3.5 mr-1" /> Submit a Ticket
+    <CreatorShell>
+      <PageContainer className="max-w-[900px] pb-10">
+        <PageTitle
+          action={
+            <Link to="/support/new" className="btn-primary-pill h-10 gap-1.5 px-4 text-[13px]">
+              <Plus className="h-4 w-4" /> New ticket
             </Link>
-          </Button>
-        </div>
-        <div className="px-4 md:px-6 py-4 flex-1">
-          <p className="text-[12px] text-muted-foreground mb-4">My Tickets — we typically respond within 24–48 hours.</p>
-          {loading ? (
-            <TicketRowsSkeleton rows={5} />
-          ) : rows.length === 0 ? (
-            <EmptyState
-              icon={LifeBuoy}
-              title="No tickets yet"
-              description="When you need help with payouts, campaigns, or your account, open a ticket — we typically respond within 24–48 hours."
-              actionLabel="Submit a ticket"
-              actionTo="/support/new"
-              className="py-10"
-            />
-          ) : (
-            <ul className="space-y-2">
-              {rows.map((t) => (
-                <li key={t.id}>
-                  <Link
-                    to={`/support/${t.id}`}
-                    className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted/30 transition-colors"
-                  >
-                    <span className="font-mono text-[12px] text-muted-foreground">{t.ticket_number}</span>
-                    <Badge variant="outline" className="text-[10px] font-normal">
-                      {SUPPORT_TICKET_TYPE_LABEL[t.type] ?? t.type}
-                    </Badge>
-                    <span className="text-[13px] font-medium flex-1 min-w-[140px] truncate">{t.subject}</span>
-                    <span className={cn("text-[10px] px-2 py-0.5 rounded-md uppercase", statusClass[t.status] ?? "")}>
-                      {SUPPORT_STATUS_LABEL[t.status] ?? t.status}
-                    </span>
-                    <span className="text-[11px] text-muted-foreground ml-auto">
-                      {formatDistanceToNow(new Date(t.created_at), { addSuffix: true })}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-    </AppLayout>
+          }
+        >
+          Support
+        </PageTitle>
+        <p className="-mt-2 mb-4 text-[14px] text-muted-foreground">
+          My tickets — we typically respond within 24–48 hours.
+        </p>
+
+        {loading ? (
+          <TicketRowsSkeleton rows={5} />
+        ) : rows.length === 0 ? (
+          <EmptyState
+            icon={LifeBuoy}
+            title="No tickets yet"
+            description="When you need help with payouts, campaigns, or your account, open a ticket — we typically respond within 24–48 hours."
+            actionLabel="Submit a ticket"
+            actionTo="/support/new"
+            className="py-10"
+          />
+        ) : (
+          <div className="surface-card divide-y divide-border/60 overflow-hidden">
+            {rows.map((t) => (
+              <Link
+                key={t.id}
+                to={`/support/${t.id}`}
+                className="press-row focus-ring flex items-center gap-3 px-4 py-3.5"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-raised text-primary">
+                  <LifeBuoy className="h-[18px] w-[18px]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[14.5px] font-semibold">{t.subject}</span>
+                  <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
+                    <span className="font-mono">{t.ticket_number}</span> ·{" "}
+                    {SUPPORT_TICKET_TYPE_LABEL[t.type] ?? t.type} ·{" "}
+                    {formatDistanceToNow(new Date(t.created_at), { addSuffix: true })}
+                  </span>
+                </span>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-[10px] uppercase tracking-wide",
+                    statusClass[t.status] ?? "",
+                  )}
+                >
+                  {SUPPORT_STATUS_LABEL[t.status] ?? t.status}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </PageContainer>
+    </CreatorShell>
   );
 }
+
