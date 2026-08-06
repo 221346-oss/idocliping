@@ -393,6 +393,8 @@ function CampaignSubmissionsView({
   const [appealFor, setAppealFor] = useState<SubRow | null>(null);
   const [appealText, setAppealText] = useState("");
   const [appealSending, setAppealSending] = useState(false);
+  const [appealProof, setAppealProof] = useState<File | null>(null);
+
 
   const supportedPlatforms = ((campaign.platforms ?? []) as string[]).filter(Boolean);
   const [submitOpen, setSubmitOpen] = useState(false);
