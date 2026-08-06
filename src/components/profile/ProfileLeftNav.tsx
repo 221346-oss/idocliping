@@ -5,12 +5,11 @@ import {
   Target, 
   Send, 
   Trophy, 
-  Palette, 
   ShieldCheck, 
   Bookmark 
 } from "lucide-react";
 
-type PanelType = "overview" | "stats" | "campaigns" | "submissions" | "achievements" | "cosmetics" | "honor" | "saved";
+type PanelType = "overview" | "stats" | "campaigns" | "submissions" | "achievements" | "honor" | "saved";
 
 interface ProfileLeftNavProps {
   activePanel: PanelType;
@@ -24,7 +23,6 @@ const navItems: Array<{ id: PanelType; label: string; icon: any; ownProfileOnly?
   { id: "campaigns", label: "Campaigns", icon: Target },
   { id: "submissions", label: "Submissions", icon: Send },
   { id: "achievements", label: "Achievements", icon: Trophy },
-  { id: "cosmetics", label: "Cosmetics", icon: Palette, ownProfileOnly: true },
   { id: "honor", label: "Honor Score", icon: ShieldCheck },
   { id: "saved", label: "Saved", icon: Bookmark, ownProfileOnly: true },
 ];

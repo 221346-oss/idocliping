@@ -8,7 +8,6 @@ import { ProfileStats } from "@/components/profile/panels/ProfileStats";
 import { ProfileCampaigns } from "@/components/profile/panels/ProfileCampaigns";
 import { ProfileSubmissions } from "@/components/profile/panels/ProfileSubmissions";
 import { ProfileAchievements } from "@/components/profile/panels/ProfileAchievements";
-import { ProfileCosmetics } from "@/components/profile/panels/ProfileCosmetics";
 import { ProfileHonorScore } from "@/components/profile/panels/ProfileHonorScore";
 import { ProfileSavedCampaigns } from "@/components/profile/panels/ProfileSavedCampaigns";
 import { AccountProfileView } from "@/components/profile/AccountProfileView";
@@ -24,7 +23,6 @@ type PanelType =
   | "campaigns"
   | "submissions"
   | "achievements"
-  | "cosmetics"
   | "honor"
   | "saved";
 
@@ -35,7 +33,6 @@ const PANELS: { value: PanelType; label: string; ownOnly?: boolean }[] = [
   { value: "submissions", label: "Submissions" },
   { value: "achievements", label: "Achievements" },
   { value: "honor", label: "Honor score" },
-  { value: "cosmetics", label: "Cosmetics", ownOnly: true },
   { value: "saved", label: "Saved", ownOnly: true },
 ];
 
@@ -64,8 +61,6 @@ export default function CreatorProfile() {
         return <ProfileSubmissions profile={profile} />;
       case "achievements":
         return <ProfileAchievements />;
-      case "cosmetics":
-        return isOwnProfile ? <ProfileCosmetics profile={profile} /> : null;
       case "honor":
         return <ProfileHonorScore profile={profile} />;
       case "saved":

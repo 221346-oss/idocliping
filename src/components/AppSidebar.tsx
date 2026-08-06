@@ -1,4 +1,4 @@
-import { LayoutDashboard, Plus, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, Medal, LifeBuoy, Ticket, Palette, Contact, FlaskConical, Gift } from "lucide-react";
+import { LayoutDashboard, Plus, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, LifeBuoy, Ticket, Contact, Gift } from "lucide-react";
 import { StackedLogo } from "./StackedLogo";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -16,14 +16,11 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Megaphone, label: "Campaigns", path: "/admin/campaigns" },
     { icon: FileCheck, label: "Submissions", path: "/admin/submissions" },
     { icon: FileCheck, label: "Rules Manager", path: "/admin/rules" },
-    { icon: Medal, label: "Leaderboard badges", path: "/admin/badges" },
     { icon: Wallet, label: "Withdrawals", path: "/admin/withdrawals" },
     { icon: Users, label: "Users", path: "/admin/users" },
     { icon: Contact, label: "Creator profiles", path: "/admin/creator-profiles" },
     { icon: Gift, label: "Rewards & verification", path: "/admin/rewards" },
-    { icon: FlaskConical, label: "Automation Lab", path: "/admin/automation-lab" },
     { icon: Ticket, label: "Tickets", path: "/admin/tickets" },
-    { icon: Palette, label: "Cosmetics", path: "/admin/cosmetics" },
     { icon: BarChart3, label: "Analytics", path: "/analytics" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
