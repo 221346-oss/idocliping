@@ -342,7 +342,16 @@ export default function CreatorCampaignDetail() {
       });
       return null;
     }
+    if (!connectedPlatforms.includes(detected)) {
+      toast({
+        title: `Connect your ${PLATFORM_LABEL[detected] ?? detected} account`,
+        description: "You can only submit links from a social account connected to your profile.",
+        variant: "destructive",
+      });
+      return null;
+    }
     const parsed = submitSchema.safeParse({ platform: detected, post_url: postUrl.trim() });
+
     if (!parsed.success) {
       toast({ title: "Invalid URL", description: parsed.error.issues[0]?.message ?? "Check the link.", variant: "destructive" });
       return null;
