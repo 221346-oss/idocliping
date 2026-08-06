@@ -138,60 +138,6 @@ function ProfileTab() {
   );
 }
 
-// ─── Company Tab ────────────────────────────────────────────────────────────────
-
-function CompanyTab() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ company_name: "", company_website: "", industry: "", company_size: "", address: "", phone: "" });
-  const [existingId, setExistingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase.from("company_settings").select("*").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-      if (data) { setForm({ company_name: data.company_name || "", company_website: data.company_website || "", industry: data.industry || "", company_size: data.company_size || "", address: data.address || "", phone: data.phone || "" }); setExistingId(data.id); }
-      setLoading(false);
-    });
-  }, [user]);
-
-  const handleSave = async () => {
-    if (!user) return;
-    setSaving(true);
-    if (existingId) {
-      const { error } = await supabase.from("company_settings").update(form).eq("id", existingId);
-      if (error) toast({ title: "Error", description: error.message, variant: "destructive" }); else toast({ title: "Company settings saved" });
-    } else {
-      const { data, error } = await supabase.from("company_settings").insert({ ...form, user_id: user.id }).select().single();
-      if (error) toast({ title: "Error", description: error.message, variant: "destructive" }); else { setExistingId(data.id); toast({ title: "Company settings created" }); }
-    }
-    setSaving(false);
-  };
-
-  const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
-
-  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>;
-
-  return (
-    <div className="px-4 md:px-6 py-4">
-      <p className="text-[12px] text-muted-foreground font-medium mb-3">Company Information</p>
-      <div className="grid gap-3 sm:grid-cols-2 max-w-lg">
-        <div className="space-y-1"><Label className="text-[12px]">Company Name</Label><Input value={form.company_name} onChange={(e) => update("company_name", e.target.value)} placeholder="Acme Inc." className="h-8 text-[13px]" /></div>
-        <div className="space-y-1"><Label className="text-[12px]">Website</Label><Input value={form.company_website} onChange={(e) => update("company_website", e.target.value)} placeholder="https://acme.com" className="h-8 text-[13px]" /></div>
-        <div className="space-y-1"><Label className="text-[12px]">Industry</Label>
-          <Select value={form.industry} onValueChange={(v) => update("industry", v)}><SelectTrigger className="h-8 text-[13px]"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{["Technology","Healthcare","Finance","Education","Retail","Manufacturing","Other"].map(i => <SelectItem key={i} value={i.toLowerCase()}>{i}</SelectItem>)}</SelectContent></Select></div>
-        <div className="space-y-1"><Label className="text-[12px]">Company Size</Label>
-          <Select value={form.company_size} onValueChange={(v) => update("company_size", v)}><SelectTrigger className="h-8 text-[13px]"><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{["1-10","11-50","51-200","201-500","501-1000","1000+"].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select></div>
-        <div className="space-y-1 sm:col-span-2"><Label className="text-[12px]">Address</Label><Input value={form.address} onChange={(e) => update("address", e.target.value)} placeholder="123 Main St" className="h-8 text-[13px]" /></div>
-        <div className="space-y-1"><Label className="text-[12px]">Phone</Label><Input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+1 (555) 000-0000" className="h-8 text-[13px]" /></div>
-      </div>
-      <Button onClick={handleSave} disabled={saving} size="sm" className="h-7 text-[12px] mt-3">
-        {saving && <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />} Save
-      </Button>
-    </div>
-  );
-}
-
 // ─── Team Tab ───────────────────────────────────────────────────────────────────
 
 function TeamTab() {
@@ -303,73 +249,6 @@ function TeamTab() {
   );
 }
 
-// ─── Email Tab ──────────────────────────────────────────────────────────────────
-
-function EmailTab() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [prefs, setPrefs] = useState({ email_on_new_bug: true, email_on_assignment: true, email_on_status_change: true, email_on_comment: true, email_on_sla_breach: true, daily_digest: false });
-  const [existingId, setExistingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase.from("notification_preferences").select("*").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-      if (data) { setPrefs({ email_on_new_bug: data.email_on_new_bug, email_on_assignment: data.email_on_assignment, email_on_status_change: data.email_on_status_change, email_on_comment: data.email_on_comment, email_on_sla_breach: data.email_on_sla_breach, daily_digest: data.daily_digest }); setExistingId(data.id); }
-      setLoading(false);
-    });
-  }, [user]);
-
-  const handleSave = async () => {
-    if (!user) return;
-    setSaving(true);
-    if (existingId) {
-      const { error } = await supabase.from("notification_preferences").update(prefs).eq("id", existingId);
-      if (error) toast({ title: "Error", description: error.message, variant: "destructive" }); else toast({ title: "Preferences saved" });
-    } else {
-      const { data, error } = await supabase.from("notification_preferences").insert({ ...prefs, user_id: user.id }).select().single();
-      if (error) toast({ title: "Error", description: error.message, variant: "destructive" }); else { setExistingId(data.id); toast({ title: "Preferences saved" }); }
-    }
-    setSaving(false);
-  };
-
-  const togglePref = (key: keyof typeof prefs) => setPrefs(p => ({ ...p, [key]: !p[key] }));
-
-  const items = [
-    { key: "email_on_new_bug" as const, label: "New Bug Reported" },
-    { key: "email_on_assignment" as const, label: "Bug Assigned to You" },
-    { key: "email_on_status_change" as const, label: "Status Changes" },
-    { key: "email_on_comment" as const, label: "New Comments" },
-    { key: "email_on_sla_breach" as const, label: "SLA Breach Warning" },
-    { key: "daily_digest" as const, label: "Daily Digest" },
-  ];
-
-  if (loading) return <div className="flex justify-center py-12"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>;
-
-  return (
-    <div className="divide-y divide-border">
-      <div className="px-4 md:px-6 py-3 flex items-start gap-2 bg-muted/30">
-        <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-        <p className="text-[12px] text-muted-foreground">Email delivery not yet connected. Preferences will take effect once an email provider is configured.</p>
-      </div>
-      <div className="px-4 md:px-6 py-4">
-        <p className="text-[12px] text-muted-foreground font-medium mb-3">Email Notifications</p>
-        <div className="space-y-1">
-          {items.map(item => (
-            <div key={item.key} className="flex items-center justify-between py-2 px-2 rounded hover:bg-muted/30">
-              <span className="text-[13px]">{item.label}</span>
-              <Switch checked={prefs[item.key]} onCheckedChange={() => togglePref(item.key)} className="scale-90" />
-            </div>
-          ))}
-        </div>
-        <Button onClick={handleSave} disabled={saving} size="sm" className="h-7 text-[12px] mt-3">
-          {saving && <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />} Save Preferences
-        </Button>
-      </div>
-    </div>
-  );
-}
-
 // ─── General Tab ────────────────────────────────────────────────────────────────
 
 function GeneralTab() {
@@ -423,20 +302,17 @@ function GeneralTab() {
 
 // ─── Main Settings Page ─────────────────────────────────────────────────────────
 
-const SETTINGS_TABS = ["profile", "appearance", "company", "team", "email", "general"] as const;
+const SETTINGS_TABS = ["profile", "team", "general"] as const;
 type SettingsTab = (typeof SETTINGS_TABS)[number];
 
 export default function Settings() {
-  const { role } = useAuth();
-  const showAppearance = role === "creator" || role === "user";
   const [searchParams, setSearchParams] = useSearchParams();
 
   const tab = useMemo((): SettingsTab => {
     const raw = searchParams.get("tab");
-    if (raw === "appearance" && !showAppearance) return "profile";
     if (raw && (SETTINGS_TABS as readonly string[]).includes(raw)) return raw as SettingsTab;
     return "profile";
-  }, [searchParams, showAppearance]);
+  }, [searchParams]);
 
   const onTabChange = useCallback(
     (value: string) => {
@@ -465,19 +341,8 @@ export default function Settings() {
                 <TabsTrigger value="profile" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                   <User className="h-3.5 w-3.5" /> Profile
                 </TabsTrigger>
-                {showAppearance ? (
-                  <TabsTrigger value="appearance" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
-                    <Palette className="h-3.5 w-3.5" /> Appearance
-                  </TabsTrigger>
-                ) : null}
-                <TabsTrigger value="company" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
-                  <Building2 className="h-3.5 w-3.5" /> Company
-                </TabsTrigger>
                 <TabsTrigger value="team" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                   <Users className="h-3.5 w-3.5" /> Team
-                </TabsTrigger>
-                <TabsTrigger value="email" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
-                  <Bell className="h-3.5 w-3.5" /> Notifications
                 </TabsTrigger>
                 <TabsTrigger value="general" className="justify-start gap-2 rounded-full px-4 text-[13px] h-10 shrink-0 data-[state=active]:bg-primary/15 data-[state=active]:text-primary md:w-full">
                   <SettingsIcon className="h-3.5 w-3.5" /> General
@@ -487,12 +352,7 @@ export default function Settings() {
 
             <div className="flex-1 min-w-0">
               <TabsContent value="profile" className="m-0"><ProfileTab /></TabsContent>
-              {showAppearance ? (
-                <TabsContent value="appearance" className="m-0"><SettingsAppearanceTab /></TabsContent>
-              ) : null}
-              <TabsContent value="company" className="m-0"><CompanyTab /></TabsContent>
               <TabsContent value="team" className="m-0"><TeamTab /></TabsContent>
-              <TabsContent value="email" className="m-0"><EmailTab /></TabsContent>
               <TabsContent value="general" className="m-0"><GeneralTab /></TabsContent>
             </div>
           </Tabs>
