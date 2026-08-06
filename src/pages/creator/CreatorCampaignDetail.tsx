@@ -249,6 +249,21 @@ export default function CreatorCampaignDetail() {
       setJoined(participantJoined);
       setCommunityLink(campaignCommunity);
 
+      // My submissions for this campaign + my connected social accounts.
+      const [{ data: mine }, { data: socials }] = await Promise.all([
+        supabase
+          .from("submissions")
+          .select("id, platform, post_url, status, manual_views, created_at, earnings(amount)")
+          .eq("campaign_id", id)
+          .eq("creator_id", user.id)
+          .order("created_at", { ascending: false }),
+        supabase.from("social_accounts").select("platform").eq("user_id", user.id),
+      ]);
+      setMySubs((mine ?? []) as any[]);
+      setConnectedPlatforms(((socials ?? []) as any[]).map((s) => String(s.platform).toLowerCase()));
+
+
+
       // Leaderboard: approved submissions + earnings of type "campaign".
       const { data: subs } = await (supabase as any)
         .from("public_submissions")
