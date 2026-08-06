@@ -19,7 +19,7 @@ import {
   buildLeaderboard,
   type Scope,
   type LeaderboardEntry,
-} from "@/pages/leaderboardData";
+} from "@/pages/creator/leaderboardData";
 import { RankTrophy, rankRowTint } from "@/components/leaderboard/RankTrophy";
 import { EarningsTierBadge } from "@/components/leaderboard/EarningsTierBadge";
 import { tierRingClass } from "@/components/leaderboard/tierStyles";
