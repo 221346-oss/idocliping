@@ -75,13 +75,12 @@ async function fetchProfileRow(userId: string) {
 }
 
 export async function buildProfileViewModel(userId: string): Promise<ProfileViewModel> {
-  const [profileRes, settingsRes, subsRes, earnRes, socialRes, ccRes] = await Promise.all([
+  const [profileRes, subsRes, earnRes, socialRes] = await Promise.all([
     fetchProfileRow(userId),
-    supabase.from("creator_profile_settings").select("equipped_avatar_id, equipped_banner_id").eq("user_id", userId).maybeSingle(),
     (supabase as any)
       .from("public_submissions")
       .select(
-        "id, campaign_id, manual_views, status, created_at, platform, is_test_submission, campaigns(title)",
+        "id, campaign_id, manual_views, status, created_at, platform, campaigns(title)",
       )
       .eq("creator_id", userId)
       .order("created_at", { ascending: false })
@@ -91,26 +90,14 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
       .select("lifetime_campaign_earnings")
       .eq("creator_id", userId),
     (supabase as any).from("public_creator_platforms").select("platform").eq("user_id", userId),
-    supabase.from("creator_cosmetics").select("cosmetic_id").eq("user_id", userId),
   ]);
 
   const profile = profileRes;
   if (!profile) throw new Error("Profile not found");
 
-  const settings = settingsRes.data;
-  const itemIds = [settings?.equipped_avatar_id, settings?.equipped_banner_id].filter(Boolean) as string[];
-  let itemMap = new Map<string, { image_url: string }>();
-  if (itemIds.length) {
-    const { data: items } = await supabase.from("cosmetic_items").select("id, image_url").in("id", itemIds);
-    for (const it of items ?? []) itemMap.set((it as { id: string }).id, { image_url: (it as { image_url: string }).image_url });
-  }
+  const avatarUrl = profile.avatar_url || "";
+  const bannerUrl = BANNER_FALLBACK;
 
-  const avatarUrl =
-    (settings?.equipped_avatar_id && itemMap.get(settings.equipped_avatar_id)?.image_url) ||
-    profile.avatar_url ||
-    "";
-  const bannerUrl =
-    (settings?.equipped_banner_id && itemMap.get(settings.equipped_banner_id)?.image_url) || BANNER_FALLBACK;
 
   const subs = (subsRes.data ?? []) as any[];
   let totalEarnings = 0;
