@@ -858,13 +858,22 @@ function CampaignSubmissionsView({
         </AlertDialogContent>
       </AlertDialog>
 
-      <Dialog open={!!appealFor} onOpenChange={(o) => !o && setAppealFor(null)}>
+      <Dialog
+        open={!!appealFor}
+        onOpenChange={(o) => {
+          if (!o) {
+            setAppealFor(null);
+            setAppealProof(null);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-[15px]">Appeal this decision</DialogTitle>
           </DialogHeader>
           <p className="text-[12px] text-muted-foreground">
-            Explain why this submission should be reconsidered. An admin will see this in the appeals queue.
+            Explain why this submission should be reconsidered. You can appeal a post{" "}
+            <span className="text-foreground">only once</span>, so add proof if you have it.
           </p>
           <Textarea
             value={appealText}
@@ -872,6 +881,18 @@ function CampaignSubmissionsView({
             placeholder="Details for the admin…"
             className="min-h-[100px] text-[13px]"
           />
+          <div className="space-y-1.5">
+            <Label className="text-[12px]">Proof (optional — screenshot or short clip)</Label>
+            <Input
+              type="file"
+              accept="image/*,video/mp4"
+              onChange={(e) => setAppealProof(e.target.files?.[0] ?? null)}
+              className="h-10 text-[12.5px]"
+            />
+            {appealProof && (
+              <p className="text-[11.5px] text-muted-foreground">Attached: {appealProof.name}</p>
+            )}
+          </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="ghost" size="sm" onClick={() => setAppealFor(null)}>
               Cancel
@@ -882,6 +903,7 @@ function CampaignSubmissionsView({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }
