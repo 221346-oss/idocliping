@@ -286,8 +286,10 @@ export default function AdminSubmissions() {
                   <th className="text-left p-3">Campaign</th>
                   <th className="text-left p-3">Post</th>
                   <th className="text-left p-3">Views</th>
+                  <th className="text-right p-3">Earning</th>
                   <th className="text-left p-3">Status</th>
                   <th className="text-right p-3">Actions</th>
+
                 </tr>
               </thead>
               <tbody>
