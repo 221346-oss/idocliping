@@ -153,19 +153,8 @@ export async function buildProfileViewModel(userId: string): Promise<ProfileView
     submittedAt: new Date(s.created_at),
   }));
 
-  const cosmeticIds = (ccRes.data ?? []).map((r: { cosmetic_id: string }) => r.cosmetic_id).filter(Boolean);
   const cosmeticsUnlocked: ProfileViewModel["cosmeticsUnlocked"] = [];
-  if (cosmeticIds.length) {
-    const { data: cosRows } = await supabase.from("cosmetic_items").select("id, name, image_url, type").in("id", cosmeticIds);
-    for (const ci of cosRows ?? []) {
-      cosmeticsUnlocked.push({
-        id: (ci as { id: string }).id,
-        name: (ci as { name: string }).name ?? "",
-        image_url: (ci as { image_url: string }).image_url ?? "",
-        type: (ci as { type: string }).type ?? "avatar",
-      });
-    }
-  }
+
 
   const completionRate =
     subs.length > 0 ? Math.round((approved.length / subs.length) * 100) : 0;
