@@ -23,7 +23,13 @@ import {
 import {
   ArrowLeft,
   Check,
+  ChevronRight,
   ExternalLink,
+  Info,
+  Loader2,
+  Repeat2,
+  Share2,
+
   Info,
   Loader2,
   Medal,
