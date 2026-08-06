@@ -72,8 +72,8 @@ export default function CreatorMarketplace() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = campaigns.filter((c) => {
-      if (tab === "saved" && !saved.includes(c.id)) return false;
-      if (tab !== "all" && tab !== "saved" && String(c.category ?? "").toLowerCase() !== tab) return false;
+      if (tab !== "all" && String(c.category ?? "").toLowerCase() !== tab) return false;
+
       const cp = (Array.isArray(c.platforms) ? (c.platforms as string[]) : []).map((p) => p.toLowerCase());
       if (cp.length && !cp.some((p) => platforms.includes(p))) return false;
       if (q && !String(c.title ?? "").toLowerCase().includes(q)) return false;
