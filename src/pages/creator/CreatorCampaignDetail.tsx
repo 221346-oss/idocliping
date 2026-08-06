@@ -4,8 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/CreatorShell";
 import { UnderlineTabs } from "@/components/ui-kit/Pills";
-import { ProgressRate, DataRow, ListSection } from "@/components/ui-kit/DataBits";
+import { ProgressRate, DataRow, ListSection, StatTrio } from "@/components/ui-kit/DataBits";
+import { StatusChip } from "@/components/ui-kit/StatusChip";
+import { PlatformRow, PLATFORM_GLYPHS, type PlatformKey } from "@/components/brand/icons/NavGlyphs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { RowListSkeleton, StatBlockSkeleton } from "@/components/ui-kit/Skeletons";
+
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
