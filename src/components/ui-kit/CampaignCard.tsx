@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { Bookmark } from "lucide-react";
+import { Bookmark, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlatformRow } from "@/components/brand/icons/NavGlyphs";
 import { ProgressRate } from "./DataBits";
 import { useSavedCampaigns } from "@/hooks/useSavedCampaigns";
+
 
 export type CampaignCardData = {
   id: string;
@@ -116,9 +117,13 @@ export function CampaignCard({
             <BookmarkButton id={campaign.id} className="-mr-1 -mt-1" />
           </div>
           <div className="mt-1.5 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-surface-raised px-2 py-0.5 text-[10.5px] font-medium text-muted-foreground">
+              <Users className="h-3 w-3" />
+              All
+            </span>
             <PlatformRow platforms={campaign.platforms} />
             {isNewCampaign(campaign) && (
-              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+              <span className="rounded-full bg-primary/[0.14] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
                 New
               </span>
             )}
@@ -126,8 +131,12 @@ export function CampaignCard({
         </div>
       </div>
 
+      <div className="mt-3.5 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <span>Active</span>
+        <span>Rate</span>
+      </div>
       <ProgressRate
-        className="mt-3.5"
+        className="mt-1"
         percent={used}
         totalLabel={`$${total.toLocaleString()}`}
         rateLabel={`$${rate.toLocaleString()}`}
@@ -135,3 +144,4 @@ export function CampaignCard({
     </Link>
   );
 }
+
