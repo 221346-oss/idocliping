@@ -60,7 +60,13 @@ export default function AdminSubmissions() {
     const ids = Array.from(new Set((data ?? []).map((r: any) => r.creator_id)));
     const { data: profs } = ids.length ? await supabase.from("profiles").select("user_id, full_name").in("user_id", ids) : { data: [] as any[] };
     const map = new Map((profs ?? []).map((p: any) => [p.user_id, p.full_name]));
-    setRows((data ?? []).map((r: any) => ({ ...r, _creatorName: map.get(r.creator_id) })));
+    setRows(
+      (data ?? []).map((r: any) => ({
+        ...r,
+        _creatorName: map.get(r.creator_id),
+        _earning: earnMap.get(r.id) ?? null,
+      })),
+    );
 
     const { data: appData, error: appErr } = await supabase
       .from("submission_appeals")
@@ -88,64 +94,56 @@ export default function AdminSubmissions() {
     void load();
   }, []);
 
+  /** Admin updates the verified view count — recalculates the (still unpaid) earning. */
+  const saveViews = async (row: any) => {
+    const views = Number(editing[row.id] ?? row.manual_views ?? 0);
+    const { data, error } = await supabase.rpc("admin_update_submission_views" as any, {
+      p_submission_id: row.id,
+      p_views: Math.max(0, Math.round(views)),
+    });
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
+    const amount = Number((data as any)?.amount ?? 0);
+    toast({ title: "Views updated", description: `Pending earning $${amount.toFixed(2)}` });
+    void load();
+  };
+
+  /** Final approval — releases the money into the creator's available balance. */
   const approve = async (row: any) => {
     if (!user) return;
-    const views = Number(editing[row.id] ?? row.manual_views ?? 0);
-    const payout = Number(row.campaigns?.payout_per_1m_views ?? 0);
-    const earned = (views / 1_000_000) * payout;
+    const { error } = await supabase.rpc("admin_approve_submission" as any, { p_submission_id: row.id });
+    if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
 
-    const { error: e1 } = await supabase
-      .from("submissions")
-      .update({
-        status: "approved",
-        manual_views: views,
-        reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", row.id);
-    if (e1) return toast({ title: "Failed", description: e1.message, variant: "destructive" });
-
+    const earned = Number(row._earning?.amount ?? 0);
     if (earned > 0) {
-      await supabase.from("earnings").insert({
-        creator_id: row.creator_id,
-        submission_id: row.id,
-        amount: earned,
-        type: "campaign",
-      });
-      const remaining = Math.max(0, Number(row.campaigns?.budget_remaining ?? 0) - earned);
-      await supabase.from("campaigns").update({ budget_remaining: remaining }).eq("id", row.campaigns.id);
-
       const { data: ref } = await supabase
         .from("referrals")
         .select("referrer_id, commission_rate")
         .eq("referred_user_id", row.creator_id)
         .maybeSingle();
-      if (ref && !row.is_test_submission) {
+      if (ref) {
         await supabase.from("earnings").insert({
           creator_id: ref.referrer_id,
           submission_id: row.id,
           amount: earned * Number(ref.commission_rate),
           type: "referral",
-        });
+          status: "paid",
+          paid_at: new Date().toISOString(),
+        } as any);
       }
     }
-    toast({ title: "Approved", description: `Earned $${earned.toFixed(2)}` });
-    load();
+    toast({ title: "Approved & paid out", description: `$${earned.toFixed(2)} released` });
+    void load();
   };
 
   const confirmReject = async () => {
     if (!user || !rejectTarget) return;
     const reason = rejectReason.trim() || "No reason provided";
-    const { error } = await supabase
-      .from("submissions")
-      .update({
-        status: "rejected",
-        reject_reason: reason,
-        reviewed_by: user.id,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", rejectTarget.id);
+    const { error } = await supabase.rpc("admin_reject_submission" as any, {
+      p_submission_id: rejectTarget.id,
+      p_reason: reason,
+    });
     if (error) return toast({ title: "Reject failed", description: error.message, variant: "destructive" });
+
     toast({ title: "Rejected" });
     setRejectTarget(null);
     setRejectReason("");
