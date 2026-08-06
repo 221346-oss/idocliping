@@ -33,7 +33,7 @@ export function BottomNav({ badge }: { badge?: Record<string, boolean> }) {
       className="md:hidden fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-1 pointer-events-none"
       aria-label="Primary"
     >
-      <div className="pointer-events-auto mx-auto flex max-w-md items-center justify-around rounded-[28px] border border-border bg-surface-raised/95 px-2.5 py-2.5 shadow-lift backdrop-blur-xl">
+      <div className="pointer-events-auto mx-auto flex max-w-md items-center justify-around rounded-full border border-border bg-surface-raised/95 px-4 py-3 shadow-lift backdrop-blur-xl">
         {CREATOR_NAV.map((entry) => {
           const active = isNavActive(entry, pathname);
           const { Glyph } = entry;
@@ -44,21 +44,13 @@ export function BottomNav({ badge }: { badge?: Record<string, boolean> }) {
               aria-label={entry.label}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "relative flex h-12 w-14 flex-col items-center justify-center gap-1 rounded-2xl press-scale focus-ring transition-all duration-200",
-                active
-                  ? "bg-primary/[0.14] text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                "relative flex h-10 w-12 items-center justify-center rounded-full press-scale focus-ring transition-colors duration-200",
+                active ? "text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <Glyph active={active} size={26} />
-              <span
-                className={cn(
-                  "h-1 w-1 rounded-full transition-opacity duration-200",
-                  active ? "bg-primary opacity-100" : "opacity-0",
-                )}
-              />
+              <Glyph active={active} size={25} />
               {badge?.[entry.to] && (
-                <span className="absolute right-2.5 top-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-surface-raised" />
+                <span className="absolute right-1.5 top-0.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-surface-raised" />
               )}
             </Link>
           );
@@ -67,4 +59,3 @@ export function BottomNav({ badge }: { badge?: Record<string, boolean> }) {
     </nav>
   );
 }
-
