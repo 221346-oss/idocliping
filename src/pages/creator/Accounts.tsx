@@ -260,8 +260,8 @@ export default function Accounts() {
             </SheetHeader>
             <div className="mt-3 space-y-4 pb-6">
               <p className="text-[13px] leading-relaxed text-muted-foreground">
-                Add this code anywhere in your {verifyFor?.platform} bio, then submit for review. You can remove it once
-                you're verified.
+                Add this code anywhere in your {verifyFor?.platform} bio, save it, then tap check — we read your public
+                profile and verify instantly. You can remove the code once verified.
               </p>
               <button
                 type="button"
@@ -276,11 +276,21 @@ export default function Accounts() {
               </button>
               <button
                 type="button"
-                onClick={() => verifyFor && void requestVerify(verifyFor)}
+                disabled={checking}
+                onClick={() => verifyFor && void runAutoCheck(verifyFor)}
                 className="btn-primary-pill w-full"
               >
-                <Check className="h-4 w-4" /> I've added it — review my account
+                {checking ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> Checking your bio…
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" /> Check my bio
+                  </>
+                )}
               </button>
+
             </div>
           </SheetContent>
         </Sheet>
