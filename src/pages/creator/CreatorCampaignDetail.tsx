@@ -299,17 +299,20 @@ export default function CreatorCampaignDetail() {
         earnedByCreator.set(e.creator_id, (earnedByCreator.get(e.creator_id) ?? 0) + Number(e.amount ?? 0));
       }
 
-      const profileByUserId = new Map((profiles ?? []).map((p: any) => [p.user_id, p.full_name] as const));
+      const profileByUserId = new Map(
+        (profiles ?? []).map((p: any) => [p.user_id, (p.profile_slug || p.full_name) as string | null] as const),
+      );
 
       const rows: LeaderboardRow[] = creatorIds.map((creatorId) => {
-        const fullName = profileByUserId.get(creatorId) ?? null;
+        const handle = profileByUserId.get(creatorId) ?? null;
         return {
           creatorId,
-          creatorLabel: maskCreatorName(fullName),
+          creatorLabel: maskCreatorName(handle),
           submissions: subCountByCreator.get(creatorId) ?? 0,
           earned: earnedByCreator.get(creatorId) ?? 0,
         };
       });
+
 
       rows.sort((a, b) => (b.earned - a.earned) || (b.submissions - a.submissions) || a.creatorId.localeCompare(b.creatorId));
 
