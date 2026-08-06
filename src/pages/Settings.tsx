@@ -13,11 +13,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import {
-  User, Building2, Users, Bell, Settings as SettingsIcon,
-  Mail, Trash2, Shield, Send, AlertTriangle, Loader2, Camera, Palette
+  User, Users, Settings as SettingsIcon,
+  Mail, Trash2, Shield, Send, Loader2, Camera
 } from "lucide-react";
-import { SettingsAppearanceTab } from "./SettingsAppearance";
 import { isInternalNoSendEmail } from "@/lib/internal-email";
+
 
 // ─── Profile Tab ────────────────────────────────────────────────────────────────
 
