@@ -356,8 +356,8 @@ export default function CreatorCampaignDetail() {
     }
     if (!connectedPlatforms.includes(detected)) {
       toast({
-        title: `Connect your ${PLATFORM_LABEL[detected] ?? detected} account`,
-        description: "You can only submit links from a social account connected to your profile.",
+        title: `Verify your ${PLATFORM_LABEL[detected] ?? detected} account`,
+        description: "Submissions are only accepted from a connected and verified account.",
         variant: "destructive",
       });
       return null;
