@@ -739,34 +739,22 @@ export default function CreatorCampaignDetail() {
                   </div>
                 </div>
 
-                <div className="surface-card divide-y divide-border/60 overflow-hidden">
-                  {mySubs.map((s) => {
-                    const Glyph = PLATFORM_GLYPHS[String(s.platform).toLowerCase() as PlatformKey];
-                    const earned = ((s.earnings ?? []) as any[]).reduce((x, e) => x + Number(e.amount ?? 0), 0);
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => navigate(`/submissions/${s.id}`)}
-                        className="press-row focus-ring flex w-full items-center gap-3 px-4 py-3.5 text-left"
-                      >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface-raised text-muted-foreground">
-                          {Glyph ? <Glyph size={18} /> : null}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[14.5px] font-semibold">
-                            {fmtViews(Number(s.manual_views ?? 0))} views · {formatCurrency(earned)}
-                          </span>
-                          <span className="block text-[12.5px] text-muted-foreground">
-                            {new Date(s.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                          </span>
-                        </span>
-                        <StatusChip status={s.status} size="sm" />
-                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      </button>
-                    );
-                  })}
-                </div>
+                <RowGroup>
+                  {mySubs.map((s) => (
+                    <SubmissionRow
+                      key={s.id}
+                      to={`/submissions/${s.id}`}
+                      compact
+                      title=""
+                      platform={String(s.platform)}
+                      status={String(s.status)}
+                      views={Number((s as any).total_views ?? s.manual_views ?? 0)}
+                      amount={((s.earnings ?? []) as any[]).reduce((x, e) => x + Number(e.amount ?? 0), 0)}
+                      createdAt={s.created_at}
+                    />
+                  ))}
+                </RowGroup>
+
               </>
             ))}
 
