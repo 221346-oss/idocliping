@@ -119,6 +119,16 @@ export default function AdminCampaigns() {
                   ))}
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1"><Label>Max earnings per post ($)</Label><Input type="number" step="0.01" value={form.max_earnings_per_post} onChange={(e) => setForm(f => ({ ...f, max_earnings_per_post: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Max submissions / day</Label><Input type="number" value={form.max_submissions_per_day} onChange={(e) => setForm(f => ({ ...f, max_submissions_per_day: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Min followers per account</Label><Input type="number" value={form.min_followers_per_account} onChange={(e) => setForm(f => ({ ...f, min_followers_per_account: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Min views for earnings</Label><Input type="number" value={form.min_views_for_earnings} onChange={(e) => setForm(f => ({ ...f, min_views_for_earnings: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Min engagement rate (%)</Label><Input type="number" step="0.01" value={form.min_engagement_rate} onChange={(e) => setForm(f => ({ ...f, min_engagement_rate: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Min duration (seconds)</Label><Input type="number" value={form.min_duration_seconds} onChange={(e) => setForm(f => ({ ...f, min_duration_seconds: e.target.value }))} /></div>
+              </div>
+              <div className="space-y-1"><Label>Campaign Discord link</Label><Input value={form.discord_link} onChange={(e) => setForm(f => ({ ...f, discord_link: e.target.value }))} placeholder="https://discord.gg/…" /></div>
+              <div className="space-y-1"><Label>Account audience requirement</Label><Input value={form.account_audience_requirements} onChange={(e) => setForm(f => ({ ...f, account_audience_requirements: e.target.value }))} placeholder="Account audience must be mostly US" /></div>
               <Button type="submit" disabled={busy} className="w-full">{busy && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}Create</Button>
             </form>
           </DialogContent>
