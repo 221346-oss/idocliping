@@ -20,6 +20,7 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Wallet, label: "Withdrawals", path: "/admin/withdrawals" },
     { icon: Users, label: "Users", path: "/admin/users" },
     { icon: Contact, label: "Creator profiles", path: "/admin/creator-profiles" },
+    { icon: Gift, label: "Rewards & verification", path: "/admin/rewards" },
     { icon: FlaskConical, label: "Automation Lab", path: "/admin/automation-lab" },
     { icon: Ticket, label: "Tickets", path: "/admin/tickets" },
     { icon: Palette, label: "Cosmetics", path: "/admin/cosmetics" },

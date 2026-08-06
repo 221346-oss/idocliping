@@ -35,6 +35,7 @@ import AdminCosmetics from "./pages/admin/AdminCosmetics";
 import AdminCreatorProfiles from "./pages/admin/AdminCreatorProfiles";
 import AdminAutomationLab from "./pages/admin/AdminAutomationLab";
 import AdminCampaignDetail from "./pages/admin/AdminCampaignDetail";
+import AdminRewards from "./pages/admin/AdminRewards";
 
 // Creator
 import Rewards from "./pages/creator/Rewards";
@@ -87,6 +88,7 @@ const App = () => (
               <Route path="/admin/campaigns/:id" element={<RoleRoute roles={["admin"]}><AdminCampaignDetail /></RoleRoute>} />
               <Route path="/admin/automation-lab" element={<RoleRoute roles={["admin"]}><AdminAutomationLab /></RoleRoute>} />
               <Route path="/admin/rules" element={<RoleRoute roles={["admin"]}><AdminRulesManager /></RoleRoute>} />
+              <Route path="/admin/rewards" element={<RoleRoute roles={["admin"]}><AdminRewards /></RoleRoute>} />
               <Route path="/admin/badges" element={<RoleRoute roles={["admin"]}><AdminBadges /></RoleRoute>} />
               <Route path="/admin/submissions" element={<RoleRoute roles={["admin"]}><AdminSubmissions /></RoleRoute>} />
               <Route path="/admin/withdrawals" element={<RoleRoute roles={["admin"]}><AdminWithdrawals /></RoleRoute>} />
