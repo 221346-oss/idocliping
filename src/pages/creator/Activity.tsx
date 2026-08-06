@@ -679,7 +679,7 @@ function CampaignSubmissionsView({
                     >
                       Open post
                     </a>
-                    {s.status === "rejected" && !pendingAppeal(s) && (
+                    {s.status === "rejected" && !hasAppeal(s) && (
                       <button type="button" onClick={() => setAppealFor(s)} className="btn-outline-pill h-9 px-4 text-[13px]">
                         Appeal
                       </button>
@@ -741,7 +741,7 @@ function CampaignSubmissionsView({
                       </td>
                       <td className="space-x-1 p-3 text-right">
                         <div className="inline-flex flex-wrap justify-end gap-1">
-                          {s.status === "rejected" && !pendingAppeal(s) && (
+                          {s.status === "rejected" && !hasAppeal(s) && (
                             <Button type="button" variant="outline" size="sm" className="h-7 text-[11px]" onClick={() => setAppealFor(s)}>
                               Appeal
                             </Button>
