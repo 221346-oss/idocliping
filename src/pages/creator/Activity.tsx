@@ -296,76 +296,67 @@ export default function CreatorSubmissions() {
             {tab === "campaigns" ? (
               <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {filteredCampaignList.map(({ campaign, submissions }) => {
-
                   const earnings = earningsForCampaign(submissions);
                   const thumbnail = campaign.thumbnail_url || "/marketing-campaign-banner-fallback.svg";
-                  const ended = campaign.status === "completed" || campaign.status === "ended";
+                  const state = campaignPayoutState(campaign.status);
                   return (
-                    <button
-                      key={campaign.id}
-                      type="button"
-                      onClick={() => navigate(`/activity/${campaign.id}`)}
-                      className="surface-card interactive-card focus-ring flex w-full items-center gap-3 p-3.5 text-left"
-                    >
-                      <img
-                        src={thumbnail}
-                        alt=""
-                        className="h-[68px] w-[68px] shrink-0 rounded-2xl object-cover"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-[14.5px] font-semibold">{campaign.title}</div>
-                        <div className="mt-0.5 truncate text-[12.5px] text-muted-foreground">
-                          {submissions.length} submission{submissions.length === 1 ? "" : "s"} ·{" "}
-                          {ended ? "Ended" : "Active"}
-                        </div>
-                        <div className="mt-2">
-                          <StatusChip status={ended ? "paid" : "processing"} />
+                    <div key={campaign.id} className="surface-card p-3.5">
+                      <div className="flex items-start gap-3">
+                        <img
+                          src={thumbnail}
+                          alt=""
+                          loading="lazy"
+                          className="h-[68px] w-[68px] shrink-0 rounded-2xl object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start gap-2">
+                            <h3 className="min-w-0 flex-1 truncate font-display text-[15px] font-semibold">
+                              {campaign.title}
+                            </h3>
+                            <StatusChip
+                              size="sm"
+                              status={state === "paid" ? "paid" : state === "pending" ? "pending" : "active"}
+                              label={state === "paid" ? "Paid Out" : state === "pending" ? "Pending" : "Active"}
+                            />
+                          </div>
+                          <div className="mt-2 flex items-baseline gap-1.5">
+                            <span className="display-figure text-[18px] text-primary">
+                              ${earnings.toFixed(2)}
+                            </span>
+                            <span className="text-[11.5px] text-muted-foreground">earned</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="shrink-0 text-right">
-                        <div className="display-figure text-[17px] text-primary">${earnings.toFixed(2)}</div>
-                        <div className="text-[11.5px] text-muted-foreground">earned</div>
-                      </div>
-                    </button>
+
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/activity/${campaign.id}`)}
+                        className="btn-outline-pill mt-3 h-10 w-full justify-between px-4 text-[13px]"
+                      >
+                        <span>Your Submissions: {submissions.length}</span>
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="surface-card mt-4 divide-y divide-border/60 overflow-hidden">
-                {filteredSubmissions.map((s) => {
-                  const earned = (s.earnings ?? []).reduce((a, e) => a + Number(e.amount), 0);
-                  return (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => navigate(`/submissions/${s.id}`)}
-                      className="press-row focus-ring flex w-full items-center gap-3 px-4 py-3.5 text-left"
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-raised text-primary">
-                        <Film className="h-[18px] w-[18px]" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[14.5px] font-semibold">
-                          {s.campaigns?.title ?? "Campaign"}
-                        </span>
-                        <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
-                          {PLATFORM_LABEL[s.platform] ?? s.platform} ·{" "}
-                          {new Date(s.created_at).toLocaleDateString()}
-                        </span>
-                      </span>
-                      <span className="shrink-0 text-right">
-                        <span className="display-figure block text-[15px] tabular-nums">
-                          ${earned.toFixed(2)}
-                        </span>
-                        <span className="mt-1 block">
-                          <StatusChip status={normalizeStatus(s.status)} />
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <RowGroup className="mt-4">
+                {filteredSubmissions.map((s) => (
+                  <SubmissionRow
+                    key={s.id}
+                    to={`/submissions/${s.id}`}
+                    title={s.campaigns?.title ?? "Campaign"}
+                    thumbnailUrl={s.campaigns?.thumbnail_url ?? null}
+                    platform={s.platform}
+                    status={s.status}
+                    views={Number(s.total_views ?? s.manual_views ?? 0)}
+                    createdAt={s.created_at}
+                  />
+                ))}
+              </RowGroup>
             )}
+
           </>
         )}
       </PageContainer>
