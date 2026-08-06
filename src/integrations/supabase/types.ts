@@ -14,44 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      activity_log: {
-        Row: {
-          action: string
-          bug_id: string
-          created_at: string
-          id: string
-          new_value: string | null
-          old_value: string | null
-          user_id: string
-        }
-        Insert: {
-          action: string
-          bug_id: string
-          created_at?: string
-          id?: string
-          new_value?: string | null
-          old_value?: string | null
-          user_id: string
-        }
-        Update: {
-          action?: string
-          bug_id?: string
-          created_at?: string
-          id?: string
-          new_value?: string | null
-          old_value?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "activity_log_bug_id_fkey"
-            columns: ["bug_id"]
-            isOneToOne: false
-            referencedRelation: "bugs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       app_settings: {
         Row: {
           key: string
@@ -67,127 +29,6 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: string
-        }
-        Relationships: []
-      }
-      attachments: {
-        Row: {
-          bug_id: string
-          created_at: string
-          file_name: string
-          file_path: string
-          file_size: number | null
-          id: string
-          mime_type: string | null
-          user_id: string
-        }
-        Insert: {
-          bug_id: string
-          created_at?: string
-          file_name: string
-          file_path: string
-          file_size?: number | null
-          id?: string
-          mime_type?: string | null
-          user_id: string
-        }
-        Update: {
-          bug_id?: string
-          created_at?: string
-          file_name?: string
-          file_path?: string
-          file_size?: number | null
-          id?: string
-          mime_type?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "attachments_bug_id_fkey"
-            columns: ["bug_id"]
-            isOneToOne: false
-            referencedRelation: "bugs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      automation_generation_jobs: {
-        Row: {
-          batch_id: string | null
-          created_at: string
-          error_detail: string | null
-          id: string
-          kind: string
-          message: string
-          processed: number
-          progress_pct: number
-          status: string
-          total: number
-          updated_at: string
-        }
-        Insert: {
-          batch_id?: string | null
-          created_at?: string
-          error_detail?: string | null
-          id?: string
-          kind?: string
-          message?: string
-          processed?: number
-          progress_pct?: number
-          status?: string
-          total?: number
-          updated_at?: string
-        }
-        Update: {
-          batch_id?: string | null
-          created_at?: string
-          error_detail?: string | null
-          id?: string
-          kind?: string
-          message?: string
-          processed?: number
-          progress_pct?: number
-          status?: string
-          total?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "automation_generation_jobs_batch_id_fkey"
-            columns: ["batch_id"]
-            isOneToOne: false
-            referencedRelation: "test_creator_batches"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      automation_logs: {
-        Row: {
-          details: Json
-          duration_ms: number
-          errors_count: number
-          id: string
-          items_processed: number
-          job_name: string
-          run_at: string
-        }
-        Insert: {
-          details?: Json
-          duration_ms?: number
-          errors_count?: number
-          id?: string
-          items_processed?: number
-          job_name: string
-          run_at?: string
-        }
-        Update: {
-          details?: Json
-          duration_ms?: number
-          errors_count?: number
-          id?: string
-          items_processed?: number
-          job_name?: string
-          run_at?: string
         }
         Relationships: []
       }
@@ -224,71 +65,6 @@ export type Database = {
         }
         Relationships: []
       }
-      bugs: {
-        Row: {
-          actual_behavior: string | null
-          assignee_id: string | null
-          created_at: string
-          description: string
-          environment: string | null
-          expected_behavior: string | null
-          id: string
-          project_id: string | null
-          reporter_id: string
-          severity: Database["public"]["Enums"]["bug_severity"]
-          sla_deadline: string | null
-          status: Database["public"]["Enums"]["bug_status"]
-          steps_to_reproduce: string | null
-          title: string
-          tracking_id: string
-          updated_at: string
-        }
-        Insert: {
-          actual_behavior?: string | null
-          assignee_id?: string | null
-          created_at?: string
-          description?: string
-          environment?: string | null
-          expected_behavior?: string | null
-          id?: string
-          project_id?: string | null
-          reporter_id: string
-          severity?: Database["public"]["Enums"]["bug_severity"]
-          sla_deadline?: string | null
-          status?: Database["public"]["Enums"]["bug_status"]
-          steps_to_reproduce?: string | null
-          title: string
-          tracking_id?: string
-          updated_at?: string
-        }
-        Update: {
-          actual_behavior?: string | null
-          assignee_id?: string | null
-          created_at?: string
-          description?: string
-          environment?: string | null
-          expected_behavior?: string | null
-          id?: string
-          project_id?: string | null
-          reporter_id?: string
-          severity?: Database["public"]["Enums"]["bug_severity"]
-          sla_deadline?: string | null
-          status?: Database["public"]["Enums"]["bug_status"]
-          steps_to_reproduce?: string | null
-          title?: string
-          tracking_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bugs_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       campaign_participants: {
         Row: {
           campaign_id: string
@@ -315,65 +91,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
-          },
-        ]
-      }
-      campaign_test_assignments: {
-        Row: {
-          assigned_at: string
-          campaign_id: string
-          id: string
-          scheduled_submit_at: string
-          submission_id: string | null
-          submission_status: string
-          test_creator_id: string
-        }
-        Insert: {
-          assigned_at?: string
-          campaign_id: string
-          id?: string
-          scheduled_submit_at: string
-          submission_id?: string | null
-          submission_status?: string
-          test_creator_id: string
-        }
-        Update: {
-          assigned_at?: string
-          campaign_id?: string
-          id?: string
-          scheduled_submit_at?: string
-          submission_id?: string | null
-          submission_status?: string
-          test_creator_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "campaign_test_assignments_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaigns"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "campaign_test_assignments_submission_id_fkey"
-            columns: ["submission_id"]
-            isOneToOne: false
-            referencedRelation: "public_submissions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "campaign_test_assignments_submission_id_fkey"
-            columns: ["submission_id"]
-            isOneToOne: false
-            referencedRelation: "submissions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "campaign_test_assignments_test_creator_id_fkey"
-            columns: ["test_creator_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -410,7 +127,7 @@ export type Database = {
           requirements_not_allowed: string[] | null
           song_link: string | null
           sounds: Json | null
-          status: Database["public"]["Enums"]["campaign_status"]
+          status: string
           thumbnail_url: string | null
           title: string
           updated_at: string
@@ -447,7 +164,7 @@ export type Database = {
           requirements_not_allowed?: string[] | null
           song_link?: string | null
           sounds?: Json | null
-          status?: Database["public"]["Enums"]["campaign_status"]
+          status?: string
           thumbnail_url?: string | null
           title: string
           updated_at?: string
@@ -484,7 +201,7 @@ export type Database = {
           requirements_not_allowed?: string[] | null
           song_link?: string | null
           sounds?: Json | null
-          status?: Database["public"]["Enums"]["campaign_status"]
+          status?: string
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
@@ -498,83 +215,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      comments: {
-        Row: {
-          bug_id: string
-          content: string
-          created_at: string
-          id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          bug_id: string
-          content: string
-          created_at?: string
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          bug_id?: string
-          content?: string
-          created_at?: string
-          id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "comments_bug_id_fkey"
-            columns: ["bug_id"]
-            isOneToOne: false
-            referencedRelation: "bugs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      company_settings: {
-        Row: {
-          address: string | null
-          company_logo_url: string | null
-          company_name: string
-          company_size: string | null
-          company_website: string | null
-          created_at: string
-          id: string
-          industry: string | null
-          phone: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          address?: string | null
-          company_logo_url?: string | null
-          company_name?: string
-          company_size?: string | null
-          company_website?: string | null
-          created_at?: string
-          id?: string
-          industry?: string | null
-          phone?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          address?: string | null
-          company_logo_url?: string | null
-          company_name?: string
-          company_size?: string | null
-          company_website?: string | null
-          created_at?: string
-          id?: string
-          industry?: string | null
-          phone?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       cookie_preferences: {
         Row: {
@@ -599,107 +239,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      cosmetic_items: {
-        Row: {
-          created_at: string
-          id: string
-          image_url: string
-          is_active: boolean
-          name: string
-          rank_reward_condition: Json | null
-          type: Database["public"]["Enums"]["cosmetic_item_type"]
-          unlock_type: Database["public"]["Enums"]["cosmetic_unlock_type"]
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          image_url: string
-          is_active?: boolean
-          name: string
-          rank_reward_condition?: Json | null
-          type: Database["public"]["Enums"]["cosmetic_item_type"]
-          unlock_type?: Database["public"]["Enums"]["cosmetic_unlock_type"]
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          image_url?: string
-          is_active?: boolean
-          name?: string
-          rank_reward_condition?: Json | null
-          type?: Database["public"]["Enums"]["cosmetic_item_type"]
-          unlock_type?: Database["public"]["Enums"]["cosmetic_unlock_type"]
-        }
-        Relationships: []
-      }
-      creator_badge_overrides: {
-        Row: {
-          admin_note: string
-          creator_id: string
-          tier_order: number
-          updated_at: string
-        }
-        Insert: {
-          admin_note?: string
-          creator_id: string
-          tier_order: number
-          updated_at?: string
-        }
-        Update: {
-          admin_note?: string
-          creator_id?: string
-          tier_order?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "creator_badge_overrides_creator_id_fkey"
-            columns: ["creator_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      creator_cosmetics: {
-        Row: {
-          cosmetic_id: string
-          id: string
-          unlocked_at: string
-          unlocked_reason: string
-          user_id: string
-        }
-        Insert: {
-          cosmetic_id: string
-          id?: string
-          unlocked_at?: string
-          unlocked_reason?: string
-          user_id: string
-        }
-        Update: {
-          cosmetic_id?: string
-          id?: string
-          unlocked_at?: string
-          unlocked_reason?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "creator_cosmetics_cosmetic_id_fkey"
-            columns: ["cosmetic_id"]
-            isOneToOne: false
-            referencedRelation: "cosmetic_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "creator_cosmetics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
       }
       creator_leaderboard_points: {
         Row: {
@@ -739,49 +278,6 @@ export type Database = {
           },
         ]
       }
-      creator_profile_settings: {
-        Row: {
-          equipped_avatar_id: string | null
-          equipped_banner_id: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          equipped_avatar_id?: string | null
-          equipped_banner_id?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          equipped_avatar_id?: string | null
-          equipped_banner_id?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "creator_profile_settings_equipped_avatar_id_fkey"
-            columns: ["equipped_avatar_id"]
-            isOneToOne: false
-            referencedRelation: "cosmetic_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "creator_profile_settings_equipped_banner_id_fkey"
-            columns: ["equipped_banner_id"]
-            isOneToOne: false
-            referencedRelation: "cosmetic_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "creator_profile_settings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
       earnings: {
         Row: {
           amount: number
@@ -789,6 +285,8 @@ export type Database = {
           creator_id: string
           id: string
           notes: string | null
+          paid_at: string | null
+          status: string
           submission_id: string | null
           type: Database["public"]["Enums"]["earning_type"]
         }
@@ -798,6 +296,8 @@ export type Database = {
           creator_id: string
           id?: string
           notes?: string | null
+          paid_at?: string | null
+          status?: string
           submission_id?: string | null
           type?: Database["public"]["Enums"]["earning_type"]
         }
@@ -807,6 +307,8 @@ export type Database = {
           creator_id?: string
           id?: string
           notes?: string | null
+          paid_at?: string | null
+          status?: string
           submission_id?: string | null
           type?: Database["public"]["Enums"]["earning_type"]
         }
@@ -824,42 +326,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "submissions"
             referencedColumns: ["id"]
-          },
-        ]
-      }
-      internal_creator_flags: {
-        Row: {
-          is_test_creator: boolean
-          test_batch_id: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          is_test_creator?: boolean
-          test_batch_id?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          is_test_creator?: boolean
-          test_batch_id?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "internal_creator_flags_test_batch_id_fkey"
-            columns: ["test_batch_id"]
-            isOneToOne: false
-            referencedRelation: "test_creator_batches"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "internal_creator_flags_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -890,78 +356,6 @@ export type Database = {
           invited_by?: string
           role?: Database["public"]["Enums"]["app_role"]
           status?: string
-        }
-        Relationships: []
-      }
-      leaderboard_badge_tiers: {
-        Row: {
-          id: string
-          perks: Json
-          rank_from: number
-          rank_to: number
-          slug: string
-          tier_order: number
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          perks?: Json
-          rank_from: number
-          rank_to: number
-          slug: string
-          tier_order: number
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          perks?: Json
-          rank_from?: number
-          rank_to?: number
-          slug?: string
-          tier_order?: number
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      notification_preferences: {
-        Row: {
-          created_at: string
-          daily_digest: boolean
-          email_on_assignment: boolean
-          email_on_comment: boolean
-          email_on_new_bug: boolean
-          email_on_sla_breach: boolean
-          email_on_status_change: boolean
-          id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          daily_digest?: boolean
-          email_on_assignment?: boolean
-          email_on_comment?: boolean
-          email_on_new_bug?: boolean
-          email_on_sla_breach?: boolean
-          email_on_status_change?: boolean
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          daily_digest?: boolean
-          email_on_assignment?: boolean
-          email_on_comment?: boolean
-          email_on_new_bug?: boolean
-          email_on_sla_breach?: boolean
-          email_on_status_change?: boolean
-          id?: string
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -1043,33 +437,6 @@ export type Database = {
           profile_slug?: string | null
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      projects: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          description: string | null
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -1222,10 +589,10 @@ export type Database = {
           campaign_id: string
           created_at: string
           creator_id: string
+          eligible_at: string | null
           eligible_views: number | null
           engagement_rate: number | null
           id: string
-          is_test_submission: boolean
           manual_views: number
           next_refresh_at: string | null
           platform: Database["public"]["Enums"]["social_platform"]
@@ -1233,8 +600,7 @@ export type Database = {
           reject_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
-          sim_view_cap: number | null
-          status: Database["public"]["Enums"]["submission_status"]
+          status: string
           status_reason: string | null
           total_views: number | null
           updated_at: string
@@ -1243,10 +609,10 @@ export type Database = {
           campaign_id: string
           created_at?: string
           creator_id: string
+          eligible_at?: string | null
           eligible_views?: number | null
           engagement_rate?: number | null
           id?: string
-          is_test_submission?: boolean
           manual_views?: number
           next_refresh_at?: string | null
           platform: Database["public"]["Enums"]["social_platform"]
@@ -1254,8 +620,7 @@ export type Database = {
           reject_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
-          sim_view_cap?: number | null
-          status?: Database["public"]["Enums"]["submission_status"]
+          status?: string
           status_reason?: string | null
           total_views?: number | null
           updated_at?: string
@@ -1264,10 +629,10 @@ export type Database = {
           campaign_id?: string
           created_at?: string
           creator_id?: string
+          eligible_at?: string | null
           eligible_views?: number | null
           engagement_rate?: number | null
           id?: string
-          is_test_submission?: boolean
           manual_views?: number
           next_refresh_at?: string | null
           platform?: Database["public"]["Enums"]["social_platform"]
@@ -1275,8 +640,7 @@ export type Database = {
           reject_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
-          sim_view_cap?: number | null
-          status?: Database["public"]["Enums"]["submission_status"]
+          status?: string
           status_reason?: string | null
           total_views?: number | null
           updated_at?: string
@@ -1340,30 +704,6 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
-      }
-      test_creator_batches: {
-        Row: {
-          batch_name: string
-          created_at: string
-          creator_count: number
-          id: string
-          status: string
-        }
-        Insert: {
-          batch_name: string
-          created_at?: string
-          creator_count?: number
-          id?: string
-          status?: string
-        }
-        Update: {
-          batch_name?: string
-          created_at?: string
-          creator_count?: number
-          id?: string
-          status?: string
-        }
-        Relationships: []
       }
       ticket_attachments: {
         Row: {
@@ -1579,10 +919,9 @@ export type Database = {
           created_at: string | null
           creator_id: string | null
           id: string | null
-          is_test_submission: boolean | null
           manual_views: number | null
           platform: Database["public"]["Enums"]["social_platform"] | null
-          status: Database["public"]["Enums"]["submission_status"] | null
+          status: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1590,10 +929,9 @@ export type Database = {
           created_at?: string | null
           creator_id?: string | null
           id?: string | null
-          is_test_submission?: boolean | null
           manual_views?: number | null
           platform?: Database["public"]["Enums"]["social_platform"] | null
-          status?: Database["public"]["Enums"]["submission_status"] | null
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1601,10 +939,9 @@ export type Database = {
           created_at?: string | null
           creator_id?: string | null
           id?: string | null
-          is_test_submission?: boolean | null
           manual_views?: number | null
           platform?: Database["public"]["Enums"]["social_platform"] | null
-          status?: Database["public"]["Enums"]["submission_status"] | null
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -1619,11 +956,11 @@ export type Database = {
       }
     }
     Functions: {
-      alloc_creator_public_ids: { Args: { p_n: number }; Returns: string[] }
-      automation_run_grow_manual: { Args: never; Returns: Json }
-      automation_run_submissions_manual: { Args: never; Returns: Json }
-      gen_random_alphanumeric: { Args: { p_len: number }; Returns: string }
-      gen_random_digits: { Args: { p_len: number }; Returns: string }
+      admin_payout_campaign: { Args: { p_campaign_id: string }; Returns: Json }
+      admin_update_submission_views: {
+        Args: { p_submission_id: string; p_views: number }
+        Returns: Json
+      }
       get_cookie_preferences: {
         Args: { p_browser_key: string }
         Returns: {
@@ -1642,11 +979,6 @@ export type Database = {
           user_id: string
         }[]
       }
-      grant_rank_reward_cosmetics: {
-        Args: { p_period: string; p_ref?: string }
-        Returns: Json
-      }
-      grow_test_creator_views: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1654,7 +986,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      process_scheduled_test_submissions: { Args: never; Returns: Json }
       sync_creator_leaderboard_points_delta: {
         Args: { p_delta_pts: number; p_user: string }
         Returns: undefined
