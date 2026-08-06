@@ -29,10 +29,8 @@ import {
   Loader2,
   Repeat2,
   Share2,
-
-  Info,
-  Loader2,
   Medal,
+
   SearchX,
   Trophy,
   X,
