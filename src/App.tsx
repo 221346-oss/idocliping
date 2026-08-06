@@ -14,6 +14,7 @@ import Auth from "./pages/Auth";
 import OnboardingUsername from "./pages/OnboardingUsername";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { TermsPage, PrivacyPage, DoNotSellPage } from "./pages/Legal";
 import Settings from "./pages/Settings";
 import Analytics from "./pages/Analytics";
 
@@ -121,6 +122,11 @@ const App = () => (
               <Route path="/profile" element={<RoleRoute roles={["creator", "user"]}><Profile /></RoleRoute>} />
               <Route path="/profile/edit" element={<RoleRoute roles={["creator", "user"]}><ProfileEdit /></RoleRoute>} />
               <Route path="/u/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+
+              {/* Legal */}
+              <Route path="/legal/terms" element={<TermsPage />} />
+              <Route path="/legal/privacy" element={<PrivacyPage />} />
+              <Route path="/legal/do-not-sell" element={<DoNotSellPage />} />
 
               {/* Legacy path redirects */}
               <Route path="/creator" element={<Navigate to="/discover" replace />} />

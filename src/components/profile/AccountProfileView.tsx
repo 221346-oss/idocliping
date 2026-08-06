@@ -24,9 +24,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatViewCount } from "@/lib/format-views";
 import { formatCurrencySimple } from "@/lib/format-currency";
 import { StackedLogo } from "@/components/StackedLogo";
+import { APP_NAME, APP_VERSION } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
-const APP_VERSION = "0.2.49";
+
 
 function Row({
   icon: Icon,
@@ -172,9 +173,9 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       </div>
 
       <div className="list-group">
-        <Row icon={FileText} label="Creators Terms of Use" href="/" />
-        <Row icon={ShieldCheck} label="Privacy Policy" href="/" />
-        <Row icon={Ban} label="Do Not Sell My Data" href="/" />
+        <Row icon={FileText} label="Creators Terms of Use" to="/legal/terms" />
+        <Row icon={ShieldCheck} label="Privacy Policy" to="/legal/privacy" />
+        <Row icon={Ban} label="Do Not Sell My Data" to="/legal/do-not-sell" />
       </div>
 
       <div className="list-group">
@@ -197,7 +198,7 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
 
       <div className="flex flex-col items-center gap-1 pt-4">
         <StackedLogo size={22} />
-        <p className="text-[14px] font-semibold">Clipper</p>
+        <p className="text-[14px] font-semibold">{APP_NAME}</p>
         <p className="text-[12px] text-muted-foreground">Version {APP_VERSION}</p>
       </div>
     </div>
