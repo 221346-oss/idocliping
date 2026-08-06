@@ -140,28 +140,6 @@ export async function fetchLeaderboardDisplayMaps(creatorIds: string[]): Promise
     profiles.set((p as any).user_id, { full_name: (p as any).full_name ?? null, avatar_url: (p as any).avatar_url ?? null });
   }
 
-  const { data: settings } = await supabase
-    .from("creator_profile_settings")
-    .select("user_id, equipped_avatar_id, equipped_banner_id")
-    .in("user_id", creatorIds);
-
-  const itemIds = new Set<string>();
-  for (const row of settings ?? []) {
-    if (row.equipped_avatar_id) itemIds.add(row.equipped_avatar_id);
-    if (row.equipped_banner_id) itemIds.add(row.equipped_banner_id);
-  }
-
-  const itemMap = new Map<string, { image_url: string; type: string }>();
-  if (itemIds.size) {
-    const { data: items } = await supabase.from("cosmetic_items").select("id, image_url, type").in("id", [...itemIds]);
-    for (const it of items ?? []) itemMap.set(it.id, { image_url: it.image_url, type: it.type });
-  }
-
-  for (const row of settings ?? []) {
-    const av = row.equipped_avatar_id ? itemMap.get(row.equipped_avatar_id)?.image_url ?? null : null;
-    const bn = row.equipped_banner_id ? itemMap.get(row.equipped_banner_id)?.image_url ?? null : null;
-    cosmetics.set(row.user_id, { avatar: av, banner: bn });
-  }
-
   return { profiles, cosmetics };
 }
+
