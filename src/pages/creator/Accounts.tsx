@@ -26,7 +26,7 @@ type Account = {
   verification_status: string;
 };
 
-const makeCode = () => `clipster-${Math.random().toString(36).slice(2, 8)}`;
+const makeCode = makeVerificationCode;
 
 function StatusPill({ account }: { account: Account }) {
   if (account.verified || account.verification_status === "verified") {
