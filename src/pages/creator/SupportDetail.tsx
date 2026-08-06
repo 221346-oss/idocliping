@@ -115,7 +115,7 @@ export default function CreatorSupportDetail() {
     <AppLayout>
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Button variant="ghost" size="sm" className="h-8 -ml-2" asChild>
-          <Link to="/creator/support">
+          <Link to="/support">
             <ArrowLeft className="h-3.5 w-3.5 mr-1" /> My Tickets
           </Link>
         </Button>

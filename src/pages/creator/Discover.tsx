@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal, Compass, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, SlidersHorizontal, Compass, X, Gift } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CreatorShell, PageContainer, PageTitle } from "@/components/shell/CreatorShell";
 import { FilterPills, PillOption } from "@/components/ui-kit/Pills";
@@ -101,7 +102,15 @@ export default function CreatorMarketplace() {
   return (
     <CreatorShell>
       <PageContainer>
-        <PageTitle>Discover</PageTitle>
+        <PageTitle
+          action={
+            <Link to="/rewards" aria-label="Rewards" className="icon-pill h-10 w-10">
+              <Gift className="h-[18px] w-[18px]" />
+            </Link>
+          }
+        >
+          Discover
+        </PageTitle>
 
         {/* Search + filter trigger */}
         <div className="flex items-center gap-2">

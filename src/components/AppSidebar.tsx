@@ -1,4 +1,4 @@
-import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, Medal, LifeBuoy, Ticket, Palette, Contact, FlaskConical } from "lucide-react";
+import { LayoutDashboard, Plus, Bug, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, Medal, LifeBuoy, Ticket, Palette, Contact, FlaskConical, Gift } from "lucide-react";
 import { StackedLogo } from "./StackedLogo";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Wallet, label: "Withdrawals", path: "/admin/withdrawals" },
     { icon: Users, label: "Users", path: "/admin/users" },
     { icon: Contact, label: "Creator profiles", path: "/admin/creator-profiles" },
+    { icon: Gift, label: "Rewards & verification", path: "/admin/rewards" },
     { icon: FlaskConical, label: "Automation Lab", path: "/admin/automation-lab" },
     { icon: Ticket, label: "Tickets", path: "/admin/tickets" },
     { icon: Palette, label: "Cosmetics", path: "/admin/cosmetics" },
@@ -33,20 +34,20 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
   creator: [
-    { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
-    { icon: Trophy, label: "Leaderboard", path: "/creator/leaderboard" },
-    { icon: ListChecks, label: "Submissions", path: "/creator/submissions" },
-    { icon: LifeBuoy, label: "Support", path: "/creator/support" },
-    { icon: Wallet, label: "Wallet", path: "/creator/wallet" },
-    { icon: Briefcase, label: "Socials", path: "/creator/social" },
-    { icon: Users, label: "My Profile", path: "/profile/me" },
+    { icon: Sparkles, label: "Explore", path: "/discover" },
+    { icon: Trophy, label: "Leaderboard", path: "/leaderboard" },
+    { icon: ListChecks, label: "Submissions", path: "/activity" },
+    { icon: LifeBuoy, label: "Support", path: "/support" },
+    { icon: Wallet, label: "Wallet", path: "/wallet" },
+    { icon: Briefcase, label: "Socials", path: "/accounts" },
+    { icon: Users, label: "My Profile", path: "/profile" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
   user: [
-    { icon: Sparkles, label: "Explore", path: "/creator/campaigns" },
-    { icon: Trophy, label: "Leaderboard", path: "/creator/leaderboard" },
-    { icon: LifeBuoy, label: "Support", path: "/creator/support" },
-    { icon: Users, label: "My Profile", path: "/profile/me" },
+    { icon: Sparkles, label: "Explore", path: "/discover" },
+    { icon: Trophy, label: "Leaderboard", path: "/leaderboard" },
+    { icon: LifeBuoy, label: "Support", path: "/support" },
+    { icon: Users, label: "My Profile", path: "/profile" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ],
 };

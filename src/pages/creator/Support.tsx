@@ -56,7 +56,7 @@ export default function CreatorSupportList() {
             <h1 className="text-[13px] font-medium">Help &amp; Support</h1>
           </div>
           <Button asChild size="sm" className="h-7 text-[12px]">
-            <Link to="/creator/support/new">
+            <Link to="/support/new">
               <Plus className="h-3.5 w-3.5 mr-1" /> Submit a Ticket
             </Link>
           </Button>
@@ -71,7 +71,7 @@ export default function CreatorSupportList() {
               title="No tickets yet"
               description="When you need help with payouts, campaigns, or your account, open a ticket — we typically respond within 24–48 hours."
               actionLabel="Submit a ticket"
-              actionTo="/creator/support/new"
+              actionTo="/support/new"
               className="py-10"
             />
           ) : (
@@ -79,7 +79,7 @@ export default function CreatorSupportList() {
               {rows.map((t) => (
                 <li key={t.id}>
                   <Link
-                    to={`/creator/support/${t.id}`}
+                    to={`/support/${t.id}`}
                     className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 hover:bg-muted/30 transition-colors"
                   >
                     <span className="font-mono text-[12px] text-muted-foreground">{t.ticket_number}</span>

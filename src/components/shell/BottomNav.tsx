@@ -15,10 +15,10 @@ export type NavEntry = {
 };
 
 export const CREATOR_NAV: NavEntry[] = [
-  { label: "Explore", to: "/creator/campaigns", match: ["/creator", "/creator/campaigns"], Glyph: ExploreGlyph },
-  { label: "My Activity", to: "/creator/submissions", match: ["/creator/submissions"], Glyph: ActivityGlyph },
-  { label: "Wallet", to: "/creator/wallet", match: ["/creator/wallet", "/creator/referrals"], Glyph: WalletGlyph },
-  { label: "Profile", to: "/profile/me", match: ["/profile", "/creator/profile", "/settings"], Glyph: ProfileGlyph },
+  { label: "Explore", to: "/discover", match: ["/discover", "/campaigns", "/rewards", "/leaderboard"], Glyph: ExploreGlyph },
+  { label: "My Activity", to: "/activity", match: ["/activity", "/submissions"], Glyph: ActivityGlyph },
+  { label: "Wallet", to: "/wallet", match: ["/wallet", "/referrals"], Glyph: WalletGlyph },
+  { label: "Profile", to: "/profile", match: ["/profile", "/u", "/accounts", "/support", "/settings"], Glyph: ProfileGlyph },
 ];
 
 export function isNavActive(entry: NavEntry, pathname: string) {

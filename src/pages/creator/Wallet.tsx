@@ -362,7 +362,7 @@ export default function CreatorWallet() {
                   <span className="flex-1">Lifetime Earnings</span>
                   <span className="list-row-value display-figure text-foreground">${money(totalEarned)}</span>
                 </div>
-                <Link to="/creator/referrals" className="list-row">
+                <Link to="/referrals" className="list-row">
                   <span className="list-row-icon text-primary">
                     <Gift className="h-[18px] w-[18px]" />
                   </span>
@@ -401,7 +401,7 @@ export default function CreatorWallet() {
                 </div>
               )}
 
-              <Link to="/creator/wallet/transactions" className="btn-outline-pill">
+              <Link to="/wallet/transactions" className="btn-outline-pill">
                 All Transactions
               </Link>
             </section>

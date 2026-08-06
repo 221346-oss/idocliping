@@ -130,7 +130,7 @@ export function GeneralRulesGate() {
       aria-modal="true"
     >
       <div
-        className="w-full max-w-lg border border-border bg-background p-6 rounded-md shadow-lg"
+        className="w-full max-w-lg surface-card p-6"
         // Prevent overlay interactions from doing anything unexpected.
         onMouseDown={(e) => e.stopPropagation()}
       >
@@ -187,7 +187,7 @@ export function GeneralRulesGate() {
         </div>
 
         <div className="mt-6">
-          <Button variant="destructive" className="w-full" onClick={acknowledge}>
+          <Button className="w-full h-11 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary hover:opacity-90 press-scale" onClick={acknowledge}>
             Ok, I got it
           </Button>
         </div>

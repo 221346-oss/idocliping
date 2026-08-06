@@ -168,7 +168,7 @@ export default function CreatorSubmissions() {
     return (
       <CreatorShell>
         <PageContainer>
-          <DetailHeader title={active.campaign.title} onBack={() => navigate("/creator/submissions")} />
+          <DetailHeader title={active.campaign.title} onBack={() => navigate("/activity")} />
           <div className="animate-fade-in pb-4">
             <CampaignSubmissionsView
               active={active}
@@ -200,7 +200,7 @@ export default function CreatorSubmissions() {
               title="Your submissions will appear here"
               description="Once you submit a clip to a campaign, you'll be able to track its views, status, and earnings right here."
               actionLabel="Find a campaign"
-              actionTo="/creator/campaigns"
+              actionTo="/discover"
             />
           </div>
         ) : (
@@ -245,7 +245,7 @@ export default function CreatorSubmissions() {
                     <button
                       key={campaign.id}
                       type="button"
-                      onClick={() => navigate(`/creator/submissions/${campaign.id}`)}
+                      onClick={() => navigate(`/activity/${campaign.id}`)}
                       className="surface-card interactive-card focus-ring flex w-full items-center gap-3 p-3.5 text-left"
                     >
                       <img
@@ -279,7 +279,7 @@ export default function CreatorSubmissions() {
                     <button
                       key={s.id}
                       type="button"
-                      onClick={() => navigate(`/creator/submissions/report/${s.id}`)}
+                      onClick={() => navigate(`/submissions/${s.id}`)}
                       className="press-row focus-ring flex w-full items-center gap-3 px-4 py-3.5 text-left"
                     >
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-raised text-primary">
@@ -496,7 +496,7 @@ function CampaignSubmissionsView({
   return (
     <div className="space-y-6 animate-fade-in pb-10">
       <div className="rounded-md bg-muted/40 border border-border p-3 text-[12px] text-foreground">
-        Earnings credit to your <Link to="/creator/wallet" className="underline">Wallet</Link>.
+        Earnings credit to your <Link to="/wallet" className="underline">Wallet</Link>.
         <span className="text-muted-foreground"> Processing</span> means the post is with an admin.
         <span className="text-primary"> Eligible</span> means it counts for views and payout;
         <span className="text-destructive"> Ineligible</span> means it was declined — see the reason below.

@@ -252,7 +252,7 @@ export function LeaderboardProfilePanel({
             <div className="rounded-md border border-border bg-muted/20 p-2.5 min-w-0">
               <div className="text-[10px] text-muted-foreground uppercase">Best campaign</div>
               {stats.bestCampaignId && stats.bestCampaignTitle ? (
-                <Link to={`/creator/campaigns/${stats.bestCampaignId}`} className="text-[12px] font-medium text-primary truncate block hover:underline">
+                <Link to={`/campaigns/${stats.bestCampaignId}`} className="text-[12px] font-medium text-primary truncate block hover:underline">
                   {stats.bestCampaignTitle}
                 </Link>
               ) : (

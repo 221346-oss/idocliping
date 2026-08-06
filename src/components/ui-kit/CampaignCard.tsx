@@ -108,7 +108,7 @@ export function CampaignCard({
 
   return (
     <Link
-      to={`/creator/campaigns/${campaign.id}`}
+      to={`/campaigns/${campaign.id}`}
       style={{ ["--i" as string]: index }}
       className="surface-card interactive-card focus-ring stagger-item block p-3.5"
     >

@@ -28,6 +28,9 @@ export default function AdminCampaigns() {
     brand_id: "", title: "", description: "", instructions: "", thumbnail_url: "",
     category: "ugc", payout_per_1m_views: "1000", budget_total: "1000", status: "active",
     platforms: ["tiktok"] as string[],
+    discord_link: "", max_earnings_per_post: "", max_submissions_per_day: "",
+    min_followers_per_account: "", min_views_for_earnings: "", min_engagement_rate: "",
+    min_duration_seconds: "", account_audience_requirements: "",
   });
 
   const load = async () => {
@@ -39,6 +42,8 @@ export default function AdminCampaigns() {
   };
   useEffect(() => { load(); }, []);
 
+  const num = (v: string) => (v.trim() === "" ? null : Number(v) || 0);
+
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -49,7 +54,15 @@ export default function AdminCampaigns() {
       category: form.category as any, status: form.status as any, platforms: form.platforms,
       payout_per_1m_views: Number(form.payout_per_1m_views) || 0,
       budget_total: total, budget_remaining: total,
-    });
+      discord_link: form.discord_link.trim() || null,
+      max_earnings_per_post: num(form.max_earnings_per_post),
+      max_submissions_per_day: num(form.max_submissions_per_day),
+      min_followers_per_account: num(form.min_followers_per_account),
+      min_views_for_earnings: num(form.min_views_for_earnings),
+      min_engagement_rate: num(form.min_engagement_rate),
+      min_duration_seconds: num(form.min_duration_seconds),
+      account_audience_requirements: form.account_audience_requirements.trim() || null,
+    } as any);
     setBusy(false);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     toast({ title: "Campaign created" });
@@ -106,6 +119,16 @@ export default function AdminCampaigns() {
                   ))}
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1"><Label>Max earnings per post ($)</Label><Input type="number" step="0.01" value={form.max_earnings_per_post} onChange={(e) => setForm(f => ({ ...f, max_earnings_per_post: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Max submissions / day</Label><Input type="number" value={form.max_submissions_per_day} onChange={(e) => setForm(f => ({ ...f, max_submissions_per_day: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Min followers per account</Label><Input type="number" value={form.min_followers_per_account} onChange={(e) => setForm(f => ({ ...f, min_followers_per_account: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Min views for earnings</Label><Input type="number" value={form.min_views_for_earnings} onChange={(e) => setForm(f => ({ ...f, min_views_for_earnings: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Min engagement rate (%)</Label><Input type="number" step="0.01" value={form.min_engagement_rate} onChange={(e) => setForm(f => ({ ...f, min_engagement_rate: e.target.value }))} /></div>
+                <div className="space-y-1"><Label>Min duration (seconds)</Label><Input type="number" value={form.min_duration_seconds} onChange={(e) => setForm(f => ({ ...f, min_duration_seconds: e.target.value }))} /></div>
+              </div>
+              <div className="space-y-1"><Label>Campaign Discord link</Label><Input value={form.discord_link} onChange={(e) => setForm(f => ({ ...f, discord_link: e.target.value }))} placeholder="https://discord.gg/…" /></div>
+              <div className="space-y-1"><Label>Account audience requirement</Label><Input value={form.account_audience_requirements} onChange={(e) => setForm(f => ({ ...f, account_audience_requirements: e.target.value }))} placeholder="Account audience must be mostly US" /></div>
               <Button type="submit" disabled={busy} className="w-full">{busy && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}Create</Button>
             </form>
           </DialogContent>

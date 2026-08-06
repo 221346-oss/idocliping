@@ -5,7 +5,7 @@ import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/Cr
 import { FilterPills, PillOption } from "@/components/ui-kit/Pills";
 import { RowListSkeleton } from "@/components/ui-kit/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
-import { TransactionRow } from "./CreatorWallet";
+import { TransactionRow } from "./Wallet";
 import { Receipt } from "lucide-react";
 
 
