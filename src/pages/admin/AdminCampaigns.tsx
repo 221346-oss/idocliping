@@ -28,6 +28,9 @@ export default function AdminCampaigns() {
     brand_id: "", title: "", description: "", instructions: "", thumbnail_url: "",
     category: "ugc", payout_per_1m_views: "1000", budget_total: "1000", status: "active",
     platforms: ["tiktok"] as string[],
+    discord_link: "", max_earnings_per_post: "", max_submissions_per_day: "",
+    min_followers_per_account: "", min_views_for_earnings: "", min_engagement_rate: "",
+    min_duration_seconds: "", account_audience_requirements: "",
   });
 
   const load = async () => {
@@ -39,6 +42,8 @@ export default function AdminCampaigns() {
   };
   useEffect(() => { load(); }, []);
 
+  const num = (v: string) => (v.trim() === "" ? null : Number(v) || 0);
+
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -49,7 +54,15 @@ export default function AdminCampaigns() {
       category: form.category as any, status: form.status as any, platforms: form.platforms,
       payout_per_1m_views: Number(form.payout_per_1m_views) || 0,
       budget_total: total, budget_remaining: total,
-    });
+      discord_link: form.discord_link.trim() || null,
+      max_earnings_per_post: num(form.max_earnings_per_post),
+      max_submissions_per_day: num(form.max_submissions_per_day),
+      min_followers_per_account: num(form.min_followers_per_account),
+      min_views_for_earnings: num(form.min_views_for_earnings),
+      min_engagement_rate: num(form.min_engagement_rate),
+      min_duration_seconds: num(form.min_duration_seconds),
+      account_audience_requirements: form.account_audience_requirements.trim() || null,
+    } as any);
     setBusy(false);
     if (error) return toast({ title: "Failed", description: error.message, variant: "destructive" });
     toast({ title: "Campaign created" });
