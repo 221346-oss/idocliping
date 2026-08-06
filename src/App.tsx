@@ -37,21 +37,21 @@ import AdminAutomationLab from "./pages/admin/AdminAutomationLab";
 import AdminCampaignDetail from "./pages/admin/AdminCampaignDetail";
 
 // Creator
+import Discover from "./pages/creator/Discover";
+import CampaignDetail from "./pages/creator/CampaignDetail";
+import SubmissionReport from "./pages/creator/SubmissionReport";
+import Activity from "./pages/creator/Activity";
+import Wallet from "./pages/creator/Wallet";
+import Transactions from "./pages/creator/Transactions";
+import Referrals from "./pages/creator/Referrals";
+import Accounts from "./pages/creator/Accounts";
+import Leaderboard from "./pages/creator/Leaderboard";
+import Profile from "./pages/creator/Profile";
+import ProfileEdit from "./pages/creator/ProfileEdit";
+import Support from "./pages/creator/Support";
+import SupportNew from "./pages/creator/SupportNew";
+import SupportDetail from "./pages/creator/SupportDetail";
 
-import CreatorMarketplace from "./pages/creator/CreatorMarketplace";
-import CreatorCampaignDetail from "./pages/creator/CreatorCampaignDetail";
-import CreatorSubmissionReport from "./pages/creator/CreatorSubmissionReport";
-import CreatorSubmissions from "./pages/creator/CreatorSubmissions";
-import CreatorWallet from "./pages/creator/CreatorWallet";
-import CreatorTransactions from "./pages/creator/CreatorTransactions";
-import CreatorReferrals from "./pages/creator/CreatorReferrals";
-import CreatorSocial from "./pages/creator/CreatorSocial";
-import CreatorLeaderboard from "./pages/creator/CreatorLeaderboard";
-import CreatorProfile from "./pages/creator/CreatorProfile";
-import CreatorProfileEdit from "./pages/creator/CreatorProfileEdit";
-import CreatorSupportList from "./pages/creator/CreatorSupportList";
-import CreatorSupportNew from "./pages/creator/CreatorSupportNew";
-import CreatorSupportDetail from "./pages/creator/CreatorSupportDetail";
 
 
 // Brand
