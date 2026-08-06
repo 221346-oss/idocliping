@@ -102,15 +102,19 @@ export default function CreatorMarketplace() {
   return (
     <CreatorShell>
       <PageContainer>
-        <PageTitle
-          action={
-            <Link to="/rewards" aria-label="Rewards" className="icon-pill h-10 w-10">
-              <Gift className="h-[18px] w-[18px]" />
-            </Link>
-          }
-        >
-          Discover
-        </PageTitle>
+        <div className="sticky top-0 z-40 -mx-4 bg-background/95 px-4 backdrop-blur-xl md:mx-0 md:px-0">
+          <PageTitle
+            className="pb-3 pt-5 md:pt-8 md:pb-5"
+            action={
+              <Link to="/rewards" aria-label="Rewards" className="icon-pill-solid">
+                <Gift className="h-[18px] w-[18px]" />
+              </Link>
+            }
+          >
+            Discover
+          </PageTitle>
+        </div>
+
 
         {/* Search + filter trigger */}
         <div className="flex items-center gap-2">
