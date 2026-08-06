@@ -25,6 +25,7 @@ import { formatViewCount } from "@/lib/format-views";
 import { formatCurrencySimple } from "@/lib/format-currency";
 import { StackedLogo } from "@/components/StackedLogo";
 import { APP_NAME, APP_VERSION } from "@/lib/brand";
+import { REFERRAL_RATE_LABEL } from "@/lib/referral";
 import { cn } from "@/lib/utils";
 
 
@@ -157,7 +158,7 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       </div>
 
       <div className="list-group">
-        <Row icon={UserPlus} label="Referrals" value="Earn 10%" to="/referrals" />
+        <Row icon={UserPlus} label="Referrals" value={`Earn ${REFERRAL_RATE_LABEL}`} to="/referrals" />
       </div>
 
       <div className="list-group">
