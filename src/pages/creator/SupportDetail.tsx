@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { AppLayout } from "@/components/AppLayout";
+import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/CreatorShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -95,30 +95,26 @@ export default function CreatorSupportDetail() {
 
   if (loading) {
     return (
-      <AppLayout>
+      <CreatorShell>
         <div className="flex justify-center py-16">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
-      </AppLayout>
+      </CreatorShell>
     );
   }
 
   if (!ticket) {
     return (
-      <AppLayout>
+      <CreatorShell>
         <div className="p-6 text-[13px] text-muted-foreground">Ticket not found.</div>
-      </AppLayout>
+      </CreatorShell>
     );
   }
 
   return (
-    <AppLayout>
-      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
-        <Button variant="ghost" size="sm" className="h-8 -ml-2" asChild>
-          <Link to="/support">
-            <ArrowLeft className="h-3.5 w-3.5 mr-1" /> My Tickets
-          </Link>
-        </Button>
+    <CreatorShell>
+      <PageContainer className="max-w-[760px] space-y-4 pb-10">
+        <DetailHeader title="Ticket" />
 
         <div className="flex flex-wrap gap-2 items-start justify-between">
           <div>
@@ -132,7 +128,7 @@ export default function CreatorSupportDetail() {
           <span className="text-[11px] text-muted-foreground">{formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}</span>
         </div>
 
-        <div className="rounded-lg border border-border bg-muted/20 p-4 text-[13px] whitespace-pre-wrap">{ticket.description}</div>
+        <div className="surface-card whitespace-pre-wrap p-4 text-[13.5px] leading-relaxed">{ticket.description}</div>
 
         {attachments.length > 0 ? (
           <div className="space-y-2">
@@ -175,13 +171,18 @@ export default function CreatorSupportDetail() {
         {ticket.status !== "closed" ? (
           <div className="space-y-2 pt-2 border-t border-border">
             <Textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Your reply…" className="min-h-[100px] text-[13px]" />
-            <Button type="button" size="sm" disabled={sending || !reply.trim()} onClick={() => void sendReply()}>
-              {sending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            <button
+              type="button"
+              disabled={sending || !reply.trim()}
+              onClick={() => void sendReply()}
+              className="btn-primary-pill h-11 w-full gap-2 disabled:opacity-50 sm:w-auto sm:px-6"
+            >
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               Send reply
-            </Button>
+            </button>
           </div>
         ) : null}
-      </div>
-    </AppLayout>
+      </PageContainer>
+    </CreatorShell>
   );
 }
