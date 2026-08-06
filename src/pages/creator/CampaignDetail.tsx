@@ -5,6 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/CreatorShell";
 import { UnderlineTabs } from "@/components/ui-kit/Pills";
 import { ProgressRate, DataRow, ListSection, StatTrio } from "@/components/ui-kit/DataBits";
+import { RowGroup, SubmissionRow } from "@/components/ui-kit/SubmissionRow";
+
 import { StatusChip } from "@/components/ui-kit/StatusChip";
 import { PlatformRow, PLATFORM_GLYPHS, type PlatformKey } from "@/components/brand/icons/NavGlyphs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
