@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreatorShell, PageContainer, PageTitle } from "@/components/shell/CreatorShell";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -340,7 +339,8 @@ export default function CreatorLeaderboard() {
                   key={s}
                   type="button"
                   onClick={() => setScope(s)}
-                  className={cn("chip", scope === s && "chip-active")}
+                  data-active={scope === s}
+                  className="chip"
                 >
                   {s === "campaign" ? "Per Campaign" : s === "category" ? "Per Category" : "Platform"}
                 </button>
@@ -396,7 +396,8 @@ export default function CreatorLeaderboard() {
                   key={p}
                   type="button"
                   onClick={() => setPeriod(p)}
-                  className={cn("chip", period === p && "chip-active")}
+                  data-active={period === p}
+                  className="chip"
                 >
                   {p === "week" ? "This Week" : p === "month" ? "This Month" : "All Time"}
                 </button>
