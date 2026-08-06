@@ -3,10 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/CreatorShell";
 import { FilterPills, PillOption } from "@/components/ui-kit/Pills";
-import { StatusChip, normalizeStatus } from "@/components/ui-kit/StatusChip";
 import { RowListSkeleton } from "@/components/ui-kit/Skeletons";
 import { EmptyState } from "@/components/EmptyState";
-import { ArrowDownLeft, ArrowUpRight, Receipt } from "lucide-react";
+import { TransactionRow } from "./CreatorWallet";
+import { Receipt } from "lucide-react";
+
 
 type Tx = {
   id: string;
@@ -112,38 +113,21 @@ export default function CreatorTransactions() {
                   {month}
                 </h2>
                 <div className="surface-card divide-y divide-border/60 overflow-hidden">
-                  {items.map((r) => {
-                    const incoming = r.kind === "earning";
-                    const Icon = incoming ? ArrowDownLeft : ArrowUpRight;
-                    return (
-                      <div key={r.id} className="flex items-center gap-3 px-4 py-3.5">
-                        <span
-                          className={
-                            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl " +
-                            (incoming ? "bg-primary/15 text-primary" : "bg-surface-raised text-muted-foreground")
-                          }
-                        >
-                          <Icon className="h-[18px] w-[18px]" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-[14.5px] font-semibold capitalize">{r.label}</div>
-                          <div className="text-[12.5px] text-muted-foreground">
-                            {new Date(r.created_at).toLocaleDateString(undefined, {
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="display-figure text-[15px] tabular-nums">
-                            {incoming ? "+" : "−"}${money(r.amount)}
-                          </div>
-                          <StatusChip status={normalizeStatus(r.status)} size="sm" className="mt-1" />
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {items.map((r) => (
+                    <TransactionRow
+                      key={r.id}
+                      entry={{
+                        id: r.id,
+                        kind: r.kind === "earning" ? "in" : "out",
+                        title: r.label,
+                        status: r.status,
+                        amount: r.amount,
+                        created_at: r.created_at,
+                      }}
+                    />
+                  ))}
                 </div>
+
               </section>
             ))
           )}
