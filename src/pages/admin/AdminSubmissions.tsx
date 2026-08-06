@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, Check, X, ExternalLink, RotateCcw, Ban, MessageSquareWarning } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { submissionStatusLabel } from "@/lib/submission-status";
+import { normalizeStatus, StatusChip } from "@/components/ui-kit/StatusChip";
 import { cn } from "@/lib/utils";
 
 type Appeal = {
