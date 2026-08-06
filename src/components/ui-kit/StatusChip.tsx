@@ -64,7 +64,7 @@ export function StatusChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full font-semibold leading-none",
+        "status-pill border",
         size === "sm" ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-[12.5px]",
         STATUS_CLASS[kind],
         className,
@@ -73,4 +73,5 @@ export function StatusChip({
       {label ?? STATUS_LABEL[kind]}
     </span>
   );
+
 }
