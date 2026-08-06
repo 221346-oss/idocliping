@@ -22,15 +22,16 @@ const STATUS_LABEL: Record<StatusKind, string> = {
 };
 
 const STATUS_CLASS: Record<StatusKind, string> = {
-  processing: "bg-state-processing/15 text-state-processing",
-  eligible: "bg-state-eligible/15 text-state-eligible",
-  ineligible: "bg-state-ineligible/15 text-state-ineligible",
-  rejected: "bg-state-rejected/15 text-state-rejected",
-  paid: "bg-state-paid/15 text-state-paid",
-  active: "bg-primary/15 text-primary",
-  pending: "bg-state-processing/15 text-state-processing",
-  neutral: "bg-muted text-muted-foreground",
+  processing: "bg-state-processing/[0.14] text-state-processing border-state-processing/35",
+  eligible: "bg-state-eligible/[0.14] text-state-eligible border-state-eligible/35",
+  ineligible: "bg-state-ineligible/[0.14] text-state-ineligible border-state-ineligible/35",
+  rejected: "bg-state-rejected/[0.14] text-state-rejected border-state-rejected/35",
+  paid: "bg-state-paid/[0.14] text-state-paid border-state-paid/35",
+  active: "bg-primary/[0.14] text-primary border-primary/35",
+  pending: "bg-state-processing/[0.14] text-state-processing border-state-processing/35",
+  neutral: "bg-muted text-muted-foreground border-border",
 };
+
 
 /** Maps every raw status string in the app onto the five reference states. */
 export function normalizeStatus(raw: string | null | undefined): StatusKind {
@@ -63,7 +64,7 @@ export function StatusChip({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full font-semibold leading-none",
+        "status-pill border",
         size === "sm" ? "px-2.5 py-1 text-[11px]" : "px-3 py-1.5 text-[12.5px]",
         STATUS_CLASS[kind],
         className,
@@ -72,4 +73,5 @@ export function StatusChip({
       {label ?? STATUS_LABEL[kind]}
     </span>
   );
+
 }

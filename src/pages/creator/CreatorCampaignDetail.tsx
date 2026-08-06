@@ -4,8 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/CreatorShell";
 import { UnderlineTabs } from "@/components/ui-kit/Pills";
-import { ProgressRate, DataRow, ListSection } from "@/components/ui-kit/DataBits";
+import { ProgressRate, DataRow, ListSection, StatTrio } from "@/components/ui-kit/DataBits";
+import { StatusChip } from "@/components/ui-kit/StatusChip";
+import { PlatformRow, PLATFORM_GLYPHS, type PlatformKey } from "@/components/brand/icons/NavGlyphs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { RowListSkeleton, StatBlockSkeleton } from "@/components/ui-kit/Skeletons";
+
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -19,10 +23,14 @@ import {
 import {
   ArrowLeft,
   Check,
+  ChevronRight,
   ExternalLink,
   Info,
   Loader2,
+  Repeat2,
+  Share2,
   Medal,
+
   SearchX,
   Trophy,
   X,
@@ -75,12 +83,14 @@ function normalizeUrlList(value: unknown): string[] {
   return list.filter((u) => /^https?:\/\//i.test(u));
 }
 
-function maskCreatorName(fullName: string | null | undefined) {
-  const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
-  const first = parts[0] ?? "User";
-  const c0 = first[0]?.toUpperCase() ?? "U";
-  return `${c0}••••`;
+/** "basitmemon" -> "b***n" — never expose a full handle on a public leaderboard. */
+function maskCreatorName(handle: string | null | undefined) {
+  const raw = (handle ?? "").trim().replace(/^@/, "");
+  if (!raw) return "u***r";
+  if (raw.length === 1) return `${raw}***`;
+  return `${raw[0]}***${raw[raw.length - 1]}`;
 }
+
 
 function getFirstDefinedNumber(campaign: any, keys: string[]): number | null {
   for (const k of keys) {
@@ -136,7 +146,10 @@ export default function CreatorCampaignDetail() {
   const [pendingSubmitPayload, setPendingSubmitPayload] = useState<z.infer<typeof submitSchema> | null>(null);
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
+  const [mySubs, setMySubs] = useState<any[]>([]);
+  const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
   const [tab, setTab] = useState("details");
+
 
   const supportedPlatforms = useMemo(() => (campaign?.platforms ?? []) as string[], [campaign]);
   const ratePerMillion = Number(campaign?.payout_per_1m_views ?? 0);
@@ -244,6 +257,21 @@ export default function CreatorCampaignDetail() {
       setJoined(participantJoined);
       setCommunityLink(campaignCommunity);
 
+      // My submissions for this campaign + my connected social accounts.
+      const [{ data: mine }, { data: socials }] = await Promise.all([
+        supabase
+          .from("submissions")
+          .select("id, platform, post_url, status, manual_views, created_at, earnings(amount)")
+          .eq("campaign_id", id)
+          .eq("creator_id", user.id)
+          .order("created_at", { ascending: false }),
+        supabase.from("social_accounts").select("platform").eq("user_id", user.id),
+      ]);
+      setMySubs((mine ?? []) as any[]);
+      setConnectedPlatforms(((socials ?? []) as any[]).map((s) => String(s.platform).toLowerCase()));
+
+
+
       // Leaderboard: approved submissions + earnings of type "campaign".
       const { data: subs } = await (supabase as any)
         .from("public_submissions")
@@ -267,8 +295,9 @@ export default function CreatorCampaignDetail() {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, full_name")
+        .select("user_id, full_name, profile_slug")
         .in("user_id", creatorIds);
+
 
       const subCountByCreator = new Map<string, number>();
       for (const s of approvedSubs) subCountByCreator.set(s.creator_id, (subCountByCreator.get(s.creator_id) ?? 0) + 1);
@@ -278,17 +307,20 @@ export default function CreatorCampaignDetail() {
         earnedByCreator.set(e.creator_id, (earnedByCreator.get(e.creator_id) ?? 0) + Number(e.amount ?? 0));
       }
 
-      const profileByUserId = new Map((profiles ?? []).map((p: any) => [p.user_id, p.full_name] as const));
+      const profileByUserId = new Map(
+        (profiles ?? []).map((p: any) => [p.user_id, (p.profile_slug || p.full_name) as string | null] as const),
+      );
 
       const rows: LeaderboardRow[] = creatorIds.map((creatorId) => {
-        const fullName = profileByUserId.get(creatorId) ?? null;
+        const handle = profileByUserId.get(creatorId) ?? null;
         return {
           creatorId,
-          creatorLabel: maskCreatorName(fullName),
+          creatorLabel: maskCreatorName(handle),
           submissions: subCountByCreator.get(creatorId) ?? 0,
           earned: earnedByCreator.get(creatorId) ?? 0,
         };
       });
+
 
       rows.sort((a, b) => (b.earned - a.earned) || (b.submissions - a.submissions) || a.creatorId.localeCompare(b.creatorId));
 
@@ -318,7 +350,16 @@ export default function CreatorCampaignDetail() {
       });
       return null;
     }
+    if (!connectedPlatforms.includes(detected)) {
+      toast({
+        title: `Connect your ${PLATFORM_LABEL[detected] ?? detected} account`,
+        description: "You can only submit links from a social account connected to your profile.",
+        variant: "destructive",
+      });
+      return null;
+    }
     const parsed = submitSchema.safeParse({ platform: detected, post_url: postUrl.trim() });
+
     if (!parsed.success) {
       toast({ title: "Invalid URL", description: parsed.error.issues[0]?.message ?? "Check the link.", variant: "destructive" });
       return null;
@@ -408,78 +449,69 @@ export default function CreatorCampaignDetail() {
       ? campaign.thumbnail_url.trim()
       : "/marketing-campaign-banner-fallback.svg";
 
-  const platformEmoji = (p: string) =>
-    p === "tiktok" ? "🎵" : p === "youtube" ? "▶️" : p === "instagram" ? "📸" : "𝕏";
+  const fmtViews = (n: number) =>
+    n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(1)}K` : String(n);
 
-  const Bullets = ({ items }: { items: string[] }) =>
-    items.length ? (
-      <ul className="space-y-1.5">
-        {items.map((t, i) => (
-          <li key={`${t}-${i}`} className="flex gap-2 text-[14px] leading-snug text-muted-foreground">
-            <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-muted-foreground/60" />
-            <span>{t}</span>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <div className="text-[14px] text-muted-foreground">—</div>
-    );
+  const dash = (v: unknown) => (v === null || v === undefined || v === "" ? "—" : String(v));
 
-  const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <section className="surface-card space-y-3 p-5">
-      <h2 className="font-display text-[15px] font-semibold">{title}</h2>
+  const myEarned = mySubs.reduce(
+    (a, s) => a + ((s.earnings ?? []) as any[]).reduce((x, e) => x + Number(e.amount ?? 0), 0),
+    0,
+  );
+  const myViews = mySubs.reduce((a, s) => a + Number(s.manual_views ?? 0), 0);
+  const myRejected = mySubs.filter((s) => s.status === "rejected").length;
+
+  /** A titled block separated from its neighbours by a hairline. */
+  const Section = ({ title, children }: { title?: string; children: React.ReactNode }) => (
+    <section className="space-y-3 border-t border-border/60 pt-5 first:border-0 first:pt-0">
+      {title && <h2 className="font-display text-[15px] font-semibold">{title}</h2>}
       {children}
     </section>
   );
 
+  const shareCampaign = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) await navigator.share({ title: campaign.title, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        toast({ title: "Link copied" });
+      }
+    } catch {
+      /* dismissed */
+    }
+  };
+
   return (
     <CreatorShell>
       <PageContainer>
-        <DetailHeader title={campaign.brands?.name ?? "Campaign"} onBack={() => navigate("/creator/campaigns")} />
+        <DetailHeader
+          title="Campaign Details"
+          onBack={() => navigate("/creator/campaigns")}
+          action={
+            <button type="button" onClick={() => void shareCampaign()} aria-label="Share campaign" className="icon-pill h-10 w-10">
+              <Share2 className="h-[18px] w-[18px]" />
+            </button>
+          }
+        />
 
-        {/* Hero */}
-        <div className="surface-card relative overflow-hidden">
-          <div className="relative aspect-[16/9] max-h-[280px] w-full">
-            <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/10" />
-            <div className="absolute inset-x-0 bottom-0 p-5">
-              {joined && (
-                <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary/20 px-2.5 py-1 text-[12px] font-semibold text-primary">
-                  <Check className="h-3.5 w-3.5" /> Joined
-                </span>
-              )}
-              <h1 className="font-display text-[22px] font-semibold leading-tight tracking-tight md:text-[28px]">
-                {campaign.title}
-              </h1>
-            </div>
-          </div>
-
-          <div className="space-y-4 p-5">
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <div className="text-[12.5px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Rate per 1M views
-                </div>
-                <div className="display-figure mt-1 text-[30px] leading-none text-primary">
-                  {formatCurrency(ratePerMillion)}
-                </div>
-              </div>
-              <div className="flex flex-wrap justify-end gap-1.5">
-                {supportedPlatforms.map((p) => (
-                  <span key={p} className="chip pointer-events-none h-8 px-3">
-                    <span>{platformEmoji(p)}</span>
-                    {PLATFORM_LABEL[p] ?? p}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <ProgressRate
-              percent={usedPct}
-              totalLabel={`$${totalBudget.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
-              leftCaption="Budget used"
-              rightCaption={`$${usedBudget.toFixed(2)} paid out`}
-            />
+        {/* Campaign identity */}
+        <div className="surface-card flex items-start gap-3.5 p-4">
+          <img
+            src={heroImage}
+            alt=""
+            className="h-[72px] w-[72px] shrink-0 rounded-2xl border border-border object-cover"
+          />
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display text-[18px] font-semibold leading-snug">{campaign.title}</h1>
+            {campaign.category && (
+              <div className="mt-1 text-[12.5px] font-semibold capitalize text-primary">{campaign.category}</div>
+            )}
+            {joined && (
+              <span className="status-pill mt-2 border-primary/35 bg-primary/[0.14] text-primary">
+                <Check className="h-3.5 w-3.5" /> Joined
+              </span>
+            )}
           </div>
         </div>
 
@@ -490,204 +522,291 @@ export default function CreatorCampaignDetail() {
           onChange={setTab}
           options={[
             { value: "details", label: "Details" },
-            { value: "sounds", label: "Sounds", count: soundRows.length },
-            { value: "leaderboard", label: "Leaderboard", count: leaderboard.length },
+            { value: "activity", label: "Activity", count: mySubs.length || undefined },
+            { value: "leaderboard", label: "Leaderboard" },
           ]}
         />
 
-        <div className="mt-4 space-y-4 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-6 lg:space-y-0">
-          <div className="min-w-0 space-y-4">
-            {tab === "details" && (
-              <>
-                <SectionCard title="Description">
+        <div className="mt-5 space-y-5">
+          {tab === "details" && (
+            <>
+              <Section>
+                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span>Paid out</span>
+                  <span>Rate</span>
+                </div>
+                <ProgressRate
+                  percent={usedPct}
+                  totalLabel={`$${totalBudget.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+                  rateLabel={formatCurrency(ratePerMillion)}
+                />
+              </Section>
+
+              <Section>
+                <div className="divide-y divide-border/50">
+                  <DataRow
+                    label="Platforms"
+                    value={
+                      supportedPlatforms.length ? (
+                        <PlatformRow platforms={supportedPlatforms} size={17} className="justify-end" />
+                      ) : (
+                        "—"
+                      )
+                    }
+                  />
+                  <DataRow
+                    label="Cap per Post"
+                    value={(() => {
+                      const n = getFirstDefinedNumber(campaign, ["max_earnings_per_post"]);
+                      return n === null ? "—" : formatCurrency(n);
+                    })()}
+                  />
+                  <DataRow
+                    label="Cap per Profile"
+                    value={(() => {
+                      const n = getFirstDefinedNumber(campaign, ["max_earnings_per_creator"]);
+                      return n === null ? "—" : formatCurrency(n);
+                    })()}
+                  />
+                  <DataRow label="Min. Duration" value={dash(campaign.min_duration ?? null)} />
+                </div>
+              </Section>
+
+              {(campaign.description || campaign.instructions) && (
+                <Section title="About">
                   <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-muted-foreground">
-                    {campaign.description || "—"}
+                    {campaign.description || campaign.instructions}
                   </p>
-                </SectionCard>
+                </Section>
+              )}
 
-                <SectionCard title="Instructions">
-                  <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-muted-foreground">
-                    {campaign.instructions || "—"}
-                  </p>
-                </SectionCard>
-
-                <SectionCard title="Allowed niches & pages">
-                  <Bullets items={allowedNichesPages} />
-                </SectionCard>
-
-                <SectionCard title="Not allowed">
-                  <Bullets items={notAllowedList} />
-                </SectionCard>
+              <Section title="Requirements">
+                <p className="text-[13.5px] leading-snug text-muted-foreground">
+                  Your account audience must match this campaign. Submissions from accounts that don't fit the
+                  requirements below will not be eligible for payout.
+                </p>
 
                 {contentRequirements && (
-                  <SectionCard title="Content requirements">
-                    <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-muted-foreground">
-                      {contentRequirements}
-                    </p>
-                  </SectionCard>
+                  <p className="whitespace-pre-wrap text-[14px] leading-relaxed text-muted-foreground">
+                    {contentRequirements}
+                  </p>
                 )}
 
-                {requirementsChecklist.length > 0 && (
-                  <SectionCard title="Requirements">
-                    <div className="space-y-2.5">
-                      {requirementsChecklist.map((req, idx) => (
-                        <div key={`${req.text}-${idx}`} className="flex items-start gap-2.5 text-[14px] leading-snug">
-                          {req.allowed ? (
-                            <Check className="mt-0.5 h-[17px] w-[17px] shrink-0 text-primary" />
-                          ) : (
-                            <X className="mt-0.5 h-[17px] w-[17px] shrink-0 text-destructive" />
-                          )}
-                          <span className="text-muted-foreground">{req.text}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </SectionCard>
-                )}
-
-                {(songLink || exampleAds.length > 0) && (
-                  <SectionCard title="Resources">
-                    <div className="space-y-2">
-                      {songLink && (
-                        <a
-                          href={songLink}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="press-row focus-ring surface-inset flex items-center gap-3 px-4 py-3"
-                        >
-                          <Music className="h-[17px] w-[17px] shrink-0 text-primary" />
-                          <span className="min-w-0 flex-1 truncate text-[14px]">Song link</span>
-                          <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
-                        </a>
+                <div className="space-y-2.5">
+                  {[
+                    ...allowedNichesPages.map((t) => ({ text: t, allowed: true })),
+                    ...requirementsChecklist,
+                    ...notAllowedList.map((t) => ({ text: t, allowed: false })),
+                  ].map((req, idx) => (
+                    <div key={`${req.text}-${idx}`} className="flex items-start gap-2.5 text-[14px] leading-snug">
+                      {req.allowed ? (
+                        <Check className="mt-0.5 h-[17px] w-[17px] shrink-0 text-primary" />
+                      ) : (
+                        <X className="mt-0.5 h-[17px] w-[17px] shrink-0 text-destructive" />
                       )}
-                      {exampleAds.map((url, idx) => (
-                        <a
-                          key={`${url}-${idx}`}
-                          href={url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="press-row focus-ring surface-inset flex items-center gap-3 px-4 py-3"
-                        >
-                          <span className="min-w-0 flex-1 truncate text-[14px]">Example ad {idx + 1}</span>
-                          <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
-                        </a>
-                      ))}
+                      <span className="text-muted-foreground">{req.text}</span>
                     </div>
-                  </SectionCard>
-                )}
+                  ))}
+                  {allowedNichesPages.length + requirementsChecklist.length + notAllowedList.length === 0 && (
+                    <div className="text-[14px] text-muted-foreground">—</div>
+                  )}
+                </div>
 
                 {communityLink && (
-                  <a href={communityLink} target="_blank" rel="noreferrer" className="btn-outline-pill">
-                    Join the community
+                  <a href={communityLink} target="_blank" rel="noreferrer" className="btn-outline-pill mt-1">
+                    Campaign Discord
                   </a>
                 )}
-              </>
-            )}
+              </Section>
 
-            {tab === "sounds" &&
-              (soundRows.length ? (
-                <ListSection title="Available sounds">
-                  {soundRows.map((s: { name: string; artist: string; url: string }, idx: number) => (
-                    <a
-                      key={`${s.name}-${idx}`}
-                      href={s.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="press-row focus-ring flex items-center gap-3 px-4 py-3.5"
-                    >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-raised text-primary">
-                        <Music className="h-[18px] w-[18px]" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[14.5px] font-semibold">{s.name}</span>
-                        <span className="block truncate text-[12.5px] text-muted-foreground">
-                          {s.artist || "Unknown artist"}
+              {(exampleAds.length > 0 || songLink) && (
+                <Section title={`Examples (${exampleAds.length + (songLink ? 1 : 0)})`}>
+                  <div className="space-y-2">
+                    {songLink && (
+                      <a
+                        href={songLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="press-row focus-ring surface-inset flex items-center gap-3 px-4 py-3"
+                      >
+                        <Music className="h-[17px] w-[17px] shrink-0 text-primary" />
+                        <span className="min-w-0 flex-1 truncate text-[14px]">Song link</span>
+                        <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      </a>
+                    )}
+                    {exampleAds.map((url, idx) => (
+                      <a
+                        key={`${url}-${idx}`}
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="press-row focus-ring surface-inset flex items-center gap-3 px-4 py-3"
+                      >
+                        <span className="min-w-0 flex-1 truncate text-[14px]">Example {idx + 1}</span>
+                        <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      </a>
+                    ))}
+                  </div>
+                </Section>
+              )}
+
+              {soundRows.length > 0 && (
+                <Section title={`Available sounds (${soundRows.length})`}>
+                  <div className="space-y-2">
+                    {soundRows.map((s: { name: string; artist: string; url: string }, idx: number) => (
+                      <a
+                        key={`${s.name}-${idx}`}
+                        href={s.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="press-row focus-ring surface-inset flex items-center gap-3 px-4 py-3"
+                      >
+                        <Music className="h-[17px] w-[17px] shrink-0 text-primary" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[14px] font-semibold">{s.name}</span>
+                          <span className="block truncate text-[12.5px] text-muted-foreground">
+                            {s.artist || "Unknown artist"}
+                          </span>
                         </span>
-                      </span>
-                      <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    </a>
-                  ))}
-                </ListSection>
-              ) : (
-                <div className="surface-card">
-                  <EmptyState icon={Music} title="No sounds yet" description="This campaign has no attached sounds." />
-                </div>
-              ))}
+                        <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      </a>
+                    ))}
+                  </div>
+                </Section>
+              )}
 
-            {tab === "leaderboard" &&
-              (leaderboardEmpty ? (
-                <div className="surface-card">
-                  <EmptyState
-                    icon={Trophy}
-                    title="No submissions yet"
-                    description="Be the first creator to post for this campaign."
+              <Section title="Campaign parameters">
+                <div className="divide-y divide-border/50">
+                  <DataRow
+                    label="Max Submissions per Social Account"
+                    value={dash(getFirstDefinedNumber(campaign, ["max_submissions_per_account"]))}
+                  />
+                  <DataRow
+                    label="Max Submissions per Day per Social Account"
+                    value={dash(getFirstDefinedNumber(campaign, ["max_submissions_per_day"]))}
+                  />
+                  <DataRow
+                    label="Min Followers per Social Account"
+                    value={dash(getFirstDefinedNumber(campaign, ["min_followers"]))}
+                  />
+                  <DataRow
+                    label="Min Views for Earnings"
+                    value={dash(getFirstDefinedNumber(campaign, ["min_views_for_earnings"]))}
+                  />
+                  <DataRow
+                    label="Min Engagement Rate"
+                    value={dash(getFirstDefinedNumber(campaign, ["min_engagement_rate"]))}
                   />
                 </div>
-              ) : (
+                <p className="text-[12.5px] leading-snug text-muted-foreground">
+                  Submissions that break these parameters, use bought engagement or re-upload other creators' work are
+                  removed and are not paid out.
+                </p>
+              </Section>
+            </>
+          )}
+
+          {tab === "activity" &&
+            (mySubs.length === 0 ? (
+              <div className="surface-card">
+                <EmptyState
+                  icon={Info}
+                  title="No activity yet"
+                  description="Your activity will show up here once you submit content."
+                />
+              </div>
+            ) : (
+              <>
+                <div className="surface-card p-5">
+                  <div className="text-[12.5px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Your earnings
+                  </div>
+                  <div className="display-figure mt-1.5 text-[32px] leading-none text-primary">
+                    {formatCurrency(myEarned)}
+                  </div>
+                  <div className="mt-5 border-t border-border/60 pt-4">
+                    <StatTrio
+                      items={[
+                        { value: mySubs.length, label: "Submissions" },
+                        { value: fmtViews(myViews), label: "Total Views" },
+                        { value: myRejected, label: "Rejected" },
+                      ]}
+                    />
+                  </div>
+                </div>
+
                 <div className="surface-card divide-y divide-border/60 overflow-hidden">
-                  {leaderboard.slice(0, 20).map((row, idx) => {
-                    const rank = idx + 1;
+                  {mySubs.map((s) => {
+                    const Glyph = PLATFORM_GLYPHS[String(s.platform).toLowerCase() as PlatformKey];
+                    const earned = ((s.earnings ?? []) as any[]).reduce((x, e) => x + Number(e.amount ?? 0), 0);
                     return (
-                      <div key={row.creatorId} className="flex items-center gap-3 px-4 py-3.5">
-                        <span
-                          className={cn(
-                            "display-figure flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px]",
-                            rank <= 3 ? "bg-primary/15 text-primary" : "bg-surface-raised text-muted-foreground",
-                          )}
-                        >
-                          {rank <= 3 ? <Medal className="h-[18px] w-[18px]" /> : rank}
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => navigate(`/creator/submissions/report/${s.id}`)}
+                        className="press-row focus-ring flex w-full items-center gap-3 px-4 py-3.5 text-left"
+                      >
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface-raised text-muted-foreground">
+                          {Glyph ? <Glyph size={18} /> : null}
                         </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-[14.5px] font-semibold">{row.creatorLabel}</div>
-                          <div className="text-[12.5px] text-muted-foreground">
-                            {row.submissions} submission{row.submissions === 1 ? "" : "s"}
-                          </div>
-                        </div>
-                        <div className="display-figure text-[15px] tabular-nums">{formatCurrency(row.earned)}</div>
-                      </div>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-[14.5px] font-semibold">
+                            {fmtViews(Number(s.manual_views ?? 0))} views · {formatCurrency(earned)}
+                          </span>
+                          <span className="block text-[12.5px] text-muted-foreground">
+                            {new Date(s.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                          </span>
+                        </span>
+                        <StatusChip status={s.status} size="sm" />
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      </button>
                     );
                   })}
                 </div>
-              ))}
-          </div>
+              </>
+            ))}
 
-          {/* Meta rail */}
-          <ListSection title="Campaign details" className="lg:sticky lg:top-24">
-            <div className="px-4 py-1">
-              <DataRow
-                label="Max submissions"
-                value={
-                  getFirstDefinedNumber(campaign, [
-                    "max_submissions_per_account",
-                    "max_submissions",
-                    "max_submissions_per_social",
-                  ]) ?? "—"
-                }
-              />
-              <DataRow
-                label="Max earnings / creator"
-                value={(() => {
-                  const n = getFirstDefinedNumber(campaign, [
-                    "max_earnings_per_creator",
-                    "max_earnings",
-                    "max_creator_earnings",
-                  ]);
-                  return n === null ? "—" : formatCurrency(n);
-                })()}
-              />
-              <DataRow
-                label="Max earnings / post"
-                value={(() => {
-                  const n = getFirstDefinedNumber(campaign, [
-                    "max_earnings_per_post",
-                    "max_earnings_per_submission",
-                    "max_post_earnings",
-                  ]);
-                  return n === null ? "—" : formatCurrency(n);
-                })()}
-              />
-              <DataRow label="Budget remaining" value={formatCurrency(remainingBudget)} />
-            </div>
-          </ListSection>
+          {tab === "leaderboard" &&
+            (leaderboardEmpty ? (
+              <div className="surface-card">
+                <EmptyState
+                  icon={Trophy}
+                  title="No submissions yet"
+                  description="Be the first creator to post for this campaign."
+                />
+              </div>
+            ) : (
+              <div className="surface-card divide-y divide-border/60 overflow-hidden">
+                {leaderboard.slice(0, 25).map((row, idx) => {
+                  const rank = idx + 1;
+                  return (
+                    <div key={row.creatorId} className="flex items-center gap-3 px-4 py-3.5">
+                      <span
+                        className={cn(
+                          "display-figure flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-[14px]",
+                          rank <= 3
+                            ? "border-primary/35 bg-primary/[0.14] text-primary"
+                            : "border-border bg-surface-raised text-muted-foreground",
+                        )}
+                      >
+                        {rank <= 3 ? <Medal className="h-[18px] w-[18px]" /> : rank}
+                      </span>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[13px] font-semibold uppercase text-muted-foreground">
+                        {row.creatorLabel[0]}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[14.5px] font-semibold">{row.creatorLabel}</div>
+                        <div className="flex items-center gap-1 text-[12.5px] text-muted-foreground">
+                          <Repeat2 className="h-3.5 w-3.5" />
+                          {row.submissions} clip{row.submissions === 1 ? "" : "s"}
+                        </div>
+                      </div>
+                      <div className="display-figure text-[15px] tabular-nums">{formatCurrency(row.earned)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
         </div>
 
         {/* Sticky submit bar */}
@@ -705,13 +824,14 @@ export default function CreatorCampaignDetail() {
               }}
               className="btn-primary-pill md:w-auto md:px-8"
             >
-              Submit content
+              Submit Content
             </button>
           </div>
         </div>
       </PageContainer>
 
-      <Dialog
+      {/* Submit sheet */}
+      <Sheet
         open={submitModalOpen}
         onOpenChange={(open) => {
           setSubmitModalOpen(open);
@@ -721,42 +841,43 @@ export default function CreatorCampaignDetail() {
           }
         }}
       >
-        <DialogContent className="rounded-3xl sm:max-w-md">
-          <DialogHeader className="space-y-1 text-left">
-            <DialogTitle className="font-display text-[18px]">Submit a post</DialogTitle>
-            <DialogDescription className="text-[13px] text-muted-foreground">
-              Submitting auto-joins this campaign.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label className="text-[13px] text-muted-foreground">Post URL</Label>
-            <Textarea
+        <SheetContent side="bottom" className="rounded-t-[28px] border-border bg-surface pb-8">
+          <SheetHeader className="text-left">
+            <SheetTitle className="font-display text-[20px]">Submit Content</SheetTitle>
+          </SheetHeader>
+          <p className="mt-1 text-[13.5px] text-muted-foreground">
+            Carefully review requirements before your submission.
+          </p>
+
+          <div className="mt-5 space-y-3">
+            <input
               value={postUrl}
               onChange={(e) => setPostUrl(e.target.value)}
-              placeholder="https://…"
-              className="min-h-[96px] resize-none rounded-2xl border-border/70 bg-surface-raised text-[14px]"
+              placeholder="Paste your post link…"
+              inputMode="url"
+              aria-label="Post link"
+              maxLength={500}
+              className="focus-ring h-12 w-full rounded-full border border-border bg-surface-raised px-4 text-[15px] text-foreground placeholder:text-muted-foreground"
             />
-            <div className="flex items-start gap-2 pt-1 text-[12px] text-muted-foreground">
+            <div className="flex items-start gap-2 text-[12.5px] text-muted-foreground">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <span>Views after submission count toward earnings — submit as soon as you post.</span>
+              <span>
+                We detect the platform from your link. It must be accepted by this campaign and connected to your
+                profile.
+              </span>
             </div>
-          </div>
-          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
-            <button type="button" className="btn-outline-pill" onClick={() => setSubmitModalOpen(false)}>
-              Cancel
-            </button>
             <button
               type="button"
               className="btn-primary-pill"
-              disabled={submitting}
-              onClick={() => void handleSubmitIntent()}
+              disabled={submitting || !postUrl.trim()}
+              onClick={() => handleSubmitIntent()}
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              Submit for review
+              Send
             </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Dialog
         open={confirmSubmitOpen}
@@ -776,10 +897,6 @@ export default function CreatorCampaignDetail() {
               from this URL. Proceed?
             </DialogDescription>
           </DialogHeader>
-          <p className="flex items-start gap-2 text-[12.5px] text-muted-foreground">
-            <Info className="mt-0.5 h-4 w-4 shrink-0" />
-            Paste only the URL to the clip on the detected platform — wrong-platform links cannot be credited.
-          </p>
           <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
             <button type="button" className="btn-outline-pill" onClick={() => setConfirmSubmitOpen(false)}>
               Cancel
@@ -799,3 +916,4 @@ export default function CreatorCampaignDetail() {
     </CreatorShell>
   );
 }
+
