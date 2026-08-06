@@ -57,6 +57,8 @@ export default function Accounts() {
   const [addOpen, setAddOpen] = useState(false);
   const [verifyFor, setVerifyFor] = useState<Account | null>(null);
   const [saving, setSaving] = useState(false);
+  const [checking, setChecking] = useState(false);
+
   const [platform, setPlatform] = useState<string>("tiktok");
   const [handle, setHandle] = useState("");
   const [url, setUrl] = useState("");
