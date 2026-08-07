@@ -104,7 +104,7 @@ const App = () => (
               <Route path="/discover" element={<RoleRoute roles={["creator", "user"]}><Discover /></RoleRoute>} />
               <Route path="/campaigns/:id" element={<RoleRoute roles={["creator", "user"]}><CampaignDetail /></RoleRoute>} />
               <Route path="/activity" element={<RoleRoute roles={["creator", "user"]}><Activity /></RoleRoute>} />
-              <Route path="/activity/:campaignId" element={<RoleRoute roles={["creator", "user"]}><Activity /></RoleRoute>} />
+              <Route path="/activity/:campaignId" element={<Navigate to="/activity" replace />} />
               <Route path="/submissions/:id" element={<RoleRoute roles={["creator", "user"]}><SubmissionReport /></RoleRoute>} />
               <Route path="/wallet" element={<RoleRoute roles={["creator", "user"]}><Wallet /></RoleRoute>} />
               <Route path="/wallet/transactions" element={<RoleRoute roles={["creator", "user"]}><Transactions /></RoleRoute>} />
