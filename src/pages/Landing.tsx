@@ -16,7 +16,6 @@ import {
   Sun,
   Twitter,
   Upload,
-  Zap,
   Youtube,
 } from "lucide-react";
 import testimonialAvatarAsset from "@/assets/testimonial-avatar.jpg.asset.json";
@@ -64,18 +63,6 @@ async function fetchConsentRow(browserKey: string) {
   const row = Array.isArray(data) ? data[0] : null;
   return row as { consent_accepted?: boolean; analytics_enabled?: boolean; marketing_enabled?: boolean } | null;
 }
-
-const HERO_BG = "/marketing-campaign-banner-fallback.svg";
-
-const TRENDING_MOCK: { id: string; title: string; budget: number; usedPct: number; bg: string }[] = [
-  { id: "t1", title: "Pathos [CLIPPING]", budget: 3000, usedPct: 17, bg: "linear-gradient(135deg,#1a0808,#3a1010)" },
-  { id: "t2", title: "Sienna Spiro – Material Lover", budget: 2500, usedPct: 20, bg: "linear-gradient(135deg,#1a0a1e,#4a1040)" },
-  { id: "t3", title: "Duel.com [CLIPPING] 2", budget: 4000, usedPct: 42, bg: "linear-gradient(135deg,#0a1020,#1a3060)" },
-  { id: "t4", title: "White Noise [EDITS]", budget: 5620, usedPct: 60, bg: "linear-gradient(135deg,#101020,#202040)" },
-  { id: "t5", title: "OneState [GERMANY]", budget: 2625, usedPct: 0, bg: "linear-gradient(135deg,#0a1808,#1a3810)" },
-  { id: "t6", title: "Cicada [ANIME]", budget: 1250, usedPct: 22, bg: "linear-gradient(135deg,#080818,#181840)" },
-  { id: "t7", title: "WoT Heat [CLIPPING]", budget: 4785, usedPct: 12, bg: "linear-gradient(135deg,#141008,#281e10)" },
-];
 
 async function persistConsentToSupabase(
   browserKey: string,
