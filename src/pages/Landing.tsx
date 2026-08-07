@@ -618,7 +618,7 @@ const Landing = () => {
                 <div className="text-center flex-1">
                   <div className="flex items-center justify-center">
                     <div className="text-destructive">
-                      <BrandLogo size={22} />
+                      <BrandLogo size={26} />
                     </div>
                   </div>
                   <h2 className="mt-3 text-[16px] font-semibold text-foreground">Cookie Preferences</h2>
