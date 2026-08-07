@@ -1,11 +1,10 @@
-import logoAsset from "@/assets/iclips-mark.png.asset.json";
 import { cn } from "@/lib/utils";
 
 /** Single source of truth for the iClips mark — transparent, no container box. */
 export function BrandLogo({ size = 28, className }: { size?: number; className?: string }) {
   return (
     <img
-      src={logoAsset.url}
+      src="/iclips-mark.png"
       alt=""
       width={size}
       height={size}
