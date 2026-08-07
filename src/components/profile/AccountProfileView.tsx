@@ -162,16 +162,17 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       </div>
 
       <div className="list-group">
-        <Row icon={Languages} label="Language" value="English" to="/settings" />
+        <Row icon={Languages} label="Language" value="English" to="/settings/language" />
         <Row icon={Moon} label="Theme" value={themeLabel} onClick={cycleTheme} />
-        <Row icon={Bell} label="Notifications" to="/settings" />
+        <Row icon={Bell} label="Notifications" to="/settings/notifications" />
       </div>
 
       <div className="list-group">
-        <Row icon={HelpCircle} label="FAQ" to="/support" />
-        <Row icon={BookOpen} label="Resources" to="/support" />
+        <Row icon={HelpCircle} label="FAQ" to="/faq" />
+        <Row icon={BookOpen} label="Resources" to="/resources" />
         <Row icon={LifeBuoy} label="Support" to="/support/new" />
       </div>
+
 
       <div className="list-group">
         <Row icon={FileText} label="Creators Terms of Use" to="/legal/terms" />
