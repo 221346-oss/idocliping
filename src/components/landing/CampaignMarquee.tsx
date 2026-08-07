@@ -99,7 +99,9 @@ export function CampaignMarquee() {
     };
   }, []);
 
-  const list = items.length >= 4 ? items : [...items, ...items, ...items].slice(0, 6);
+  /** Real campaigns first; top up with placeholders so the marquee never repeats one card. */
+  const list = items.length >= 4 ? items : [...items, ...FALLBACK.filter((f) => !items.some((i) => i.title === f.title))].slice(0, 6);
+
   const half = Math.ceil(list.length / 2);
   const rowA = list.slice(0, half);
   const rowB = list.slice(half).length >= 2 ? list.slice(half) : list;
