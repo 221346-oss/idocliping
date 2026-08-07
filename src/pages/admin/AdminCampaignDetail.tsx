@@ -409,10 +409,17 @@ export default function AdminCampaignDetail() {
             value={viewsDraft}
             inputMode="numeric"
             onChange={(e) => setViewsDraft(e.target.value)}
-            placeholder="e.g. 24000"
+            placeholder="Verified views — e.g. 24000"
+          />
+          <Input
+            value={engagementDraft}
+            inputMode="decimal"
+            onChange={(e) => setEngagementDraft(e.target.value)}
+            placeholder="Engagement rate % — e.g. 4.2"
           />
           <p className="text-[12px] text-muted-foreground">
-            Earnings for this post recalculate from the campaign rate and caps.
+            Earnings recalculate from the campaign rate and caps. If the engagement rate is below the campaign minimum,
+            the post is marked ineligible and its earning is dropped.
           </p>
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setViewsFor(null)}>
