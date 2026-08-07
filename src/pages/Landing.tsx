@@ -190,7 +190,7 @@ const Landing = () => {
           <div className="flex flex-wrap items-center gap-4 text-[12.5px] text-muted-foreground">
             <Link to="/legal/terms" className="hover:text-foreground">Terms</Link>
             <Link to="/legal/privacy" className="hover:text-foreground">Privacy</Link>
-            <Link to="/faq" className="hover:text-foreground">FAQ</Link>
+            <Link to="/legal/do-not-sell" className="hover:text-foreground">Do not sell</Link>
           </div>
           <div className="flex items-center gap-4 text-muted-foreground">
             <a href="#" aria-label="X" className="hover:text-foreground"><Twitter className="h-4 w-4" /></a>
