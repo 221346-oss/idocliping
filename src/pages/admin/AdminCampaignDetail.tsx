@@ -55,6 +55,7 @@ export default function AdminCampaignDetail() {
 
   const [viewsFor, setViewsFor] = useState<SubRow | null>(null);
   const [viewsDraft, setViewsDraft] = useState("");
+  const [engagementDraft, setEngagementDraft] = useState("");
   const [rejectFor, setRejectFor] = useState<SubRow | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
@@ -98,11 +99,13 @@ export default function AdminCampaignDetail() {
   const saveViews = async () => {
     if (!viewsFor) return;
     const n = Math.max(0, Math.round(Number(viewsDraft.replace(/[^0-9]/g, "")) || 0));
+    const eng = engagementDraft.trim() === "" ? null : Number(engagementDraft.replace(/[^0-9.]/g, ""));
     setBusy(true);
     const { error } = await supabase.rpc("admin_update_submission_views", {
       p_submission_id: viewsFor.id,
       p_views: n,
-    });
+      p_engagement: eng,
+    } as any);
     setBusy(false);
     if (error) return toast({ title: "Update failed", description: error.message, variant: "destructive" });
     toast({ title: "Views updated" });
@@ -409,10 +412,17 @@ export default function AdminCampaignDetail() {
             value={viewsDraft}
             inputMode="numeric"
             onChange={(e) => setViewsDraft(e.target.value)}
-            placeholder="e.g. 24000"
+            placeholder="Verified views — e.g. 24000"
+          />
+          <Input
+            value={engagementDraft}
+            inputMode="decimal"
+            onChange={(e) => setEngagementDraft(e.target.value)}
+            placeholder="Engagement rate % — e.g. 4.2"
           />
           <p className="text-[12px] text-muted-foreground">
-            Earnings for this post recalculate from the campaign rate and caps.
+            Earnings recalculate from the campaign rate and caps. If the engagement rate is below the campaign minimum,
+            the post is marked ineligible and its earning is dropped.
           </p>
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setViewsFor(null)}>

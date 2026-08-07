@@ -523,8 +523,10 @@ export type Database = {
       social_accounts: {
         Row: {
           created_at: string
+          follower_count: number | null
           handle: string
           id: string
+          last_synced_at: string | null
           platform: Database["public"]["Enums"]["social_platform"]
           profile_url: string | null
           user_id: string
@@ -536,8 +538,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          follower_count?: number | null
           handle: string
           id?: string
+          last_synced_at?: string | null
           platform: Database["public"]["Enums"]["social_platform"]
           profile_url?: string | null
           user_id: string
@@ -549,8 +553,10 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          follower_count?: number | null
           handle?: string
           id?: string
+          last_synced_at?: string | null
           platform?: Database["public"]["Enums"]["social_platform"]
           profile_url?: string | null
           user_id?: string
@@ -635,6 +641,7 @@ export type Database = {
           reject_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          social_account_id: string | null
           status: string
           status_reason: string | null
           total_views: number | null
@@ -655,6 +662,7 @@ export type Database = {
           reject_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          social_account_id?: string | null
           status?: string
           status_reason?: string | null
           total_views?: number | null
@@ -675,6 +683,7 @@ export type Database = {
           reject_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          social_account_id?: string | null
           status?: string
           status_reason?: string | null
           total_views?: number | null
@@ -686,6 +695,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "submissions_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -1008,8 +1024,18 @@ export type Database = {
         Args: { p_campaign_id: string }
         Returns: undefined
       }
-      admin_update_submission_views: {
-        Args: { p_submission_id: string; p_views: number }
+      admin_update_submission_views:
+        | { Args: { p_submission_id: string; p_views: number }; Returns: Json }
+        | {
+            Args: {
+              p_engagement?: number
+              p_submission_id: string
+              p_views: number
+            }
+            Returns: Json
+          }
+      creator_unlink_social_account: {
+        Args: { p_account_id: string; p_force?: boolean }
         Returns: Json
       }
       get_cookie_preferences: {

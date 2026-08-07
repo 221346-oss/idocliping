@@ -6,17 +6,13 @@ import { EmptyState } from "@/components/EmptyState";
 import { RowListSkeleton } from "@/components/ui-kit/Skeletons";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { AtSign, Check, Copy, Loader2, Plus, ShieldCheck, Trash2, Clock } from "lucide-react";
+import { AtSign, Check, Copy, Loader2, Plus, ShieldCheck, Trash2, Clock, Users } from "lucide-react";
 import { makeVerificationCode } from "@/lib/verification-code";
-
-
-const PLATFORMS = [
-  { value: "tiktok", label: "TikTok" },
-  { value: "instagram", label: "Instagram" },
-  { value: "youtube", label: "YouTube" },
-  { value: "x", label: "X" },
-] as const;
 
 type Account = {
   id: string;
@@ -26,9 +22,14 @@ type Account = {
   verified: boolean;
   verification_code: string | null;
   verification_status: string;
+  follower_count: number | null;
 };
 
 const makeCode = makeVerificationCode;
+
+const PLATFORM_LABEL: Record<string, string> = {
+  tiktok: "TikTok", instagram: "Instagram", youtube: "YouTube", x: "X",
+};
 
 function StatusPill({ account }: { account: Account }) {
   if (account.verified || account.verification_status === "verified") {
@@ -48,7 +49,7 @@ function StatusPill({ account }: { account: Account }) {
   return <span className="status-pill border-border bg-surface-raised text-muted-foreground">Unverified</span>;
 }
 
-/** Connected accounts + bio-code ownership verification. */
+/** Connected accounts — link by pasting a public profile URL, verify via bio code. */
 export default function Accounts() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -58,16 +59,15 @@ export default function Accounts() {
   const [verifyFor, setVerifyFor] = useState<Account | null>(null);
   const [saving, setSaving] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [unlinkFor, setUnlinkFor] = useState<{ account: Account; live: number } | null>(null);
 
-  const [platform, setPlatform] = useState<string>("tiktok");
-  const [handle, setHandle] = useState("");
   const [url, setUrl] = useState("");
 
   const load = async () => {
     if (!user) return;
     const { data } = await supabase
       .from("social_accounts")
-      .select("id, platform, handle, profile_url, verified, verification_code, verification_status")
+      .select("id, platform, handle, profile_url, verified, verification_code, verification_status, follower_count")
       .eq("user_id", user.id)
       .order("created_at", { ascending: true });
     setAccounts((data as Account[]) ?? []);
@@ -79,18 +79,35 @@ export default function Accounts() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  /** Paste a profile link → we detect the platform + handle + followers automatically. */
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    const h = handle.trim().replace(/^@/, "");
-    if (!h) return toast({ title: "Handle required", variant: "destructive" });
+    const link = url.trim();
+    if (!link) return toast({ title: "Paste your profile link", variant: "destructive" });
+
     setSaving(true);
-    const { error } = await supabase.from("social_accounts").upsert(
+    const { data, error } = await supabase.functions.invoke("verify-social-bio", {
+      body: { profile_url: link },
+    });
+    if (error || (data as any)?.error) {
+      setSaving(false);
+      return toast({
+        title: "Couldn't read that link",
+        description: (data as any)?.error ?? "Use a public TikTok, Instagram, YouTube or X profile link.",
+        variant: "destructive",
+      });
+    }
+
+    const detected = data as { platform: string; handle: string; follower_count: number | null };
+
+    const { error: upErr } = await supabase.from("social_accounts").upsert(
       {
         user_id: user.id,
-        platform: platform as any,
-        handle: h.slice(0, 100),
-        profile_url: url.trim().slice(0, 500),
+        platform: detected.platform as any,
+        handle: detected.handle.slice(0, 100),
+        profile_url: link.slice(0, 500),
+        follower_count: detected.follower_count,
         verification_code: makeCode(),
         verification_status: "unverified",
         verified: false,
@@ -98,16 +115,61 @@ export default function Accounts() {
       { onConflict: "user_id,platform" },
     );
     setSaving(false);
-    if (error) return toast({ title: "Couldn't save", description: error.message, variant: "destructive" });
-    toast({ title: "Account added", description: "Verify it to submit content from this platform." });
-    setHandle("");
+
+    if (upErr) {
+      const dupe = upErr.message.includes("social_accounts_platform_handle_uidx");
+      return toast({
+        title: dupe ? "Account already linked" : "Couldn't save",
+        description: dupe
+          ? "This account is already linked to another creator. Contact support if that's a mistake."
+          : upErr.message,
+        variant: "destructive",
+      });
+    }
+
+    toast({
+      title: `${PLATFORM_LABEL[detected.platform] ?? detected.platform} account added`,
+      description: `@${detected.handle} — verify it to submit content.`,
+    });
     setUrl("");
     setAddOpen(false);
     void load();
   };
 
-  const remove = async (id: string) => {
-    await supabase.from("social_accounts").delete().eq("id", id);
+  /** Unlinking is blocked while posts are live; forcing dismisses them. */
+  const remove = async (a: Account, force = false) => {
+    const { data, error } = await supabase.rpc("creator_unlink_social_account", {
+      p_account_id: a.id,
+      p_force: force,
+    });
+    if (error) return toast({ title: "Couldn't unlink", description: error.message, variant: "destructive" });
+
+    const res = data as { blocked?: boolean; live_submissions?: number; dismissed_submissions?: number } | null;
+    if (res?.blocked) {
+      setUnlinkFor({ account: a, live: res.live_submissions ?? 0 });
+      return;
+    }
+    setUnlinkFor(null);
+    toast({
+      title: "Account unlinked",
+      description: res?.dismissed_submissions
+        ? `${res.dismissed_submissions} live submission(s) were made ineligible.`
+        : undefined,
+    });
+    void load();
+  };
+
+  const requestManualReview = async (a: Account) => {
+    await supabase
+      .from("social_accounts")
+      .update({
+        verification_status: "pending",
+        verification_requested_at: new Date().toISOString(),
+        verification_note: "Creator requested manual verification.",
+      })
+      .eq("id", a.id);
+    setVerifyFor(null);
+    toast({ title: "Sent for review", description: "An admin will verify this account shortly." });
     void load();
   };
 
@@ -121,7 +183,7 @@ export default function Accounts() {
     if (error) {
       return toast({
         title: "Check failed",
-        description: "We couldn't reach the verifier. Try again in a moment.",
+        description: "We couldn't reach the verifier. Send it for manual review instead.",
         variant: "destructive",
       });
     }
@@ -132,19 +194,15 @@ export default function Accounts() {
     if (status === "verified") {
       toast({ title: "Account verified", description: message });
       setVerifyFor(null);
-    } else if (status === "pending") {
-      toast({ title: "Sent for review", description: message });
-      setVerifyFor(null);
     } else {
       toast({
-        title: "Code not found yet",
+        title: status === "unreadable" ? "Couldn't read your profile" : "Code not found yet",
         description: message ?? "Save the code in your bio, then check again.",
         variant: "destructive",
       });
     }
     void load();
   };
-
 
   const openVerify = async (a: Account) => {
     if (!a.verification_code) {
@@ -175,7 +233,7 @@ export default function Accounts() {
           <EmptyState
             icon={AtSign}
             title="No accounts connected"
-            description="Connect the accounts you post from — submissions are only accepted from verified accounts."
+            description="Paste a profile link — we detect the platform and handle. Submissions are only accepted from verified accounts."
             actionLabel="Add account"
             onAction={() => setAddOpen(true)}
           />
@@ -188,7 +246,14 @@ export default function Accounts() {
                     <span className="text-[14px] font-medium">@{a.handle}</span>
                     <StatusPill account={a} />
                   </div>
-                  <p className="mt-0.5 text-[12px] capitalize text-muted-foreground">{a.platform}</p>
+                  <p className="mt-0.5 flex items-center gap-2 text-[12px] capitalize text-muted-foreground">
+                    {PLATFORM_LABEL[a.platform] ?? a.platform}
+                    {a.follower_count != null && (
+                      <span className="inline-flex items-center gap-1 normal-case">
+                        <Users className="h-3 w-3" /> {a.follower_count.toLocaleString()} followers
+                      </span>
+                    )}
+                  </p>
                 </div>
                 {!a.verified && a.verification_status !== "verified" && (
                   <button
@@ -201,7 +266,7 @@ export default function Accounts() {
                 )}
                 <button
                   type="button"
-                  onClick={() => void remove(a.id)}
+                  onClick={() => void remove(a)}
                   aria-label={`Remove ${a.handle}`}
                   className="icon-pill h-9 w-9"
                 >
@@ -218,36 +283,19 @@ export default function Accounts() {
               <SheetTitle className="font-display text-[18px]">Add account</SheetTitle>
             </SheetHeader>
             <form onSubmit={add} className="mt-4 space-y-4 pb-6">
-              <div className="flex flex-wrap gap-2">
-                {PLATFORMS.map((p) => (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => setPlatform(p.value)}
-                    className={
-                      platform === p.value
-                        ? "rounded-full border border-primary/40 bg-primary/[0.14] px-4 py-2 text-[13px] font-semibold text-primary press-scale focus-ring"
-                        : "rounded-full border border-border bg-surface-raised px-4 py-2 text-[13px] text-muted-foreground press-scale focus-ring"
-                    }
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-              <Input
-                value={handle}
-                onChange={(e) => setHandle(e.target.value)}
-                placeholder="@yourhandle"
-                className="h-12 rounded-2xl"
-              />
+              <p className="text-[13px] leading-relaxed text-muted-foreground">
+                Paste the link to your public profile — we detect the platform, your handle and your follower count
+                automatically.
+              </p>
               <Input
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                placeholder="Profile link (optional)"
+                placeholder="https://www.tiktok.com/@yourhandle"
+                inputMode="url"
                 className="h-12 rounded-2xl"
               />
               <button type="submit" disabled={saving} className="btn-primary-pill w-full">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save account"}
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add account"}
               </button>
             </form>
           </SheetContent>
@@ -290,10 +338,34 @@ export default function Accounts() {
                   </>
                 )}
               </button>
-
+              <button
+                type="button"
+                onClick={() => verifyFor && void requestManualReview(verifyFor)}
+                className="w-full rounded-full border border-border bg-surface-raised px-4 py-3 text-[13px] font-medium text-muted-foreground press-scale focus-ring"
+              >
+                Send for manual review instead
+              </button>
             </div>
           </SheetContent>
         </Sheet>
+
+        <AlertDialog open={!!unlinkFor} onOpenChange={(o) => !o && setUnlinkFor(null)}>
+          <AlertDialogContent className="rounded-3xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Unlink @{unlinkFor?.account.handle}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This account has {unlinkFor?.live} live submission(s) on running campaigns. Unlinking makes them
+                ineligible and removes their pending earnings. This can't be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep account</AlertDialogCancel>
+              <AlertDialogAction onClick={() => unlinkFor && void remove(unlinkFor.account, true)}>
+                Unlink anyway
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </PageContainer>
     </CreatorShell>
   );

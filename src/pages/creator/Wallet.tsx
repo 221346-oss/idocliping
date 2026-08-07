@@ -252,7 +252,7 @@ export default function CreatorWallet() {
     const [{ data: earnings }, { data: reqs }] = await Promise.all([
       supabase
         .from("earnings")
-        .select("id, amount, type, status, created_at, submissions(campaigns(title))")
+        .select("id, amount, type, status, created_at, paid_at, submissions(campaigns(title))")
         .eq("creator_id", user.id)
         .order("created_at", { ascending: false }),
       supabase
@@ -282,17 +282,20 @@ export default function CreatorWallet() {
     setBalance(Math.max(0, paidEarned - reserved));
 
     const ledger: LedgerEntry[] = [
-      ...earnRows.map((e) => ({
-        id: `e-${e.id}`,
-        kind: "in" as const,
-        title:
-          e.type === "referral"
-            ? "Referral commission"
-            : e.submissions?.campaigns?.title ?? "Campaign payout",
-        status: String(e.status ?? "pending"),
-        amount: Number(e.amount ?? 0),
-        created_at: e.created_at,
-      })),
+      // Only money that actually moved into the balance shows in transactions.
+      ...earnRows
+        .filter((e) => e.status === "paid")
+        .map((e) => ({
+          id: `e-${e.id}`,
+          kind: "in" as const,
+          title:
+            e.type === "referral"
+              ? "Referral commission"
+              : e.submissions?.campaigns?.title ?? "Campaign payout",
+          status: "paid",
+          amount: Number(e.amount ?? 0),
+          created_at: e.paid_at ?? e.created_at,
+        })),
       ...reqRows.map((r) => ({
         id: `w-${r.id}`,
         kind: "out" as const,

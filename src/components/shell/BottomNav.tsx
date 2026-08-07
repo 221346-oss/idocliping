@@ -48,7 +48,7 @@ export function BottomNav({ badge }: { badge?: Record<string, boolean> }) {
                 active ? "text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <Glyph active={active} size={25} />
+              <Glyph active={active} size={29} />
               {badge?.[entry.to] && (
                 <span className="absolute right-1.5 top-0.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-surface-raised" />
               )}

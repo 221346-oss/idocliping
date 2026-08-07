@@ -30,6 +30,10 @@ import { formatCurrencySimple } from "@/lib/format-currency";
 import { StackedLogo } from "@/components/StackedLogo";
 import { APP_NAME, APP_VERSION } from "@/lib/brand";
 import { REFERRAL_RATE_LABEL } from "@/lib/referral";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 
@@ -92,12 +96,14 @@ function Row({
 }
 
 export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
-  const { user, signOut } = useAuth();
+  const { user, signOut, role } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
 
   const initial = (profile.displayName || profile.usernameLabel.replace("@", "") || "?")
@@ -246,9 +252,44 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
         />
       </div>
 
-      <div className="list-group">
-        <Row icon={UserX} label="Delete" tone="danger" to="/support/new" />
-      </div>
+      {role !== "admin" && (
+        <div className="list-group">
+          <Row icon={UserX} label="Delete account" tone="danger" onClick={() => setDeleteOpen(true)} />
+        </div>
+      )}
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent className="rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes your profile, linked accounts and submission history. You can't do this while you
+              have pending earnings or a withdrawal in progress.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep account</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={async (e) => {
+                e.preventDefault();
+                setDeleting(true);
+                const { data, error } = await supabase.functions.invoke("delete-account", { body: {} });
+                setDeleting(false);
+                const err = error?.message ?? (data as { error?: string } | null)?.error;
+                if (err) {
+                  return toast({ title: "Couldn't delete account", description: err, variant: "destructive" });
+                }
+                await signOut();
+                navigate("/auth", { replace: true });
+              }}
+            >
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete forever"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       <div className="flex flex-col items-center gap-1 pt-4">
         <StackedLogo size={22} />

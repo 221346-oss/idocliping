@@ -36,7 +36,7 @@ type SubRow = {
 function campaignPayoutState(status: string | null | undefined): "active" | "pending" | "paid" {
   const s = (status ?? "").toLowerCase();
   if (["completed", "ended", "paid", "paid_out"].includes(s)) return "paid";
-  if (["paused", "pending", "draft"].includes(s)) return "pending";
+  if (["paused", "pending", "pending_payout", "draft"].includes(s)) return "pending";
   return "active";
 }
 
