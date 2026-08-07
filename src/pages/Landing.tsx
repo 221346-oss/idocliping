@@ -404,14 +404,21 @@ const Landing = () => {
               </div>
 
               <div ref={heroArtRef} className="relative hidden w-[52%] max-w-full shrink-0 will-change-transform lg:flex lg:justify-end">
-                <div data-reveal style={{ ["--reveal-delay" as string]: "160ms" }} className="reveal relative w-full">
+                <div
+                  data-reveal
+                  style={{
+                    ["--reveal-delay" as string]: "160ms",
+                    WebkitMaskImage: "radial-gradient(115% 100% at 50% 45%, #000 62%, transparent 100%)",
+                    maskImage: "radial-gradient(115% 100% at 50% 45%, #000 62%, transparent 100%)",
+                  }}
+                  className="reveal relative w-full"
+                >
                   <ThemeArtwork
                     set="top"
                     priority
                     sizes="(min-width: 1280px) 620px, 50vw"
                     imgClassName={cn(
                       "h-auto w-full select-none object-contain",
-                      "[mask-image:radial-gradient(120%_105%_at_50%_45%,#000_58%,transparent_100%)]",
                       isDark
                         ? "drop-shadow-[0_24px_48px_rgb(0,0,0,0.45)]"
                         : "drop-shadow-[0_18px_40px_rgb(0,0,0,0.15)]",
