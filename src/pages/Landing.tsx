@@ -259,7 +259,7 @@ const Landing = () => {
         >
           <div className="mx-auto flex min-h-[44px] max-w-[1200px] items-center justify-between gap-2 md:min-h-[48px]">
             <Link to="/" className="flex items-center gap-2.5 shrink-0 min-w-0">
-              <BrandLogo size={32} className="ring-1 ring-white/15" />
+              <BrandLogo size={34} />
               <span className={cn("text-[15px] font-semibold tracking-tight truncate lowercase", isDark ? "text-white" : "text-zinc-900")}>
                 iclips
               </span>
