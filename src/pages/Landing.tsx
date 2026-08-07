@@ -411,6 +411,7 @@ const Landing = () => {
                     sizes="(min-width: 1280px) 620px, 50vw"
                     imgClassName={cn(
                       "h-auto w-full select-none object-contain",
+                      "[mask-image:radial-gradient(120%_105%_at_50%_45%,#000_58%,transparent_100%)]",
                       isDark
                         ? "drop-shadow-[0_24px_48px_rgb(0,0,0,0.45)]"
                         : "drop-shadow-[0_18px_40px_rgb(0,0,0,0.15)]",
@@ -563,11 +564,11 @@ const Landing = () => {
       {
         consentHydrated && !hasConsent && (
           <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-border bg-background/95 backdrop-blur">
-            <div className="mx-auto max-w-[1200px] px-6 py-4 flex items-center justify-between gap-4">
-              <p className="text-[13px] text-muted-foreground max-w-[760px]">
+            <div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6">
+              <p className="text-[13px] text-muted-foreground sm:max-w-[760px]">
                 We use cookies to improve your experience. By continuing, you agree to our Cookie Policy.
               </p>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex shrink-0 items-center gap-2">
                 <Button variant="default" onClick={() => void acceptAll()} disabled={consentSaving}>
                   Accept All
                 </Button>
