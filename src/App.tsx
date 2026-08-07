@@ -80,6 +80,11 @@ const App = () => (
 
               {/* Shared (any signed-in role) */}
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/settings/language" element={<ProtectedRoute><LanguageSettings /></ProtectedRoute>} />
+              <Route path="/settings/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+              <Route path="/settings/login-methods" element={<ProtectedRoute><LoginMethods /></ProtectedRoute>} />
+              <Route path="/faq" element={<ProtectedRoute><FaqPage /></ProtectedRoute>} />
+              <Route path="/resources" element={<ProtectedRoute><ResourcesPage /></ProtectedRoute>} />
 
               {/* Admin */}
               <Route path="/admin" element={<RoleRoute roles={["admin"]}><Dashboard /></RoleRoute>} />
