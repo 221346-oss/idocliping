@@ -150,7 +150,14 @@ export default function CreatorCampaignDetail() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
   const [mySubs, setMySubs] = useState<any[]>([]);
   const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
-  const [tab, setTab] = useState("details");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab") ?? "details";
+  const setTab = (v: string) => setSearchParams(v === "details" ? {} : { tab: v }, { replace: true });
+
+  const [appealFor, setAppealFor] = useState<any | null>(null);
+  const [appealMessage, setAppealMessage] = useState("");
+  const [appealFile, setAppealFile] = useState<File | null>(null);
+  const [appealSubmitting, setAppealSubmitting] = useState(false);
 
 
   const supportedPlatforms = useMemo(() => (campaign?.platforms ?? []) as string[], [campaign]);
