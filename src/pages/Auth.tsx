@@ -7,6 +7,7 @@ import { StackedLogo } from "@/components/StackedLogo";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { ArtworkBackground } from "@/components/media/ThemeArtwork";
 
 /** OTP validity window shown to the user (seconds). */
 const OTP_TTL_SECONDS = 10 * 60;
@@ -149,7 +150,7 @@ export default function Auth() {
               type="button"
               onClick={() => void handleGoogle()}
               disabled={googleLoading}
-              className="btn-outline-pill"
+              className="btn-outline-pill glass-field !bg-foreground/[0.06]"
             >
               {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleGlyph />}
               Continue with Google
@@ -157,10 +158,10 @@ export default function Auth() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border/70" />
+                <span className="w-full border-t border-foreground/15" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-card px-3 text-[12px] text-muted-foreground">or</span>
+                <span className="rounded-full bg-background/60 px-3 text-[12px] text-muted-foreground backdrop-blur-md">or</span>
               </div>
             </div>
 
@@ -174,7 +175,7 @@ export default function Auth() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Type your email..."
-                  className="focus-ring w-full rounded-full border border-border/70 bg-surface-raised py-3.5 pl-11 pr-4 text-[15px] placeholder:text-muted-foreground"
+                  className="glass-field focus-ring w-full rounded-full py-3.5 pl-11 pr-4 text-[15px]"
                   required
                 />
               </div>
@@ -202,7 +203,7 @@ export default function Auth() {
               >
                 <InputOTPGroup>
                   {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <InputOTPSlot key={i} index={i} className="h-12 w-11 rounded-xl text-[18px]" />
+                    <InputOTPSlot key={i} index={i} className="glass-field h-12 w-11 rounded-xl text-[18px]" />
                   ))}
                 </InputOTPGroup>
               </InputOTP>
