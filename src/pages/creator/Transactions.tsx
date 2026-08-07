@@ -39,9 +39,10 @@ export default function CreatorTransactions() {
       const [{ data: earnings }, { data: reqs }] = await Promise.all([
         supabase
           .from("earnings")
-          .select("id, amount, type, created_at")
+          .select("id, amount, type, created_at, paid_at")
           .eq("creator_id", user.id)
-          .order("created_at", { ascending: false }),
+          .eq("status", "paid")
+          .order("paid_at", { ascending: false }),
         supabase
           .from("withdrawal_requests")
           .select("id, amount, method, status, created_at")
@@ -53,10 +54,10 @@ export default function CreatorTransactions() {
         ...(earnings ?? []).map((e: Record<string, unknown>) => ({
           id: `e-${e.id}`,
           kind: "earning" as const,
-          label: e.type === "referral" ? "Referral commission" : "Campaign earning",
+          label: e.type === "referral" ? "Referral commission" : "Campaign payout",
           amount: Number(e.amount ?? 0),
           status: "paid",
-          created_at: String(e.created_at),
+          created_at: String(e.paid_at ?? e.created_at),
         })),
         ...(reqs ?? []).map((r: Record<string, unknown>) => ({
           id: `w-${r.id}`,
