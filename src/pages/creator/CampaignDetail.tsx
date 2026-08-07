@@ -270,7 +270,9 @@ export default function CreatorCampaignDetail() {
       const [{ data: mine }, { data: socials }] = await Promise.all([
         supabase
           .from("submissions")
-          .select("id, platform, post_url, status, manual_views, created_at, earnings(amount)")
+          .select(
+            "id, platform, post_url, status, reject_reason, manual_views, total_views, created_at, earnings(amount), submission_appeals(id, status)",
+          )
           .eq("campaign_id", id)
           .eq("creator_id", user.id)
           .order("created_at", { ascending: false }),
