@@ -3,7 +3,7 @@ import { Bell, HelpCircle, LogOut, Settings as SettingsIcon, UserPlus, User as U
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreatorBalance } from "@/hooks/useCreatorBalance";
-import { ClipperWordmark } from "@/components/brand/ClipperWordmark";
+import { BrandLockup } from "@/components/brand/BrandLogo";
 import { WalletGlyph } from "@/components/brand/icons/NavGlyphs";
 import { CREATOR_NAV, isNavActive } from "./BottomNav";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,7 +36,7 @@ export function TopNav() {
     <header className="hidden md:block sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-2 px-6">
         <Link to="/discover" className="mr-4 focus-ring rounded-xl press-scale">
-          <ClipperWordmark size={22} />
+          <BrandLockup size={26} />
         </Link>
 
         <nav className="flex items-center gap-1" aria-label="Primary">

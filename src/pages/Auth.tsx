@@ -3,7 +3,7 @@ import { Navigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft, Mail } from "lucide-react";
-import { StackedLogo } from "@/components/StackedLogo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -132,7 +132,7 @@ export default function Auth() {
 
         <div className="flex flex-col items-center gap-3 text-center">
           <Link to="/" className="press-scale focus-ring rounded-full">
-            <StackedLogo size={30} />
+            <BrandLogo size={30} />
           </Link>
           <h1 className="font-display text-[24px] font-semibold leading-tight tracking-tight">
             {step === "email" ? "Welcome to iClips" : "Check your email"}

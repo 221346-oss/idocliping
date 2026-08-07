@@ -3,7 +3,7 @@ import { AppSidebar, SidebarContent } from "./AppSidebar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
-import { StackedLogo } from "./StackedLogo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -28,7 +28,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </SheetContent>
           </Sheet>
           <div className="flex items-center gap-1.5">
-            <StackedLogo size={16} />
+            <BrandLogo size={20} />
             <span className="font-bold uppercase tracking-[0.08em] text-[14px] text-foreground">iClips</span>
           </div>
           <div className="w-7" />

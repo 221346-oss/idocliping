@@ -27,7 +27,7 @@ import type { ProfileViewModel } from "@/hooks/usePublicProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatViewCount } from "@/lib/format-views";
 import { formatCurrencySimple } from "@/lib/format-currency";
-import { StackedLogo } from "@/components/StackedLogo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { APP_NAME, APP_VERSION } from "@/lib/brand";
 import { REFERRAL_RATE_LABEL } from "@/lib/referral";
 import {
@@ -292,7 +292,7 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
 
 
       <div className="flex flex-col items-center gap-1 pt-4">
-        <StackedLogo size={22} />
+        <BrandLogo size={22} />
         <p className="text-[14px] font-semibold">{APP_NAME}</p>
         <p className="text-[12px] text-muted-foreground">Version {APP_VERSION}</p>
       </div>
