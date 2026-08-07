@@ -745,7 +745,7 @@ export default function CreatorCampaignDetail() {
                       items={[
                         { value: mySubs.length, label: "Submissions" },
                         { value: fmtViews(myViews), label: "Total Views" },
-                        { value: myRejected, label: "Rejected" },
+                        { value: myRejected, label: "Ineligible" },
                       ]}
                     />
                   </div>
@@ -766,6 +766,39 @@ export default function CreatorCampaignDetail() {
                     />
                   ))}
                 </RowGroup>
+
+                {mySubs
+                  .filter((s) => String(s.status) === "rejected")
+                  .map((s) => {
+                    const appealed = ((s.submission_appeals ?? []) as any[]).length > 0;
+                    return (
+                      <div key={`appeal-${s.id}`} className="surface-card space-y-2 p-4">
+                        <div className="text-[13px] font-semibold">Ineligible submission</div>
+                        <p className="text-[12.5px] leading-snug text-muted-foreground">
+                          {s.reject_reason || "This post did not meet the campaign parameters."}
+                        </p>
+                        {appealed ? (
+                          <p className="text-[12.5px] text-muted-foreground">
+                            Appeal submitted — you can appeal a post only once.
+                          </p>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAppealFor(s);
+                              setAppealMessage("");
+                              setAppealFile(null);
+                            }}
+                            className="btn-outline-pill h-10 text-[13.5px]"
+                          >
+                            Appeal this decision
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+
+
 
               </>
             ))}
