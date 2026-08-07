@@ -122,8 +122,13 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
-      <div className="w-full max-w-[420px] surface-card animate-fade-in p-6 sm:p-8">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      {/* Theme-aware artwork background */}
+      <ArtworkBackground priority className="fixed inset-0" />
+      <div aria-hidden className="pointer-events-none fixed inset-0 bg-background/35 backdrop-blur-[2px]" />
+
+      <div className="glass-card glass-glow relative z-10 w-full max-w-[420px] animate-fade-in p-6 sm:p-8">
+
         <div className="flex flex-col items-center gap-3 text-center">
           <Link to="/" className="press-scale focus-ring rounded-full">
             <StackedLogo size={30} />
