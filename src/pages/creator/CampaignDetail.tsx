@@ -416,7 +416,8 @@ export default function CreatorCampaignDetail() {
       setSubmitModalOpen(false);
       setPostUrl("");
       toast({ title: "Submitted!", description: "Processing — your post turns Eligible in a few seconds." });
-      navigate(`/activity/${id}`);
+      setTab("activity");
+      void load();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Try again";
       toast({ title: "Submission failed", description: msg, variant: "destructive" });
