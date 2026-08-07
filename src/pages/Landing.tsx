@@ -423,8 +423,8 @@ const Landing = () => {
                   data-reveal
                   style={{
                     ["--reveal-delay" as string]: "160ms",
-                    WebkitMaskImage: "radial-gradient(72% 72% at 50% 46%, #000 42%, transparent 88%)",
-                    maskImage: "radial-gradient(72% 72% at 50% 46%, #000 42%, transparent 88%)",
+                    WebkitMaskImage: "radial-gradient(78% 78% at 50% 48%, #000 34%, transparent 86%)",
+                    maskImage: "radial-gradient(78% 78% at 50% 48%, #000 34%, transparent 86%)",
                   }}
                   className="reveal relative w-full"
                 >
@@ -432,12 +432,8 @@ const Landing = () => {
                     set="top"
                     priority
                     sizes="(min-width: 1280px) 620px, 50vw"
-                    imgClassName={cn(
-                      "h-auto w-full select-none object-contain",
-                      isDark
-                        ? "drop-shadow-[0_24px_48px_rgb(0,0,0,0.45)]"
-                        : "drop-shadow-[0_18px_40px_rgb(0,0,0,0.15)]",
-                    )}
+                    imgClassName="h-auto w-full select-none object-contain"
+
                   />
                 </div>
               </div>
