@@ -289,7 +289,7 @@ export default function CreatorWallet() {
           e.type === "referral"
             ? "Referral commission"
             : e.submissions?.campaigns?.title ?? "Campaign payout",
-        status: "paid",
+        status: String(e.status ?? "pending"),
         amount: Number(e.amount ?? 0),
         created_at: e.created_at,
       })),
