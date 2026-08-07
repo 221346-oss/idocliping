@@ -107,6 +107,11 @@ export function TrendingRail() {
     <section className="relative z-10 overflow-hidden px-0 py-14 sm:py-20">
       <ArtworkBackground />
       <div className="pointer-events-none absolute inset-0 bg-background/55" aria-hidden />
+      {/* melt the artwork into the page background on all four edges */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background via-transparent to-background"
+      />
 
       <div className="relative mx-auto max-w-[1200px]">
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background to-transparent sm:w-24" />

@@ -61,7 +61,7 @@ export function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: 
   return (
     <>
       <div className="flex items-center gap-2 px-3 h-11 border-b border-sidebar-border">
-        <BrandLogo size={20} />
+        <BrandLogo size={28} />
         {!collapsed && (
           <span className="font-bold uppercase tracking-[0.08em] text-[14px] text-sidebar-accent-foreground">
             iClips

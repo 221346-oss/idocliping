@@ -28,7 +28,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </SheetContent>
           </Sheet>
           <div className="flex items-center gap-1.5">
-            <BrandLogo size={20} />
+            <BrandLogo size={28} />
             <span className="font-bold uppercase tracking-[0.08em] text-[14px] text-foreground">iClips</span>
           </div>
           <div className="w-7" />

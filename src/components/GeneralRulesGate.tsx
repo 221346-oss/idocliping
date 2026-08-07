@@ -136,7 +136,7 @@ export function GeneralRulesGate() {
       >
         <div className="flex flex-col items-center text-center">
           <div className="text-destructive">
-            <BrandLogo size={22} />
+            <BrandLogo size={26} />
           </div>
           <h2 className="mt-3 text-[18px] font-semibold text-foreground">iClips General Rules</h2>
           {communityLink && (

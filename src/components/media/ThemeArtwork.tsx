@@ -44,11 +44,18 @@ function Layer({
   const web = ART[webKey];
   const mobile = mobileKey ? ART[mobileKey] : web;
 
+  /** Cached/complete images never fire onLoad after hydration — check on mount. */
+  const imgRef = (node: HTMLImageElement | null) => {
+    if (node?.complete) setLoaded(true);
+  };
+
+
   return (
     <picture className={cn("block", className)}>
       <source media="(min-width: 768px)" srcSet={web.srcset} sizes={sizes} type="image/webp" />
       <source srcSet={mobile.srcset} sizes={sizes} type="image/webp" />
       <img
+        ref={imgRef}
         src={web.src}
         alt={alt}
         width={web.width}
@@ -58,6 +65,8 @@ function Layer({
         fetchPriority={priority ? "high" : "auto"}
         decoding="async"
         onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+
         style={{
           backgroundImage: `url("${mobile.blur}")`,
           backgroundSize: "cover",

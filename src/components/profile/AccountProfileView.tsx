@@ -292,7 +292,7 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
 
 
       <div className="flex flex-col items-center gap-1 pt-4">
-        <BrandLogo size={22} />
+        <BrandLogo size={26} />
         <p className="text-[14px] font-semibold">{APP_NAME}</p>
         <p className="text-[12px] text-muted-foreground">Version {APP_VERSION}</p>
       </div>

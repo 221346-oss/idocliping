@@ -38,6 +38,21 @@ const BROWSER_KEY_STORAGE = "iclip_cookie_browser_key";
 const LEGACY_COOKIE_CONSENT_KEY = "iclip_cookie_consent";
 const LEGACY_COOKIE_PREFS_KEY = "iclip_cookie_preferences";
 
+/**
+ * Soft feather on all four edges so artwork melts into the section background
+ * in both themes (no visible image box), on mobile and desktop alike.
+ */
+const FEATHER = [
+  "linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%)",
+  "linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%)",
+].join(", ");
+const FEATHER_MASK: React.CSSProperties = {
+  WebkitMaskImage: FEATHER,
+  maskImage: FEATHER,
+  WebkitMaskComposite: "source-in",
+  maskComposite: "intersect",
+};
+
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -259,7 +274,7 @@ const Landing = () => {
         >
           <div className="mx-auto flex min-h-[44px] max-w-[1200px] items-center justify-between gap-2 md:min-h-[48px]">
             <Link to="/" className="flex items-center gap-2.5 shrink-0 min-w-0">
-              <BrandLogo size={32} className="ring-1 ring-white/15" />
+              <BrandLogo size={34} />
               <span className={cn("text-[15px] font-semibold tracking-tight truncate lowercase", isDark ? "text-white" : "text-zinc-900")}>
                 iclips
               </span>
@@ -408,8 +423,8 @@ const Landing = () => {
                   data-reveal
                   style={{
                     ["--reveal-delay" as string]: "160ms",
-                    WebkitMaskImage: "radial-gradient(72% 72% at 50% 46%, #000 42%, transparent 88%)",
-                    maskImage: "radial-gradient(72% 72% at 50% 46%, #000 42%, transparent 88%)",
+                    WebkitMaskImage: "radial-gradient(78% 78% at 50% 48%, #000 34%, transparent 86%)",
+                    maskImage: "radial-gradient(78% 78% at 50% 48%, #000 34%, transparent 86%)",
                   }}
                   className="reveal relative w-full"
                 >
@@ -417,12 +432,8 @@ const Landing = () => {
                     set="top"
                     priority
                     sizes="(min-width: 1280px) 620px, 50vw"
-                    imgClassName={cn(
-                      "h-auto w-full select-none object-contain",
-                      isDark
-                        ? "drop-shadow-[0_24px_48px_rgb(0,0,0,0.45)]"
-                        : "drop-shadow-[0_18px_40px_rgb(0,0,0,0.15)]",
-                    )}
+                    imgClassName="h-auto w-full select-none object-contain"
+
                   />
                 </div>
               </div>
@@ -450,6 +461,7 @@ const Landing = () => {
           />
           <div
             data-reveal
+            style={FEATHER_MASK}
             className="reveal relative z-10 mx-auto w-full max-w-[420px] md:max-w-[1120px]"
           >
             <ThemeArtwork
@@ -457,14 +469,10 @@ const Landing = () => {
               alt="How iClips works: link your accounts, post your clips, get paid"
               sizes="(min-width: 1280px) 1120px, 100vw"
               className="[&_picture]:block [&_img]:h-auto [&_img]:w-full"
-              imgClassName={cn(
-                "h-auto w-full object-contain",
-                "[mask-image:radial-gradient(115%_115%_at_50%_50%,#000_62%,transparent_100%)]",
-                "[-webkit-mask-image:radial-gradient(115%_115%_at_50%_50%,#000_62%,transparent_100%)]",
-                isDark ? "mix-blend-lighten" : "mix-blend-multiply",
-              )}
+              imgClassName="h-auto w-full object-contain"
             />
           </div>
+
         </section>
 
 
@@ -618,7 +626,7 @@ const Landing = () => {
                 <div className="text-center flex-1">
                   <div className="flex items-center justify-center">
                     <div className="text-destructive">
-                      <BrandLogo size={22} />
+                      <BrandLogo size={26} />
                     </div>
                   </div>
                   <h2 className="mt-3 text-[16px] font-semibold text-foreground">Cookie Preferences</h2>
