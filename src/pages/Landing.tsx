@@ -464,96 +464,26 @@ const Landing = () => {
         </div>
         {/* End Hero fade wrapper */}
 
-        {/* 2 · Trending campaigns */}
-        <section className={cn("relative z-10 px-4 py-12 sm:px-6 sm:py-16", isDark ? "bg-black" : "bg-white")}>
-          <div
-            ref={trendingFadeRef}
-            className="mx-auto max-w-[1200px] will-change-[opacity] transition-opacity duration-1000"
-          >
-            <div className="mb-8 flex items-center justify-between gap-4 lg:px-4">
-              <div className="flex items-center gap-3 font-sans">
-                <Zap className="h-5 w-5 shrink-0 animate-pulse" strokeWidth={2.5} style={{ color: LIME }} aria-hidden />
-                <h2 className="text-[18px] font-bold tracking-tight text-foreground md:text-[20px]">Trending campaigns</h2>
-              </div>
-              <Link to="/auth" className="group flex items-center gap-1.5 whitespace-nowrap text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">
-                View all <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </div>
-            <div className="relative">
-              <div className={cn("pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-20 bg-gradient-to-r to-transparent", isDark ? "from-black" : "from-white")} />
-              <div className={cn("pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-20 bg-gradient-to-l to-transparent", isDark ? "from-black" : "from-white")} />
-              <div className="flex gap-4 overflow-x-auto py-6 px-10 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden">
-                {TRENDING_MOCK.map((c) => {
-                  const progressColor = c.usedPct > 70 ? HOT_PINK : c.usedPct > 40 ? "#ffaa32" : LIME;
-                  const tag = c.title.split("[")[1]?.replace("]", "") || c.title.split(" ")[0];
+        {/* 2 · Live campaigns — auto-sliding glass rail on the theme artwork */}
+        <div ref={trendingFadeRef} className="will-change-[opacity] transition-opacity duration-1000">
+          <TrendingRail />
+        </div>
 
-                  return (
-                    <article
-                      key={c.id}
-                      className="group relative flex w-[160px] shrink-0 snap-start flex-col overflow-hidden rounded-[20px] border border-white/5 bg-[#191919] transition-all hover:-translate-y-1.5 hover:border-lime-500/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                    >
-                      <div
-                        className="relative flex h-[100px] items-center justify-center overflow-hidden font-bebas text-[20px] tracking-wider text-white/90"
-                        style={{ background: c.bg }}
-                      >
-                        <span className="relative z-[1] drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] uppercase">{tag}</span>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                      </div>
-                      <div className="flex flex-1 flex-col p-3 pt-2.5">
-                        <p className="line-clamp-1 mb-1.5 text-[11px] font-bold text-white">{c.title}</p>
-                        <p className="mb-1 text-[11px] font-medium text-white/50">${c.budget.toLocaleString()}</p>
-                        <div className="mt-1 h-[2.5px] w-full rounded-full bg-white/10">
-                          <div
-                            className="h-full rounded-full transition-all duration-700"
-                            style={{ width: `${c.usedPct}%`, backgroundColor: progressColor }}
-                          />
-                        </div>
-                        <p className="mt-2 text-[10px] font-semibold tracking-wide text-white/40 uppercase">
-                          {c.usedPct}% used
-                        </p>
-                      </div>
-                    </article>
-                  );
-                })}
-                <Link
-                  to="/auth"
-                  className="flex w-[140px] shrink-0 snap-center flex-col items-center justify-center gap-2.5 rounded-[20px] border-2 border-dashed border-white/10 bg-white/5 p-4 text-center transition-all hover:border-lime-500/50 hover:text-lime-500"
-                >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-current text-[20px] font-bold">
-                    +
-                  </span>
-                  <div>
-                    <p className="font-bebas text-[28px] leading-none text-white">300+</p>
-                    <p className="text-[11px] font-medium opacity-70">campaigns active</p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 3 · How iclips works (Image Version) */}
+        {/* 3 · How iclips works (artwork) */}
         <section id="how" className="relative z-10 px-4 py-12 sm:px-6 sm:py-20">
           <div
             ref={howItWorksFadeRef}
             className="mx-auto w-full max-w-[1200px] will-change-[opacity] transition-opacity duration-1000"
           >
-            <div className="relative w-full">
-              {/* Desktop View */}
-              <img
-                src="/how-it-works-section-laptop-view.png"
-                alt="How it works desktop"
-                className="hidden w-full h-auto object-contain md:block animate-fade-in"
-              />
-              {/* Mobile View */}
-              <img
-                src="/how-it-works-mobile-view.png"
-                alt="How it works mobile"
-                className="block w-full h-auto object-contain md:hidden animate-fade-in"
-              />
-            </div>
+            <ThemeArtwork
+              set="how"
+              alt="How iClips works: link your accounts, post your clips, get paid"
+              sizes="(min-width: 1280px) 1200px, 100vw"
+              imgClassName="h-auto w-full object-contain"
+            />
           </div>
         </section>
+
 
 
         {/* 7 · Testimonial */}
