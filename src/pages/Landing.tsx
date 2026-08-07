@@ -408,8 +408,8 @@ const Landing = () => {
                   data-reveal
                   style={{
                     ["--reveal-delay" as string]: "160ms",
-                    WebkitMaskImage: "radial-gradient(115% 100% at 50% 45%, #000 62%, transparent 100%)",
-                    maskImage: "radial-gradient(115% 100% at 50% 45%, #000 62%, transparent 100%)",
+                    WebkitMaskImage: "radial-gradient(72% 72% at 50% 46%, #000 42%, transparent 88%)",
+                    maskImage: "radial-gradient(72% 72% at 50% 46%, #000 42%, transparent 88%)",
                   }}
                   className="reveal relative w-full"
                 >
