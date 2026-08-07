@@ -225,7 +225,7 @@
 
   /* Pill filter chip */
   .chip {
-    @apply inline-flex shrink-0 items-center justify-center gap-1.5 h-9 px-4 rounded-full text-[13px] font-medium
+    @apply inline-flex shrink-0 items-center justify-center gap-1.5 h-9 px-4 rounded-xl text-[13px] font-medium
            border border-border bg-surface-raised text-muted-foreground
            transition-all duration-150 press-scale focus-ring whitespace-nowrap;
   }
