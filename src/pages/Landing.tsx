@@ -356,25 +356,19 @@ const Landing = () => {
           />
 
           <section className="relative z-10 isolate px-4 pb-5 pt-[3.25rem] sm:px-6 sm:pb-6 sm:pt-[3.35rem] lg:min-h-0 lg:px-8 lg:pb-5 lg:pt-[3.25rem]">
-            {/* Mobile: full-bleed hero art + gradient; copy vertically centered */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 -z-[1] lg:hidden">
-              <img
-                src={heroShowcaseAssetUrl}
-                alt=""
-                className="h-full w-full scale-105 object-cover object-[50%_32%]"
-                decoding="async"
-              />
+            {/* Top section: artwork background (no foreground art on mobile) */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 -z-[1]">
+              <ArtworkBackground priority />
               <div
                 className={cn(
                   "absolute inset-0",
-                  isDark ? "bg-gradient-to-b from-black/92 via-black/78 to-black" : "bg-gradient-to-b from-zinc-50/94 via-white/82 to-white",
+                  isDark
+                    ? "bg-gradient-to-b from-black/80 via-black/70 to-black lg:from-black/70 lg:via-black/55 lg:to-black/85"
+                    : "bg-gradient-to-b from-white/80 via-white/70 to-white lg:from-white/70 lg:via-white/55 lg:to-white/85",
                 )}
               />
-              <div className={cn(
-                "absolute inset-0 opacity-[0.07] lg:hidden",
-                "[background-image:radial-gradient(circle_at_30%_20%,white_0.5px,transparent_0)] [background-size:4px_4px]",
-              )} />
             </div>
+
 
             <div className="mx-auto flex max-w-[1160px] min-h-[calc(100svh-env(safe-area-inset-bottom,0px)-4.5rem)] flex-col justify-center gap-10 text-center max-lg:-mt-1 lg:min-h-0 lg:flex-row lg:items-center lg:justify-center lg:gap-10 lg:text-left">
               <div className="relative z-[1] flex min-w-0 max-w-xl flex-shrink-0 flex-col items-center lg:max-w-[40%] lg:items-start">
