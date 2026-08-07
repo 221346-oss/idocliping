@@ -181,8 +181,9 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       </div>
 
       <div className="list-group">
-        <Row icon={KeyRound} label="Login methods" to="/settings" />
+        <Row icon={KeyRound} label="Login methods" to="/settings/login-methods" />
       </div>
+
 
       <div className="list-group">
         <Row
