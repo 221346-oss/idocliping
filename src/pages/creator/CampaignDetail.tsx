@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreatorShell, PageContainer, DetailHeader } from "@/components/shell/CreatorShell";
@@ -150,7 +150,14 @@ export default function CreatorCampaignDetail() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
   const [mySubs, setMySubs] = useState<any[]>([]);
   const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
-  const [tab, setTab] = useState("details");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab") ?? "details";
+  const setTab = (v: string) => setSearchParams(v === "details" ? {} : { tab: v }, { replace: true });
+
+  const [appealFor, setAppealFor] = useState<any | null>(null);
+  const [appealMessage, setAppealMessage] = useState("");
+  const [appealFile, setAppealFile] = useState<File | null>(null);
+  const [appealSubmitting, setAppealSubmitting] = useState(false);
 
 
   const supportedPlatforms = useMemo(() => (campaign?.platforms ?? []) as string[], [campaign]);
@@ -263,7 +270,9 @@ export default function CreatorCampaignDetail() {
       const [{ data: mine }, { data: socials }] = await Promise.all([
         supabase
           .from("submissions")
-          .select("id, platform, post_url, status, manual_views, created_at, earnings(amount)")
+          .select(
+            "id, platform, post_url, status, reject_reason, manual_views, total_views, created_at, earnings(amount), submission_appeals(id, status)",
+          )
           .eq("campaign_id", id)
           .eq("creator_id", user.id)
           .order("created_at", { ascending: false }),
@@ -407,12 +416,45 @@ export default function CreatorCampaignDetail() {
       setSubmitModalOpen(false);
       setPostUrl("");
       toast({ title: "Submitted!", description: "Processing — your post turns Eligible in a few seconds." });
-      navigate(`/activity/${id}`);
+      setTab("activity");
+      void load();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Try again";
       toast({ title: "Submission failed", description: msg, variant: "destructive" });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  /** One appeal per submission, with optional proof upload to the private bucket. */
+  const submitAppeal = async () => {
+    if (!user || !appealFor) return;
+    setAppealSubmitting(true);
+    try {
+      let proofUrl: string | null = null;
+      if (appealFile) {
+        const ext = appealFile.name.split(".").pop() ?? "bin";
+        const path = `${user.id}/${appealFor.id}-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("appeal-proof").upload(path, appealFile);
+        if (upErr) throw upErr;
+        proofUrl = path;
+      }
+      const { error } = await supabase.from("submission_appeals").insert({
+        submission_id: appealFor.id,
+        creator_id: user.id,
+        message: appealMessage.trim(),
+        proof_urls: proofUrl ? [proofUrl] : [],
+        proof_url: proofUrl,
+      });
+      if (error) throw error;
+      toast({ title: "Appeal sent", description: "Our team will review this post again." });
+      setAppealFor(null);
+      void load();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Try again";
+      toast({ title: "Appeal failed", description: msg, variant: "destructive" });
+    } finally {
+      setAppealSubmitting(false);
     }
   };
 
@@ -735,7 +777,7 @@ export default function CreatorCampaignDetail() {
                       items={[
                         { value: mySubs.length, label: "Submissions" },
                         { value: fmtViews(myViews), label: "Total Views" },
-                        { value: myRejected, label: "Rejected" },
+                        { value: myRejected, label: "Ineligible" },
                       ]}
                     />
                   </div>
@@ -756,6 +798,39 @@ export default function CreatorCampaignDetail() {
                     />
                   ))}
                 </RowGroup>
+
+                {mySubs
+                  .filter((s) => String(s.status) === "rejected")
+                  .map((s) => {
+                    const appealed = ((s.submission_appeals ?? []) as any[]).length > 0;
+                    return (
+                      <div key={`appeal-${s.id}`} className="surface-card space-y-2 p-4">
+                        <div className="text-[13px] font-semibold">Ineligible submission</div>
+                        <p className="text-[12.5px] leading-snug text-muted-foreground">
+                          {s.reject_reason || "This post did not meet the campaign parameters."}
+                        </p>
+                        {appealed ? (
+                          <p className="text-[12.5px] text-muted-foreground">
+                            Appeal submitted — you can appeal a post only once.
+                          </p>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAppealFor(s);
+                              setAppealMessage("");
+                              setAppealFile(null);
+                            }}
+                            className="btn-outline-pill h-10 text-[13.5px]"
+                          >
+                            Appeal this decision
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+
+
 
               </>
             ))}
@@ -903,6 +978,53 @@ export default function CreatorCampaignDetail() {
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               Submit
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!appealFor} onOpenChange={(open) => !open && setAppealFor(null)}>
+        <DialogContent className="rounded-3xl sm:max-w-md">
+          <DialogHeader className="text-left">
+            <DialogTitle className="font-display text-[18px]">Appeal submission</DialogTitle>
+            <DialogDescription className="pt-2 text-[13.5px]">
+              You can appeal a post only once. Explain what happened and attach proof if you have it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-[13px]">Message</Label>
+              <Textarea
+                value={appealMessage}
+                onChange={(e) => setAppealMessage(e.target.value)}
+                maxLength={1000}
+                rows={4}
+                placeholder="Why should this post be reconsidered?"
+                className="mt-1.5 rounded-2xl"
+              />
+            </div>
+            <div>
+              <Label className="text-[13px]">Proof (optional)</Label>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={(e) => setAppealFile(e.target.files?.[0] ?? null)}
+                className="mt-1.5 w-full text-[12.5px] text-muted-foreground"
+              />
+            </div>
+          </div>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+            <button type="button" className="btn-outline-pill" onClick={() => setAppealFor(null)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-primary-pill"
+              disabled={appealSubmitting || appealMessage.trim().length < 10}
+              onClick={() => void submitAppeal()}
+            >
+              {appealSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Send appeal
             </button>
           </DialogFooter>
         </DialogContent>

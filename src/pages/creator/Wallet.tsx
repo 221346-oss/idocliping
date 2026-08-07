@@ -252,7 +252,7 @@ export default function CreatorWallet() {
     const [{ data: earnings }, { data: reqs }] = await Promise.all([
       supabase
         .from("earnings")
-        .select("id, amount, type, created_at, submissions(is_test_submission, campaigns(title))")
+        .select("id, amount, type, status, created_at, submissions(campaigns(title))")
         .eq("creator_id", user.id)
         .order("created_at", { ascending: false }),
       supabase
@@ -264,6 +264,13 @@ export default function CreatorWallet() {
 
     const earnRows = (earnings ?? []) as any[];
     const earned = earnRows.reduce((a, b) => a + Number(b.amount ?? 0), 0);
+    // paid-out earnings are withdrawable; eligible-but-unpaid earnings sit in Pending
+    const paidEarned = earnRows
+      .filter((e) => e.status === "paid")
+      .reduce((a, b) => a + Number(b.amount ?? 0), 0);
+    const pendingEarned = earnRows
+      .filter((e) => e.status !== "paid")
+      .reduce((a, b) => a + Number(b.amount ?? 0), 0);
 
     const reqRows = (reqs ?? []) as any[];
     const reserved = reqRows
@@ -271,12 +278,8 @@ export default function CreatorWallet() {
       .reduce((a, b) => a + Number(b.amount ?? 0), 0);
 
     setTotalEarned(earned);
-    setPending(
-      reqRows
-        .filter((r) => r.status === "pending" || r.status === "approved")
-        .reduce((a, b) => a + Number(b.amount ?? 0), 0),
-    );
-    setBalance(earned - reserved);
+    setPending(pendingEarned);
+    setBalance(Math.max(0, paidEarned - reserved));
 
     const ledger: LedgerEntry[] = [
       ...earnRows.map((e) => ({
@@ -286,7 +289,7 @@ export default function CreatorWallet() {
           e.type === "referral"
             ? "Referral commission"
             : e.submissions?.campaigns?.title ?? "Campaign payout",
-        status: "paid",
+        status: String(e.status ?? "pending"),
         amount: Number(e.amount ?? 0),
         created_at: e.created_at,
       })),

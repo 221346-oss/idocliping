@@ -16,6 +16,11 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { TermsPage, PrivacyPage, DoNotSellPage } from "./pages/Legal";
 import Settings from "./pages/Settings";
+import LanguageSettings from "./pages/settings/Language";
+import NotificationSettings from "./pages/settings/Notifications";
+import LoginMethods from "./pages/settings/LoginMethods";
+import FaqPage from "./pages/Faq";
+import ResourcesPage from "./pages/Resources";
 import Analytics from "./pages/Analytics";
 
 
@@ -75,6 +80,11 @@ const App = () => (
 
               {/* Shared (any signed-in role) */}
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/settings/language" element={<ProtectedRoute><LanguageSettings /></ProtectedRoute>} />
+              <Route path="/settings/notifications" element={<ProtectedRoute><NotificationSettings /></ProtectedRoute>} />
+              <Route path="/settings/login-methods" element={<ProtectedRoute><LoginMethods /></ProtectedRoute>} />
+              <Route path="/faq" element={<ProtectedRoute><FaqPage /></ProtectedRoute>} />
+              <Route path="/resources" element={<ProtectedRoute><ResourcesPage /></ProtectedRoute>} />
 
               {/* Admin */}
               <Route path="/admin" element={<RoleRoute roles={["admin"]}><Dashboard /></RoleRoute>} />
@@ -94,7 +104,7 @@ const App = () => (
               <Route path="/discover" element={<RoleRoute roles={["creator", "user"]}><Discover /></RoleRoute>} />
               <Route path="/campaigns/:id" element={<RoleRoute roles={["creator", "user"]}><CampaignDetail /></RoleRoute>} />
               <Route path="/activity" element={<RoleRoute roles={["creator", "user"]}><Activity /></RoleRoute>} />
-              <Route path="/activity/:campaignId" element={<RoleRoute roles={["creator", "user"]}><Activity /></RoleRoute>} />
+              <Route path="/activity/:campaignId" element={<Navigate to="/activity" replace />} />
               <Route path="/submissions/:id" element={<RoleRoute roles={["creator", "user"]}><SubmissionReport /></RoleRoute>} />
               <Route path="/wallet" element={<RoleRoute roles={["creator", "user"]}><Wallet /></RoleRoute>} />
               <Route path="/wallet/transactions" element={<RoleRoute roles={["creator", "user"]}><Transactions /></RoleRoute>} />

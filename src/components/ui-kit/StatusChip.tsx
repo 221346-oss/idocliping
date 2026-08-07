@@ -40,8 +40,9 @@ export function normalizeStatus(raw: string | null | undefined): StatusKind {
   if (["eligible", "verified"].includes(s)) return "eligible";
   if (["processing", "submitted"].includes(s)) return "processing";
   if (["pending", "in_review", "review"].includes(s)) return "pending";
-  if (["rejected", "denied", "banned", "flagged"].includes(s)) return "rejected";
-  if (["ineligible", "invalid", "expired", "disqualified"].includes(s)) return "ineligible";
+  // rejected posts are surfaced to creators as "Ineligible"
+  if (["rejected", "denied", "banned", "flagged", "ineligible", "invalid", "expired", "disqualified"].includes(s))
+    return "ineligible";
   if (["active", "live", "running"].includes(s)) return "active";
   if (!s) return "neutral";
   return "pending";
