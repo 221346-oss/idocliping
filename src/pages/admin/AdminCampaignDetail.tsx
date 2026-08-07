@@ -99,11 +99,13 @@ export default function AdminCampaignDetail() {
   const saveViews = async () => {
     if (!viewsFor) return;
     const n = Math.max(0, Math.round(Number(viewsDraft.replace(/[^0-9]/g, "")) || 0));
+    const eng = engagementDraft.trim() === "" ? null : Number(engagementDraft.replace(/[^0-9.]/g, ""));
     setBusy(true);
     const { error } = await supabase.rpc("admin_update_submission_views", {
       p_submission_id: viewsFor.id,
       p_views: n,
-    });
+      p_engagement: eng,
+    } as any);
     setBusy(false);
     if (error) return toast({ title: "Update failed", description: error.message, variant: "destructive" });
     toast({ title: "Views updated" });
