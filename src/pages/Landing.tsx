@@ -436,21 +436,37 @@ const Landing = () => {
           <TrendingRail />
         </div>
 
-        {/* 3 · How iclips works (artwork) */}
-        <section id="how" className="relative z-10 px-4 py-12 sm:px-6 sm:py-20">
+        {/* 3 · How iclips works (artwork blended onto the theme background) */}
+        <section id="how" className="relative z-10 overflow-hidden px-4 py-12 sm:px-6 sm:py-20">
+          <ArtworkBackground set="bg" />
+          <div
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute inset-0",
+              isDark
+                ? "bg-gradient-to-b from-black via-black/40 to-black"
+                : "bg-gradient-to-b from-white via-white/40 to-white",
+            )}
+          />
           <div
             data-reveal
-            className="reveal mx-auto w-full max-w-[420px] md:max-w-[1120px]"
+            className="reveal relative z-10 mx-auto w-full max-w-[420px] md:max-w-[1120px]"
           >
             <ThemeArtwork
               set="how"
               alt="How iClips works: link your accounts, post your clips, get paid"
               sizes="(min-width: 1280px) 1120px, 100vw"
               className="[&_picture]:block [&_img]:h-auto [&_img]:w-full"
-              imgClassName="h-auto w-full object-contain"
+              imgClassName={cn(
+                "h-auto w-full object-contain",
+                "[mask-image:radial-gradient(115%_115%_at_50%_50%,#000_62%,transparent_100%)]",
+                "[-webkit-mask-image:radial-gradient(115%_115%_at_50%_50%,#000_62%,transparent_100%)]",
+                isDark ? "mix-blend-lighten" : "mix-blend-multiply",
+              )}
             />
           </div>
         </section>
+
 
 
 
