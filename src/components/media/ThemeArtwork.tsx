@@ -55,6 +55,7 @@ function Layer({
       <source media="(min-width: 768px)" srcSet={web.srcset} sizes={sizes} type="image/webp" />
       <source srcSet={mobile.srcset} sizes={sizes} type="image/webp" />
       <img
+        ref={imgRef}
         src={web.src}
         alt={alt}
         width={web.width}
@@ -64,6 +65,8 @@ function Layer({
         fetchPriority={priority ? "high" : "auto"}
         decoding="async"
         onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+
         style={{
           backgroundImage: `url("${mobile.blur}")`,
           backgroundSize: "cover",
