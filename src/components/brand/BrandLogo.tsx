@@ -1,8 +1,8 @@
-import logoAsset from "@/assets/iclips-logo.png.asset.json";
+import logoAsset from "@/assets/iclips-mark.png.asset.json";
 import { cn } from "@/lib/utils";
 
-/** Single source of truth for the iClips mark. */
-export function BrandLogo({ size = 24, className }: { size?: number; className?: string }) {
+/** Single source of truth for the iClips mark — transparent, no container box. */
+export function BrandLogo({ size = 28, className }: { size?: number; className?: string }) {
   return (
     <img
       src={logoAsset.url}
@@ -10,7 +10,7 @@ export function BrandLogo({ size = 24, className }: { size?: number; className?:
       width={size}
       height={size}
       decoding="async"
-      className={cn("shrink-0 rounded-[22%] object-contain", className)}
+      className={cn("shrink-0 object-contain", className)}
       style={{ width: size, height: size }}
     />
   );
