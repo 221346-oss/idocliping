@@ -20,7 +20,7 @@ import {
   Youtube,
 } from "lucide-react";
 import testimonialAvatarAsset from "@/assets/testimonial-avatar.jpg.asset.json";
-import { ThemeArtwork } from "@/components/media/ThemeArtwork";
+import { ArtworkBackground, ThemeArtwork } from "@/components/media/ThemeArtwork";
 import { TrendingRail } from "@/components/landing/TrendingRail";
 const heroShowcaseAssetUrl = "/hero-showcase.png";
 
