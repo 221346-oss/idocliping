@@ -419,8 +419,12 @@ export default function CreatorCampaignDetail() {
       setTab("activity");
       void load();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Try again";
+      const raw = err instanceof Error ? err.message : "Try again";
+      const msg = raw.includes("submissions_post_url_uidx")
+        ? "This link has already been submitted — duplicate posts aren't accepted."
+        : raw.replace(/^.*?(?=This link|Daily submission|Submission limit)/, "") || raw;
       toast({ title: "Submission failed", description: msg, variant: "destructive" });
+
     } finally {
       setSubmitting(false);
     }
