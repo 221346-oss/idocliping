@@ -1,5 +1,8 @@
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   Pencil,
   ChevronRight,
