@@ -55,6 +55,7 @@ export default function AdminCampaignDetail() {
 
   const [viewsFor, setViewsFor] = useState<SubRow | null>(null);
   const [viewsDraft, setViewsDraft] = useState("");
+  const [engagementDraft, setEngagementDraft] = useState("");
   const [rejectFor, setRejectFor] = useState<SubRow | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
