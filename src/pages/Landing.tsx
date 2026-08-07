@@ -350,10 +350,11 @@ const Landing = () => {
                 className={cn(
                   "absolute inset-0",
                   isDark
-                    ? "bg-gradient-to-b from-black/80 via-black/70 to-black lg:from-black/70 lg:via-black/55 lg:to-black/85"
-                    : "bg-gradient-to-b from-white/80 via-white/70 to-white lg:from-white/70 lg:via-white/55 lg:to-white/85",
+                    ? "bg-gradient-to-b from-black/25 via-black/35 to-black/85 lg:from-black/30 lg:via-black/25 lg:to-black/80"
+                    : "bg-gradient-to-b from-white/25 via-white/35 to-white/85 lg:from-white/30 lg:via-white/25 lg:to-white/80",
                 )}
               />
+
             </div>
 
 
