@@ -1,5 +1,5 @@
 import { LayoutDashboard, Plus, BarChart3, Settings, LogOut, Users, Megaphone, FileCheck, Wallet, Share2, Briefcase, Building2, Sparkles, ListChecks, Trophy, LifeBuoy, Ticket, Contact, Gift } from "lucide-react";
-import { StackedLogo } from "./StackedLogo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth, type AppRole } from "@/contexts/AuthContext";
@@ -61,7 +61,7 @@ export function SidebarContent({ collapsed = false, onNavigate }: { collapsed?: 
   return (
     <>
       <div className="flex items-center gap-2 px-3 h-11 border-b border-sidebar-border">
-        <StackedLogo size={16} color="currentColor" />
+        <BrandLogo size={20} />
         {!collapsed && (
           <span className="font-bold uppercase tracking-[0.08em] text-[14px] text-sidebar-accent-foreground">
             iClips

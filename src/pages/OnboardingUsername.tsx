@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { StackedLogo } from "@/components/StackedLogo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Loader2, Check, X } from "lucide-react";
 
 const RULES = "3–20 characters · letters, numbers, underscores";
@@ -86,7 +86,7 @@ export default function OnboardingUsername() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="surface-card w-full max-w-[420px] animate-fade-in p-6 sm:p-8">
         <div className="flex flex-col items-center gap-3 text-center">
-          <StackedLogo size={30} />
+          <BrandLogo size={30} />
           <h1 className="font-display text-[24px] font-semibold tracking-tight">Choose your username</h1>
           <p className="text-[13px] text-muted-foreground">
             This is how creators and brands will find you. It can’t be changed later.

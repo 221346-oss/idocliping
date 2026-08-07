@@ -88,8 +88,20 @@ export function TrendingRail() {
     };
   }, []);
 
-  /** Duplicated once so the -50% marquee loops seamlessly. */
-  const loop = useMemo(() => (campaigns ? [...campaigns, ...campaigns] : []), [campaigns]);
+  /**
+   * Repeat the fetched campaigns until the track is at least ~2 screens wide,
+   * then duplicate the whole track so the -50% marquee loops seamlessly. This
+   * keeps the rail full even when only one or two campaigns are live.
+   */
+  const loop = useMemo(() => {
+    if (!campaigns?.length) return [];
+    const cardWidth = 188; // 172px card + 16px gap
+    const viewport = typeof window !== "undefined" ? window.innerWidth : 1280;
+    const needed = Math.max(campaigns.length, Math.ceil((viewport * 2) / cardWidth));
+    const filled = Array.from({ length: needed }, (_, i) => campaigns[i % campaigns.length]);
+    return [...filled, ...filled];
+  }, [campaigns]);
+
 
   return (
     <section className="relative z-10 overflow-hidden px-0 py-14 sm:py-20">

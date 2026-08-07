@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StackedLogo } from "@/components/StackedLogo";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 type PlatformRuleRow = {
   id: string;
@@ -136,7 +136,7 @@ export function GeneralRulesGate() {
       >
         <div className="flex flex-col items-center text-center">
           <div className="text-destructive">
-            <StackedLogo size={22} />
+            <BrandLogo size={22} />
           </div>
           <h2 className="mt-3 text-[18px] font-semibold text-foreground">iClips General Rules</h2>
           {communityLink && (

@@ -18,15 +18,14 @@ import {
   Upload,
   Youtube,
 } from "lucide-react";
-import testimonialAvatarAsset from "@/assets/testimonial-avatar.jpg.asset.json";
 import { ArtworkBackground, ThemeArtwork } from "@/components/media/ThemeArtwork";
 import { TrendingRail } from "@/components/landing/TrendingRail";
-const heroShowcaseAssetUrl = "/hero-showcase.png";
+import { useReveal } from "@/hooks/use-reveal";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
 
-import { StackedLogo } from "@/components/StackedLogo";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -91,62 +90,41 @@ const Landing = () => {
   /** Landing-only nav hide on scroll down, show on scroll up (buttons only — no bar background). */
   const [landingNavHidden, setLandingNavHidden] = useState(false);
   const lastScrollYRef = useRef(0);
-  /** Hero copy + art fade on scroll (nav stays fully opaque). */
-  const heroScrollFadeRef = useRef<HTMLDivElement>(null);
-  const trendingFadeRef = useRef<HTMLDivElement>(null);
-  const howItWorksFadeRef = useRef<HTMLDivElement>(null);
-  const testimonialFadeRef = useRef<HTMLDivElement>(null);
-  const ctaFadeRef = useRef<HTMLDivElement>(null);
+  /** Hero art parallax drift. */
+  const heroArtRef = useRef<HTMLDivElement>(null);
+
+  useReveal();
 
   useEffect(() => {
     lastScrollYRef.current = typeof window !== "undefined" ? window.scrollY : 0;
+    let raf = 0;
     const onScroll = () => {
       const y = window.scrollY;
       const prev = lastScrollYRef.current;
-      const winH = window.innerHeight;
-      
-      /** 
-       * Unified fade logic:
-       * - entryPoint: distance from bottom of screen where fade-in starts.
-       * - exitPoint: distance from top of screen where fade-out starts.
-       */
-      const entryPoint = winH * 0.85; 
-      const exitPoint = 150;
-      const fadeDist = 450; 
 
-      const updateOpacity = (el: HTMLElement | null) => {
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        let opacity = 1;
-
-        if (rect.top > entryPoint) {
-          /** Entering from bottom (scrolling down) or leaving to bottom (scrolling up) */
-          opacity = Math.max(0, 1 - (rect.top - entryPoint) / fadeDist);
-        } else if (rect.bottom < exitPoint) {
-          /** Leaving to top (scrolling down) or entering from top (scrolling up) */
-          opacity = Math.max(0, rect.bottom / exitPoint);
-        }
-        el.style.opacity = String(opacity);
-      };
-
-      /** Apply to all tracked sections */
-      updateOpacity(heroScrollFadeRef.current);
-      updateOpacity(trendingFadeRef.current);
-      updateOpacity(howItWorksFadeRef.current);
-      updateOpacity(testimonialFadeRef.current);
-      updateOpacity(ctaFadeRef.current);
+      if (heroArtRef.current) {
+        heroArtRef.current.style.transform = `translate3d(0, ${Math.min(y, 600) * -0.06}px, 0)`;
+      }
 
       if (y < 48) setLandingNavHidden(false);
       else if (y > prev + 8) setLandingNavHidden(true);
       else if (y < prev - 8) setLandingNavHidden(false);
       lastScrollYRef.current = y;
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const queue = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        onScroll();
+      });
+    };
+    window.addEventListener("scroll", queue, { passive: true });
+    window.addEventListener("resize", queue);
     onScroll();
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", queue);
+      window.removeEventListener("resize", queue);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
@@ -281,7 +259,7 @@ const Landing = () => {
         >
           <div className="mx-auto flex min-h-[44px] max-w-[1200px] items-center justify-between gap-2 md:min-h-[48px]">
             <Link to="/" className="flex items-center gap-2.5 shrink-0 min-w-0">
-              <img src="/favicon.ico" alt="" width={32} height={32} className="h-8 w-8 rounded-md object-cover ring-1 ring-white/15" />
+              <BrandLogo size={32} className="ring-1 ring-white/15" />
               <span className={cn("text-[15px] font-semibold tracking-tight truncate lowercase", isDark ? "text-white" : "text-zinc-900")}>
                 iclips
               </span>
@@ -328,11 +306,7 @@ const Landing = () => {
           </div>
         </nav>
 
-        <div
-          ref={heroScrollFadeRef}
-          className="relative will-change-[opacity] transition-opacity duration-1000 ease-out"
-          style={{ opacity: 1 }}
-        >
+        <div className="relative">
           <div
             aria-hidden
             className={cn(
@@ -359,9 +333,9 @@ const Landing = () => {
 
 
             <div className="mx-auto flex max-w-[1160px] min-h-[calc(100svh-env(safe-area-inset-bottom,0px)-4.5rem)] flex-col justify-center gap-10 text-center max-lg:-mt-1 lg:min-h-0 lg:flex-row lg:items-center lg:justify-center lg:gap-10 lg:text-left">
-              <div className="relative z-[1] flex min-w-0 max-w-xl flex-shrink-0 flex-col items-center lg:max-w-[40%] lg:items-start">
-                <h1 className={cn(
-                  "relative font-marker uppercase tracking-[0.03em] text-[clamp(1.95rem,7vw,3.75rem)] leading-[0.98]",
+              <div className="relative z-[1] flex min-w-0 max-w-xl flex-shrink-0 flex-col items-center lg:max-w-[42%] lg:items-start">
+                <h1 data-reveal className={cn(
+                  "reveal relative font-marker uppercase tracking-[0.02em] text-[clamp(2.6rem,9vw,5.25rem)] leading-[0.9]",
                   "max-lg:drop-shadow-[0_2px_24px_rgba(0,0,0,0.65)]",
                   "lg:drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]",
                 )}
@@ -379,8 +353,10 @@ const Landing = () => {
                 </h1>
 
                 <p
+                  data-reveal
+                  style={{ ["--reveal-delay" as string]: "120ms" }}
                   className={cn(
-                    "mx-auto mt-4 max-w-md text-[14px] leading-relaxed sm:text-[15px] lg:mx-0 font-sans",
+                    "reveal mx-auto mt-4 max-w-md text-[14px] leading-relaxed sm:text-[15px] lg:mx-0 font-sans",
                     isDark ? "text-neutral-200 max-lg:text-neutral-100" : "text-zinc-600 max-lg:text-zinc-800",
                   )}
                 >
@@ -399,7 +375,7 @@ const Landing = () => {
                   )}
                 </p>
 
-                <div className="mx-auto mt-6 flex flex-col items-stretch gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center lg:mx-0 lg:justify-end">
+                <div data-reveal style={{ ["--reveal-delay" as string]: "220ms" }} className="reveal mx-auto mt-6 flex flex-col items-stretch gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center lg:mx-0 lg:justify-end">
                   <Link to="/auth" className="inline-flex justify-center lg:justify-end">
                     <span
                       className="inline-flex items-center gap-2 rounded-full py-3 pl-6 pr-2 font-semibold text-black shadow-none transition-colors hover:brightness-110"
@@ -427,21 +403,27 @@ const Landing = () => {
                 </div>
               </div>
 
-              <div className="relative hidden w-[50%] max-w-full shrink-0 lg:flex lg:justify-end">
-                <div className="relative w-full">
-                  <img
-                    src={heroShowcaseAssetUrl}
-                    alt=""
-                    decoding="async"
-                    fetchPriority="high"
-                    className={cn(
-                      "relative z-[1] w-full select-none object-contain object-right pointer-events-none motion-safe:animate-float",
-                      isDark ? "drop-shadow-[0_24px_48px_rgb(0,0,0,0.45)]" : "drop-shadow-[0_18px_40px_rgb(0,0,0,0.15)]",
+              <div ref={heroArtRef} className="relative hidden w-[52%] max-w-full shrink-0 will-change-transform lg:flex lg:justify-end">
+                <div
+                  data-reveal
+                  style={{
+                    ["--reveal-delay" as string]: "160ms",
+                    WebkitMaskImage: "radial-gradient(72% 72% at 50% 46%, #000 42%, transparent 88%)",
+                    maskImage: "radial-gradient(72% 72% at 50% 46%, #000 42%, transparent 88%)",
+                  }}
+                  className="reveal relative w-full"
+                >
+                  <ThemeArtwork
+                    set="top"
+                    priority
+                    sizes="(min-width: 1280px) 620px, 50vw"
+                    imgClassName={cn(
+                      "h-auto w-full select-none object-contain",
+                      isDark
+                        ? "drop-shadow-[0_24px_48px_rgb(0,0,0,0.45)]"
+                        : "drop-shadow-[0_18px_40px_rgb(0,0,0,0.15)]",
                     )}
                   />
-                  {!isDark && (
-                    <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-tr from-transparent via-transparent to-white/35" />
-                  )}
                 </div>
               </div>
             </div>
@@ -450,20 +432,21 @@ const Landing = () => {
         {/* End Hero fade wrapper */}
 
         {/* 2 · Live campaigns — auto-sliding glass rail on the theme artwork */}
-        <div ref={trendingFadeRef} className="will-change-[opacity] transition-opacity duration-1000">
+        <div data-reveal className="reveal">
           <TrendingRail />
         </div>
 
         {/* 3 · How iclips works (artwork) */}
         <section id="how" className="relative z-10 px-4 py-12 sm:px-6 sm:py-20">
           <div
-            ref={howItWorksFadeRef}
-            className="mx-auto w-full max-w-[1200px] will-change-[opacity] transition-opacity duration-1000"
+            data-reveal
+            className="reveal mx-auto w-full max-w-[420px] md:max-w-[1120px]"
           >
             <ThemeArtwork
               set="how"
               alt="How iClips works: link your accounts, post your clips, get paid"
-              sizes="(min-width: 1280px) 1200px, 100vw"
+              sizes="(min-width: 1280px) 1120px, 100vw"
+              className="[&_picture]:block [&_img]:h-auto [&_img]:w-full"
               imgClassName="h-auto w-full object-contain"
             />
           </div>
@@ -473,10 +456,7 @@ const Landing = () => {
 
         {/* 7 · Testimonial */}
         <section className={cn("relative z-10 overflow-hidden px-4 py-14 sm:px-6 md:py-20", isDark ? "bg-black" : "bg-zinc-100")}>
-          <div 
-            ref={testimonialFadeRef}
-            className="mx-auto max-w-[800px] text-center will-change-[opacity] transition-opacity duration-1000"
-          >
+          <div data-reveal className="reveal mx-auto max-w-[800px] text-center">
             <span className="pointer-events-none font-sans text-[clamp(3.5rem,12vw,6rem)] font-black leading-none" style={{ color: HOT_PINK }}>
               “
             </span>
@@ -488,10 +468,7 @@ const Landing = () => {
 
         {/* 8 · CTA */}
         <section className={cn("relative z-10 px-4 py-16 sm:px-6 sm:py-20", isDark ? "bg-black text-white" : "bg-white text-zinc-950")}>
-          <div 
-            ref={ctaFadeRef}
-            className="mx-auto max-w-[640px] text-center font-sans will-change-[opacity] transition-opacity duration-1000"
-          >
+          <div data-reveal className="reveal mx-auto max-w-[640px] text-center font-sans">
             <h2 className="text-[clamp(1.65rem,3.5vw,2.35rem)] font-black italic leading-tight">
               YOUR CLIPS. <span style={{ color: LIME }}>YOUR CASH.</span>
             </h2>
@@ -513,13 +490,13 @@ const Landing = () => {
 
         {/* Footer */}
         <footer className="relative z-10 border-t border-border bg-background">
-          <div className="mx-auto max-w-[1200px] px-6 py-10">
-            <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+          <div className="mx-auto max-w-[1200px] px-5 py-8 sm:px-6 sm:py-10">
+            <div data-reveal className="reveal flex flex-col gap-7 md:flex-row md:items-start md:justify-between">
               <div className="flex items-center gap-2.5">
-                <img src="/favicon.ico" alt="" width={28} height={28} className="h-7 w-7 rounded-md object-cover" />
+                <BrandLogo size={28} />
                 <span className="text-[14px] font-bold tracking-tight lowercase">iclips</span>
               </div>
-              <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4 sm:gap-10">
+              <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-4 sm:gap-10">
                 {(
                   [
                     {
@@ -571,7 +548,7 @@ const Landing = () => {
                 ))}
               </div>
             </div>
-            <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
+            <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
               <p className="text-center text-[12px] text-muted-foreground sm:text-left">© {new Date().getFullYear()} iclips. All rights reserved.</p>
               <div className="flex items-center gap-4 text-muted-foreground">
                 <a href="#" aria-label="X" className="hover:text-foreground">
@@ -594,11 +571,11 @@ const Landing = () => {
       {
         consentHydrated && !hasConsent && (
           <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-border bg-background/95 backdrop-blur">
-            <div className="mx-auto max-w-[1200px] px-6 py-4 flex items-center justify-between gap-4">
-              <p className="text-[13px] text-muted-foreground max-w-[760px]">
+            <div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6">
+              <p className="text-[13px] text-muted-foreground sm:max-w-[760px]">
                 We use cookies to improve your experience. By continuing, you agree to our Cookie Policy.
               </p>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex shrink-0 items-center gap-2">
                 <Button variant="default" onClick={() => void acceptAll()} disabled={consentSaving}>
                   Accept All
                 </Button>
@@ -625,7 +602,7 @@ const Landing = () => {
                 <div className="text-center flex-1">
                   <div className="flex items-center justify-center">
                     <div className="text-destructive">
-                      <StackedLogo size={20} />
+                      <BrandLogo size={22} />
                     </div>
                   </div>
                   <h2 className="mt-3 text-[16px] font-semibold text-foreground">Cookie Preferences</h2>

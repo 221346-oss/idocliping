@@ -13,6 +13,10 @@ import a_how_dark_web_1672 from "./how-dark-web-1672.webp.asset.json";
 import a_how_light_mobile_1080 from "./how-light-mobile-1080.webp.asset.json";
 import a_how_light_web_1080 from "./how-light-web-1080.webp.asset.json";
 import a_how_light_web_1672 from "./how-light-web-1672.webp.asset.json";
+import a_top_dark_web_1080 from "./top-dark-web-1080.webp.asset.json";
+import a_top_dark_web_1600 from "./top-dark-web-1600.webp.asset.json";
+import a_top_light_web_1080 from "./top-light-web-1080.webp.asset.json";
+import a_top_light_web_1600 from "./top-light-web-1600.webp.asset.json";
 
 export type Artwork = { srcset: string; src: string; width: number; height: number; blur: string };
 
@@ -64,6 +68,18 @@ export const ART = {
     src: a_how_light_web_1672.url,
     width: 1672, height: 941,
     blur: "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAAAwAgCdASoQAAkAA4BaJZwAD4/MLlh3lYkMAAD+8nJjwRge/9SuuKGSmbzRWyjX+bU/Xm9kc3zxqy5T4rMEzg8dFRcqsNtJCyKvwRzFw2khHy9AwmgAAA==",
+  },
+  "top-dark-web": {
+    srcset: `${a_top_dark_web_1080.url} 1080w` + ", " + `${a_top_dark_web_1600.url} 1600w`,
+    src: a_top_dark_web_1600.url,
+    width: 1356, height: 1160,
+    blur: "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACwAQCdASoQAA4AA4BaJYwAAhWpaa9AAP74ju4SaG+k647yNc3E+XlHEofSdFsZg7KNcxnCYAw2CAsjf6LZTzYmgtAiXxxQPPyFAAAA",
+  },
+  "top-light-web": {
+    srcset: `${a_top_light_web_1080.url} 1080w` + ", " + `${a_top_light_web_1600.url} 1600w`,
+    src: a_top_light_web_1600.url,
+    width: 1285, height: 1224,
+    blur: "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAAAwAgCdASoQAA8AA4BaJZgAD42QXkyg3kY5IAD+9+881ark+WCICVkJfMb0y5LRxULscoPKBBzDoujnKz0NkxE6OaibM/pJMoLU+hqXiabT9XiXrwZRDD6YyEW/fU59u0qkxteQABSxHdawQYAAAA==",
   },
 } as const satisfies Record<string, Artwork>;
 
