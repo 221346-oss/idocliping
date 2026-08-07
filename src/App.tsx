@@ -16,6 +16,11 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { TermsPage, PrivacyPage, DoNotSellPage } from "./pages/Legal";
 import Settings from "./pages/Settings";
+import LanguageSettings from "./pages/settings/Language";
+import NotificationSettings from "./pages/settings/Notifications";
+import LoginMethods from "./pages/settings/LoginMethods";
+import FaqPage from "./pages/Faq";
+import ResourcesPage from "./pages/Resources";
 import Analytics from "./pages/Analytics";
 
 
