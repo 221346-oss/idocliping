@@ -161,10 +161,16 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Bebas Neue', 'Sora', -apple-system, system-ui, sans-serif;
-    @apply font-normal tracking-tight;
-    letter-spacing: 0.01em;
+    font-family: 'Sora', -apple-system, system-ui, sans-serif;
+    @apply font-semibold tracking-tight;
   }
+
+  /* Poster display face — landing headlines, big figures */
+  .font-marker {
+    font-family: 'Bebas Neue', 'Sora', system-ui, sans-serif;
+    font-weight: 400;
+  }
+
 
 
   /* Hide scrollbars on horizontal filter rails */
