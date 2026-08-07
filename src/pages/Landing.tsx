@@ -38,6 +38,21 @@ const BROWSER_KEY_STORAGE = "iclip_cookie_browser_key";
 const LEGACY_COOKIE_CONSENT_KEY = "iclip_cookie_consent";
 const LEGACY_COOKIE_PREFS_KEY = "iclip_cookie_preferences";
 
+/**
+ * Soft feather on all four edges so artwork melts into the section background
+ * in both themes (no visible image box), on mobile and desktop alike.
+ */
+const FEATHER = [
+  "linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%)",
+  "linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%)",
+].join(", ");
+const FEATHER_MASK: React.CSSProperties = {
+  WebkitMaskImage: FEATHER,
+  maskImage: FEATHER,
+  WebkitMaskComposite: "source-in",
+  maskComposite: "intersect",
+};
+
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
