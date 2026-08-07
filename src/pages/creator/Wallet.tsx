@@ -252,7 +252,7 @@ export default function CreatorWallet() {
     const [{ data: earnings }, { data: reqs }] = await Promise.all([
       supabase
         .from("earnings")
-        .select("id, amount, type, status, created_at, submissions(campaigns(title))")
+        .select("id, amount, type, status, created_at, paid_at, submissions(campaigns(title))")
         .eq("creator_id", user.id)
         .order("created_at", { ascending: false }),
       supabase
