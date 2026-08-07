@@ -30,6 +30,10 @@ import { formatCurrencySimple } from "@/lib/format-currency";
 import { StackedLogo } from "@/components/StackedLogo";
 import { APP_NAME, APP_VERSION } from "@/lib/brand";
 import { REFERRAL_RATE_LABEL } from "@/lib/referral";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 
@@ -92,12 +96,14 @@ function Row({
 }
 
 export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
-  const { user, signOut } = useAuth();
+  const { user, signOut, role } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
 
   const initial = (profile.displayName || profile.usernameLabel.replace("@", "") || "?")
