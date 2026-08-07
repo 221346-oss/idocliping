@@ -950,6 +950,53 @@ export default function CreatorCampaignDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!appealFor} onOpenChange={(open) => !open && setAppealFor(null)}>
+        <DialogContent className="rounded-3xl sm:max-w-md">
+          <DialogHeader className="text-left">
+            <DialogTitle className="font-display text-[18px]">Appeal submission</DialogTitle>
+            <DialogDescription className="pt-2 text-[13.5px]">
+              You can appeal a post only once. Explain what happened and attach proof if you have it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-[13px]">Message</Label>
+              <Textarea
+                value={appealMessage}
+                onChange={(e) => setAppealMessage(e.target.value)}
+                maxLength={1000}
+                rows={4}
+                placeholder="Why should this post be reconsidered?"
+                className="mt-1.5 rounded-2xl"
+              />
+            </div>
+            <div>
+              <Label className="text-[13px]">Proof (optional)</Label>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={(e) => setAppealFile(e.target.files?.[0] ?? null)}
+                className="mt-1.5 w-full text-[12.5px] text-muted-foreground"
+              />
+            </div>
+          </div>
+          <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+            <button type="button" className="btn-outline-pill" onClick={() => setAppealFor(null)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-primary-pill"
+              disabled={appealSubmitting || appealMessage.trim().length < 10}
+              onClick={() => void submitAppeal()}
+            >
+              {appealSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              Send appeal
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </CreatorShell>
   );
 }
