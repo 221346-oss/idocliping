@@ -4,6 +4,8 @@ import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
+  Loader2,
+  Pencil,
   Pencil,
   ChevronRight,
   ArrowUpRight,
