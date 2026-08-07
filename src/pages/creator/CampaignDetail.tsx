@@ -426,6 +426,38 @@ export default function CreatorCampaignDetail() {
     }
   };
 
+  /** One appeal per submission, with optional proof upload to the private bucket. */
+  const submitAppeal = async () => {
+    if (!user || !appealFor) return;
+    setAppealSubmitting(true);
+    try {
+      let proofUrl: string | null = null;
+      if (appealFile) {
+        const ext = appealFile.name.split(".").pop() ?? "bin";
+        const path = `${user.id}/${appealFor.id}-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("appeal-proof").upload(path, appealFile);
+        if (upErr) throw upErr;
+        proofUrl = path;
+      }
+      const { error } = await supabase.from("submission_appeals").insert({
+        submission_id: appealFor.id,
+        creator_id: user.id,
+        message: appealMessage.trim(),
+        proof_urls: proofUrl ? [proofUrl] : [],
+        proof_url: proofUrl,
+      });
+      if (error) throw error;
+      toast({ title: "Appeal sent", description: "Our team will review this post again." });
+      setAppealFor(null);
+      void load();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Try again";
+      toast({ title: "Appeal failed", description: msg, variant: "destructive" });
+    } finally {
+      setAppealSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <CreatorShell>
