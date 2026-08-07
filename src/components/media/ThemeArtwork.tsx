@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
  */
 type Props = {
   /** Artwork family — resolves to `${set}-{dark|light}-{web|mobile}` keys. */
-  set: "how" | "bg";
+  set: "how" | "bg" | "top";
   alt?: string;
   className?: string;
   imgClassName?: string;
@@ -33,7 +33,7 @@ function Layer({
   imgClassName,
 }: {
   webKey: ArtKey;
-  mobileKey: ArtKey;
+  mobileKey?: ArtKey;
   alt: string;
   priority?: boolean;
   sizes: string;
@@ -42,7 +42,7 @@ function Layer({
 }) {
   const [loaded, setLoaded] = useState(false);
   const web = ART[webKey];
-  const mobile = ART[mobileKey];
+  const mobile = mobileKey ? ART[mobileKey] : web;
 
   return (
     <picture className={cn("block", className)}>
@@ -86,7 +86,7 @@ export function ThemeArtwork({
       {/* light */}
       <Layer
         webKey={`${set}-light-web` as ArtKey}
-        mobileKey={`${set}-light-mobile` as ArtKey}
+        mobileKey={set === "top" ? undefined : (`${set}-light-mobile` as ArtKey)}
         alt={alt}
         priority={priority}
         sizes={sizes}
@@ -96,7 +96,7 @@ export function ThemeArtwork({
       {/* dark — stacked on top, revealed by the theme class */}
       <Layer
         webKey={`${set}-dark-web` as ArtKey}
-        mobileKey={`${set}-dark-mobile` as ArtKey}
+        mobileKey={set === "top" ? undefined : (`${set}-dark-mobile` as ArtKey)}
         alt=""
         priority={priority}
         sizes={sizes}

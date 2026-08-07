@@ -88,7 +88,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Manrope", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        sans: ["Barlow", "Manrope", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        marker: ["Bebas Neue", "Sora", "system-ui", "sans-serif"],
         display: ["Sora", "-apple-system", "system-ui", "sans-serif"],
       },
       fontSize: {
