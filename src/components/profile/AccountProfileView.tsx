@@ -88,9 +88,13 @@ function Row({
 }
 
 export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl);
 
   const initial = (profile.displayName || profile.usernameLabel.replace("@", "") || "?")
     .trim()
@@ -106,6 +110,31 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
   const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "System";
   const cycleTheme = () => setTheme(theme === "system" ? "dark" : theme === "dark" ? "light" : "system");
 
+  /** The pencil only changes the profile picture — everything else is fixed. */
+  const uploadAvatar = async (file: File) => {
+    if (!user) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: data.publicUrl })
+        .eq("user_id", user.id);
+      if (error) throw error;
+      setAvatarUrl(data.publicUrl);
+      toast({ title: "Profile picture updated" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Try again";
+      toast({ title: "Upload failed", description: msg, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const stats = [
     { label: "Money earned", value: formatCurrencySimple(profile.totalEarnings) },
     { label: "Total videos", value: String(profile.statistics.totalSubmissions) },
@@ -117,9 +146,9 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       {/* Identity card with overlapping avatar */}
       <div className="relative mt-10">
         <div className="absolute -top-10 left-1/2 z-10 -translate-x-1/2">
-          {profile.avatarUrl ? (
+          {avatarUrl ? (
             <img
-              src={profile.avatarUrl}
+              src={avatarUrl}
               alt=""
               className="h-20 w-20 rounded-full border-4 border-background object-cover"
             />
@@ -131,13 +160,31 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
         </div>
 
         <div className="surface-card px-5 pb-5 pt-12 text-center">
-          <Link
-            to="/profile/edit"
-            aria-label="Edit profile"
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void uploadAvatar(f);
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+            aria-label="Change profile picture"
             className="icon-pill absolute right-3 top-3 h-9 w-9"
           >
-            <Pencil className="h-[15px] w-[15px]" />
-          </Link>
+            {uploading ? (
+              <Loader2 className="h-[15px] w-[15px] animate-spin" />
+            ) : (
+              <Pencil className="h-[15px] w-[15px]" />
+            )}
+          </button>
+
 
           <h2 className="truncate font-display text-[22px] font-semibold tracking-tight">{profile.usernameLabel}</h2>
           <p className="mt-0.5 text-[14px] text-muted-foreground">Member since: {memberSince}</p>
