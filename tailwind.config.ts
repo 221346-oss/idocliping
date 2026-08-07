@@ -114,9 +114,6 @@ export default {
         "float": { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-6px)" } },
         "shimmer": { "0%": { backgroundPosition: "-400px 0" }, "100%": { backgroundPosition: "400px 0" } },
         "pulse-ring": { "0%": { transform: "scale(0.9)", opacity: "0.7" }, "100%": { transform: "scale(1.6)", opacity: "0" } },
-        "marquee-left": { "0%": { transform: "translateX(0)" }, "100%": { transform: "translateX(-50%)" } },
-        "marquee-right": { "0%": { transform: "translateX(-50%)" }, "100%": { transform: "translateX(0)" } },
-
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

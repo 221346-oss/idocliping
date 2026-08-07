@@ -1064,17 +1064,6 @@ export type Database = {
         Returns: boolean
       }
       promote_eligible_submissions: { Args: never; Returns: number }
-      public_trending_campaigns: {
-        Args: { p_limit?: number }
-        Returns: {
-          budget_remaining: number
-          budget_total: number
-          category: string
-          id: string
-          thumbnail_url: string
-          title: string
-        }[]
-      }
       sync_creator_leaderboard_points_delta: {
         Args: { p_delta_pts: number; p_user: string }
         Returns: undefined
