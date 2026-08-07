@@ -282,17 +282,20 @@ export default function CreatorWallet() {
     setBalance(Math.max(0, paidEarned - reserved));
 
     const ledger: LedgerEntry[] = [
-      ...earnRows.map((e) => ({
-        id: `e-${e.id}`,
-        kind: "in" as const,
-        title:
-          e.type === "referral"
-            ? "Referral commission"
-            : e.submissions?.campaigns?.title ?? "Campaign payout",
-        status: String(e.status ?? "pending"),
-        amount: Number(e.amount ?? 0),
-        created_at: e.created_at,
-      })),
+      // Only money that actually moved into the balance shows in transactions.
+      ...earnRows
+        .filter((e) => e.status === "paid")
+        .map((e) => ({
+          id: `e-${e.id}`,
+          kind: "in" as const,
+          title:
+            e.type === "referral"
+              ? "Referral commission"
+              : e.submissions?.campaigns?.title ?? "Campaign payout",
+          status: "paid",
+          amount: Number(e.amount ?? 0),
+          created_at: e.paid_at ?? e.created_at,
+        })),
       ...reqRows.map((r) => ({
         id: `w-${r.id}`,
         kind: "out" as const,
