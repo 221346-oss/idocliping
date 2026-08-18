@@ -32,6 +32,8 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { InstallBanner } from "@/components/pwa/InstallBanner";
+
 
 /** Stable key sent to Supabase (`cookie_preferences.browser_key`). Old builds used consent-only localStorage keys below — migrated once. */
 const BROWSER_KEY_STORAGE = "iclip_cookie_browser_key";
@@ -591,7 +593,10 @@ const Landing = () => {
         {/* End Theme background wrapper */}
       </div >
 
+      <InstallBanner />
+
       {/* Cookie consent banner */}
+
       {
         consentHydrated && !hasConsent && (
           <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-border bg-background/95 backdrop-blur">
