@@ -593,7 +593,10 @@ const Landing = () => {
         {/* End Theme background wrapper */}
       </div >
 
+      <InstallBanner />
+
       {/* Cookie consent banner */}
+
       {
         consentHydrated && !hasConsent && (
           <div className="fixed bottom-0 left-0 right-0 z-[60] border-t border-border bg-background/95 backdrop-blur">
