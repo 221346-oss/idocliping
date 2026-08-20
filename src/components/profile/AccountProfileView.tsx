@@ -57,8 +57,8 @@ function Row({
 }) {
   const inner = (
     <>
-      <span className={cn("list-row-icon", tone === "danger" && "text-destructive", tone === "default" && "text-card-foreground/70")}> 
-        <Icon className="h-[19px] w-[19px]" />
+      <span className={cn("list-row-icon", tone === "danger" && "text-destructive", tone === "default" && "text-[#c7c7c7]")}> 
+        <Icon className="h-[20px] w-[20px]" />
       </span>
       <span className={cn("truncate text-[15px] font-normal", tone === "danger" && "text-destructive")}>{label}</span>
       {value ? <span className="list-row-value text-[13px] font-medium">{value}</span> : null}
