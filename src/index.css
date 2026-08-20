@@ -339,21 +339,21 @@
 
   /* Grouped settings list (mobile-first rows inside one rounded card) */
   .list-group {
-    @apply overflow-hidden rounded-[26px] border border-[#353535] bg-card;
+    @apply overflow-hidden rounded-[20px] border border-white/[0.045] bg-card;
     box-shadow: var(--shadow-card);
   }
   .list-row {
-    @apply flex w-full items-center gap-3 px-4 py-[18px] text-left text-[15px] font-normal text-foreground
-           transition-colors duration-150 focus-ring hover:bg-white/[0.02] active:bg-white/[0.04];
+    @apply flex w-full items-center gap-3 px-4 py-[13px] text-left text-[14.5px] font-normal text-foreground
+           transition-colors duration-150 focus-ring hover:bg-white/[0.03] active:bg-white/[0.05];
   }
   .list-row + .list-row {
-    @apply relative before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-white/[0.08];
+    @apply relative before:absolute before:inset-x-[52px] before:top-0 before:h-px before:bg-white/[0.06];
   }
   .list-row-icon {
-    @apply flex h-5 w-5 shrink-0 items-center justify-center text-muted-foreground;
+    @apply flex h-5 w-5 shrink-0 items-center justify-center text-[#9a9a9a];
   }
   .list-row-value {
-    @apply ml-auto shrink-0 text-[14px] font-medium text-muted-foreground;
+    @apply ml-auto shrink-0 text-[13px] font-normal text-[#828282];
   }
 
 
