@@ -77,13 +77,13 @@
 
   /* Charcoal neutral grey scale (no blue/purple tint) */
   .dark {
-    --background: 240 3% 6%;
+    --background: 240 0% 18%; /* #2d2d2d = hsl(240, 0%, 18%) */
     --foreground: 0 0% 100%;
 
-    --surface: 240 3% 9%;
-    --surface-raised: 240 3% 14%;
+    --surface: 240 0% 51%; /* #828282 = hsl(240, 0%, 51%) */
+    --surface-raised: 240 0% 51%;
 
-    --card: 240 3% 9%; /* Updated to #161616 (9% lightness) to match fill requirement */
+    --card: 240 0% 51%; /* #828282 */
     --card-foreground: 0 0% 78%;
 
     --popover: 240 3% 13%;
@@ -96,7 +96,7 @@
     --secondary-foreground: 0 0% 93%;
 
     --muted: 240 3% 15%;
-    --muted-foreground: 0 0% 78%; /* Using #c7c7c7 roughly corresponds to 78% lightness */
+    --muted-foreground: 0 0% 84%; /* #d7d7d7 = hsl(0, 0%, 84%) */
 
     --accent: 240 3% 17%;
     --accent-foreground: 0 0% 93%;
@@ -201,7 +201,7 @@
 
   /* Rounded surface card used across the whole app */
   .surface-card {
-    @apply bg-card rounded-[26px] border border-[#353535];
+    @apply bg-card rounded-[22px] border border-[#353535];
     box-shadow: var(--shadow-card);
   }
 
@@ -209,7 +209,7 @@
 
   /* Frosted translucent panel that sits over artwork backgrounds */
   .glass-card {
-    @apply relative rounded-[26px] border border-foreground/10 bg-background/45
+    @apply relative rounded-[22px] border border-foreground/10 bg-background/45
            backdrop-blur-2xl backdrop-saturate-150;
     box-shadow:
       0 1px 0 0 hsl(var(--foreground) / 0.14) inset,
@@ -338,7 +338,7 @@
 
   /* Grouped settings list (mobile-first rows inside one rounded card) */
   .list-group {
-    @apply overflow-hidden rounded-[26px] border border-[#353535] bg-card;
+    @apply overflow-hidden rounded-[22px] border border-[#353535] bg-card;
     box-shadow: var(--shadow-card);
   }
   .list-row {
