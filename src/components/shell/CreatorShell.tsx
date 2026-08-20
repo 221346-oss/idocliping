@@ -51,7 +51,7 @@ export function PageTitle({
 }) {
   return (
     <div className={cn("flex items-center justify-between gap-3 pt-6 pb-4 md:pt-8 md:pb-5", className)}>
-      <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-none tracking-tight">
+      <h1 className="font-display text-[32px] md:text-[34px] font-semibold leading-tight tracking-tight">
         {children}
       </h1>
       {action}
