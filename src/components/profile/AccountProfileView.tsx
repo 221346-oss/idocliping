@@ -149,23 +149,23 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
   ];
 
   return (
-    <div className="w-full min-w-0 space-y-3 pb-6">
-      <div className="relative mt-12">
-        <div className="absolute -top-12 left-1/2 z-10 -translate-x-1/2">
+    <div className="w-full min-w-0 space-y-2.5 pb-6">
+      <div className="relative mt-11">
+        <div className="absolute -top-11 left-1/2 z-10 -translate-x-1/2">
           {avatarUrl ? (
             <img
               src={avatarUrl}
               alt=""
-              className="h-[88px] w-[88px] rounded-full border-[3px] border-background object-cover shadow-[0_10px_24px_rgba(0,0,0,0.28)]"
+              className="h-[82px] w-[82px] rounded-full border-[3px] border-background object-cover shadow-[0_10px_24px_rgba(0,0,0,0.28)]"
             />
           ) : (
-            <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full border-[3px] border-background bg-primary text-[32px] font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(0,0,0,0.28)]">
+            <div className="flex h-[82px] w-[82px] items-center justify-center rounded-full border-[3px] border-background bg-primary text-[30px] font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(0,0,0,0.28)]">
               {initial}
             </div>
           )}
         </div>
 
-        <div className="surface-card relative overflow-hidden px-4 pb-4 pt-14 text-center md:px-5">
+        <div className="surface-card relative overflow-hidden px-4 pb-4 pt-12 text-center md:px-5">
           <input
             ref={fileRef}
             type="file"
@@ -182,28 +182,29 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
             disabled={uploading}
             onClick={() => fileRef.current?.click()}
             aria-label="Change profile picture"
-            className="icon-pill absolute right-3 top-3 h-10 w-10"
+            className="icon-pill absolute right-3 top-3 h-8 w-8 border-white/[0.07] bg-white/[0.06]"
           >
             {uploading ? (
-              <Loader2 className="h-[15px] w-[15px] animate-spin" />
+              <Loader2 className="h-[14px] w-[14px] animate-spin" />
             ) : (
-              <Pencil className="h-[15px] w-[15px]" />
+              <Pencil className="h-[14px] w-[14px]" />
             )}
           </button>
 
-          <h2 className="truncate font-display text-[22px] font-medium tracking-tight">{profile.usernameLabel}</h2>
-          <p className="mt-0.5 text-[14px] text-muted-foreground">Member since: {memberSince}</p>
+          <h2 className="truncate font-display text-[19px] font-medium tracking-tight">{profile.usernameLabel}</h2>
+          <p className="mt-0.5 text-[12.5px] text-[#828282]">Member since: {memberSince}</p>
 
-          <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border/60 pt-4">
+          <div className="mt-3.5 grid grid-cols-3 gap-2 border-t border-white/[0.06] pt-3.5">
             {stats.map((s) => (
               <div key={s.label} className="min-w-0">
-                <p className="display-figure truncate text-[17px]">{s.value}</p>
-                <p className="mt-0.5 truncate text-[12px] text-muted-foreground">{s.label}</p>
+                <p className="display-figure truncate text-[16px] font-medium">{s.value}</p>
+                <p className="mt-0.5 truncate text-[11.5px] text-[#828282]">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
+
 
       <div className="list-group">
         <Row icon={Link2} label="Connected accounts" to="/accounts" highlight />
