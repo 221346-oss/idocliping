@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=TikTok+Sans:opsz,wght@12..36,300..800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -169,6 +169,23 @@
   .font-marker {
     font-family: 'Bebas Neue', 'Sora', system-ui, sans-serif;
     font-weight: 400;
+  }
+
+  /* Creator app typeface — TikTok Sans across the whole creator shell */
+  .font-app,
+  .font-app h1,
+  .font-app h2,
+  .font-app h3,
+  .font-app h4,
+  .font-app h5,
+  .font-app h6,
+  .font-app .font-display,
+  .font-app .display-figure,
+  .font-app input,
+  .font-app textarea,
+  .font-app select,
+  .font-app button {
+    font-family: 'TikTok Sans', 'Barlow', -apple-system, system-ui, sans-serif;
   }
 
 

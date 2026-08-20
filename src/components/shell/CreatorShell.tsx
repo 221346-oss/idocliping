@@ -18,7 +18,7 @@ export function CreatorShell({
   className?: string;
 }) {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background">
+    <div className="font-app min-h-screen overflow-x-hidden bg-background">
       <TopNav />
       <main className={cn("pb-28 md:pb-16", className)}>{children}</main>
       <BottomNav />
