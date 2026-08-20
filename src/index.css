@@ -83,8 +83,8 @@
     --surface: 240 3% 11%;
     --surface-raised: 240 3% 14%;
 
-    --card: 240 3% 11%;
-    --card-foreground: 0 0% 96%;
+    --card: 240 3% 9%;
+    --card-foreground: 0 0% 78%;
 
     --popover: 240 3% 13%;
     --popover-foreground: 0 0% 96%;
@@ -113,7 +113,7 @@
     --info: 0 0% 55%;
     --info-foreground: 0 0% 100%;
 
-    --border: 240 3% 26%;
+    --border: 0 0% 21%;
     --input: 240 3% 26%;
     --ring: 95 100% 46%;
 
@@ -186,6 +186,7 @@
   .font-app select,
   .font-app button {
     font-family: 'TikTok Sans', 'Barlow', -apple-system, system-ui, sans-serif;
+    font-weight: 400;
   }
 
 

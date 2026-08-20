@@ -57,15 +57,15 @@ function Row({
 }) {
   const inner = (
     <>
-      <span className={cn("list-row-icon", tone === "danger" && "text-destructive")}> 
+      <span className={cn("list-row-icon", tone === "danger" && "text-destructive", tone === "default" && "text-card-foreground/70")}> 
         <Icon className="h-[19px] w-[19px]" />
       </span>
-      <span className={cn("truncate text-[15px] font-medium", tone === "danger" && "text-destructive")}>{label}</span>
+      <span className={cn("truncate text-[15px] font-normal", tone === "danger" && "text-destructive")}>{label}</span>
       {value ? <span className="list-row-value text-[13px] font-medium">{value}</span> : null}
       {href ? (
         <ArrowUpRight className={cn("h-[19px] w-[19px] shrink-0 text-muted-foreground", !value && "ml-auto")} />
       ) : (
-        <ChevronRight className={cn("h-[19px] w-[19px] shrink-0 text-muted-foreground", !value && "ml-auto")} />
+        <ChevronRight className={cn("h-[22px] w-[22px] shrink-0 text-muted-foreground", !value && "ml-auto")} />
       )}
     </>
   );
@@ -150,22 +150,22 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
 
   return (
     <div className="w-full min-w-0 space-y-3 pb-6">
-      <div className="relative mt-10">
-        <div className="absolute -top-10 left-1/2 z-10 -translate-x-1/2">
+      <div className="relative mt-12">
+        <div className="absolute -top-12 left-1/2 z-10 -translate-x-1/2">
           {avatarUrl ? (
             <img
               src={avatarUrl}
               alt=""
-              className="h-[82px] w-[82px] rounded-full border-[3px] border-background object-cover shadow-[0_10px_24px_rgba(0,0,0,0.28)]"
+              className="h-[88px] w-[88px] rounded-full border-[3px] border-background object-cover shadow-[0_10px_24px_rgba(0,0,0,0.28)]"
             />
           ) : (
-            <div className="flex h-[82px] w-[82px] items-center justify-center rounded-full border-[3px] border-background bg-primary text-[30px] font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(0,0,0,0.28)]">
+            <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full border-[3px] border-background bg-primary text-[32px] font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(0,0,0,0.28)]">
               {initial}
             </div>
           )}
         </div>
 
-        <div className="surface-card relative overflow-hidden px-4 pb-4 pt-13 text-center md:px-5">
+        <div className="surface-card relative overflow-hidden px-4 pb-4 pt-14 text-center md:px-5">
           <input
             ref={fileRef}
             type="file"
@@ -191,7 +191,7 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
             )}
           </button>
 
-          <h2 className="truncate font-display text-[22px] font-semibold tracking-tight">{profile.usernameLabel}</h2>
+          <h2 className="truncate font-display text-[22px] font-medium tracking-tight">{profile.usernameLabel}</h2>
           <p className="mt-0.5 text-[14px] text-muted-foreground">Member since: {memberSince}</p>
 
           <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border/60 pt-4">
