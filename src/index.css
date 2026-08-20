@@ -77,14 +77,15 @@
 
   /* Charcoal neutral grey scale (no blue/purple tint) */
   .dark {
-    --background: 240 3% 6%;
+    --background: 0 0% 5%;
     --foreground: 0 0% 100%;
 
-    --surface: 240 3% 9%;
-    --surface-raised: 240 3% 14%;
+    --surface: 0 0% 9%;
+    --surface-raised: 0 0% 12%;
 
-    --card: 240 3% 9%; /* Updated to #161616 (9% lightness) to match fill requirement */
-    --card-foreground: 0 0% 78%;
+    /* Slaty card that lifts off the near-black page */
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 88%;
 
     --popover: 240 3% 13%;
     --popover-foreground: 0 0% 96%;
