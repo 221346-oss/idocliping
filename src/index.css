@@ -202,7 +202,7 @@
 
   /* Rounded surface card used across the whole app */
   .surface-card {
-    @apply bg-card rounded-[26px] border border-[#353535];
+    @apply bg-card rounded-[20px] border border-white/[0.045];
     box-shadow: var(--shadow-card);
   }
 
