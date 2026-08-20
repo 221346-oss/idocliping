@@ -36,8 +36,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
-
-
 function Row({
   icon: Icon,
   label,
@@ -59,15 +57,15 @@ function Row({
 }) {
   const inner = (
     <>
-      <span className={cn("list-row-icon", tone === "danger" && "text-destructive")}>
-        <Icon className="h-[18px] w-[18px]" />
+      <span className={cn("list-row-icon", tone === "danger" && "text-destructive")}> 
+        <Icon className="h-[19px] w-[19px]" />
       </span>
-      <span className={cn("truncate", tone === "danger" && "text-destructive")}>{label}</span>
-      {value ? <span className="list-row-value">{value}</span> : null}
+      <span className={cn("truncate text-[15px] font-medium", tone === "danger" && "text-destructive")}>{label}</span>
+      {value ? <span className="list-row-value text-[13px] font-medium">{value}</span> : null}
       {href ? (
-        <ArrowUpRight className={cn("h-[18px] w-[18px] shrink-0 text-muted-foreground", !value && "ml-auto")} />
+        <ArrowUpRight className={cn("h-[19px] w-[19px] shrink-0 text-muted-foreground", !value && "ml-auto")} />
       ) : (
-        <ChevronRight className={cn("h-[18px] w-[18px] shrink-0 text-muted-foreground", !value && "ml-auto")} />
+        <ChevronRight className={cn("h-[19px] w-[19px] shrink-0 text-muted-foreground", !value && "ml-auto")} />
       )}
     </>
   );
@@ -120,7 +118,6 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
   const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "System";
   const cycleTheme = () => setTheme(theme === "system" ? "dark" : theme === "dark" ? "light" : "system");
 
-  /** The pencil only changes the profile picture — everything else is fixed. */
   const uploadAvatar = async (file: File) => {
     if (!user) return;
     setUploading(true);
@@ -153,23 +150,22 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
 
   return (
     <div className="w-full min-w-0 space-y-3 pb-6">
-      {/* Identity card with overlapping avatar */}
       <div className="relative mt-10">
         <div className="absolute -top-10 left-1/2 z-10 -translate-x-1/2">
           {avatarUrl ? (
             <img
               src={avatarUrl}
               alt=""
-              className="h-20 w-20 rounded-full border-4 border-background object-cover"
+              className="h-[82px] w-[82px] rounded-full border-[3px] border-background object-cover shadow-[0_10px_24px_rgba(0,0,0,0.28)]"
             />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-background bg-primary text-[28px] font-semibold text-primary-foreground">
+            <div className="flex h-[82px] w-[82px] items-center justify-center rounded-full border-[3px] border-background bg-primary text-[30px] font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(0,0,0,0.28)]">
               {initial}
             </div>
           )}
         </div>
 
-        <div className="surface-card px-5 pb-5 pt-12 text-center">
+        <div className="surface-card relative overflow-hidden px-4 pb-4 pt-13 text-center md:px-5">
           <input
             ref={fileRef}
             type="file"
@@ -186,7 +182,7 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
             disabled={uploading}
             onClick={() => fileRef.current?.click()}
             aria-label="Change profile picture"
-            className="icon-pill absolute right-3 top-3 h-9 w-9"
+            className="icon-pill absolute right-3 top-3 h-10 w-10"
           >
             {uploading ? (
               <Loader2 className="h-[15px] w-[15px] animate-spin" />
@@ -194,7 +190,6 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
               <Pencil className="h-[15px] w-[15px]" />
             )}
           </button>
-
 
           <h2 className="truncate font-display text-[22px] font-semibold tracking-tight">{profile.usernameLabel}</h2>
           <p className="mt-0.5 text-[14px] text-muted-foreground">Member since: {memberSince}</p>
@@ -230,7 +225,6 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
         <Row icon={LifeBuoy} label="Support" to="/support/new" />
       </div>
 
-
       <div className="list-group">
         <Row icon={FileText} label="Creators Terms of Use" to="/legal/terms" />
         <Row icon={ShieldCheck} label="Privacy Policy" to="/legal/privacy" />
@@ -240,7 +234,6 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
       <div className="list-group">
         <Row icon={KeyRound} label="Login methods" to="/settings/login-methods" />
       </div>
-
 
       <div className="list-group">
         <Row
@@ -290,9 +283,8 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
         </AlertDialogContent>
       </AlertDialog>
 
-
       <div className="flex flex-col items-center gap-1 pt-4">
-        <BrandLogo size={26} />
+        <BrandLogo size={28} />
         <p className="text-[14px] font-semibold">{APP_NAME}</p>
         <p className="text-[12px] text-muted-foreground">Version {APP_VERSION}</p>
       </div>
