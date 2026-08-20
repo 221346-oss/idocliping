@@ -80,10 +80,10 @@
     --background: 240 3% 6%;
     --foreground: 0 0% 100%;
 
-    --surface: 240 3% 11%;
+    --surface: 240 3% 9%;
     --surface-raised: 240 3% 14%;
 
-    --card: 240 3% 9%;
+    --card: 240 3% 9%; /* Updated to #161616 (9% lightness) to match fill requirement */
     --card-foreground: 0 0% 78%;
 
     --popover: 240 3% 13%;
@@ -96,7 +96,7 @@
     --secondary-foreground: 0 0% 93%;
 
     --muted: 240 3% 15%;
-    --muted-foreground: 0 0% 58%;
+    --muted-foreground: 0 0% 78%; /* Using #c7c7c7 roughly corresponds to 78% lightness */
 
     --accent: 240 3% 17%;
     --accent-foreground: 0 0% 93%;
@@ -201,7 +201,7 @@
 
   /* Rounded surface card used across the whole app */
   .surface-card {
-    @apply bg-card rounded-[20px] border border-border;
+    @apply bg-card rounded-[26px] border border-[#353535];
     box-shadow: var(--shadow-card);
   }
 
@@ -338,15 +338,15 @@
 
   /* Grouped settings list (mobile-first rows inside one rounded card) */
   .list-group {
-    @apply overflow-hidden rounded-[22px] border border-border/60 bg-card;
+    @apply overflow-hidden rounded-[26px] border border-[#353535] bg-card;
     box-shadow: var(--shadow-card);
   }
   .list-row {
-    @apply flex w-full items-center gap-3 px-4 py-4 text-left text-[15px] font-medium text-foreground
-           transition-colors duration-150 focus-ring hover:bg-foreground/[0.04] active:bg-foreground/[0.07];
+    @apply flex w-full items-center gap-3 px-4 py-[18px] text-left text-[15px] font-normal text-foreground
+           transition-colors duration-150 focus-ring hover:bg-white/[0.02] active:bg-white/[0.04];
   }
   .list-row + .list-row {
-    @apply border-t border-border/50;
+    @apply relative before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-white/[0.08];
   }
   .list-row-icon {
     @apply flex h-5 w-5 shrink-0 items-center justify-center text-muted-foreground;
