@@ -57,15 +57,15 @@ function Row({
 }) {
   const inner = (
     <>
-      <span className={cn("list-row-icon", tone === "danger" && "text-destructive", tone === "default" && "text-[#d7d7d7]")}> 
-        <Icon className="h-[22px] w-[22px] stroke-[1.2]" />
+      <span className={cn("list-row-icon", tone === "danger" && "text-destructive", tone === "default" && "text-[#c7c7c7]")}> 
+        <Icon className="h-[21px] w-[21px] stroke-[1.5]" />
       </span>
       <span className={cn("truncate text-[15px] font-normal", tone === "danger" ? "text-destructive" : "text-white")}>{label}</span>
       {value ? <span className="list-row-value text-[13px] font-medium">{value}</span> : null}
       {href ? (
         <ArrowUpRight className={cn("h-[19px] w-[19px] shrink-0 text-muted-foreground", !value && "ml-auto")} />
       ) : (
-        <ChevronRight className={cn("h-[24px] w-[24px] shrink-0 text-[#d7d7d7] stroke-[1.2]", !value && "ml-auto")} />
+        <ChevronRight className={cn("h-[26px] w-[26px] shrink-0 text-[#c7c7c7] stroke-[1.2]", !value && "ml-auto")} />
       )}
     </>
   );
@@ -191,14 +191,14 @@ export function AccountProfileView({ profile }: { profile: ProfileViewModel }) {
             )}
           </button>
 
-          <h2 className="truncate font-display text-[22px] font-bold tracking-tight text-white">{profile.usernameLabel}</h2>
+          <h2 className="truncate font-display text-[22px] font-medium tracking-tight">{profile.usernameLabel}</h2>
           <p className="mt-0.5 text-[14px] text-muted-foreground">Member since: {memberSince}</p>
 
-          <div className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
+          <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border/60 pt-4">
             {stats.map((s) => (
               <div key={s.label} className="min-w-0">
-                <p className="display-figure truncate text-[17px] font-bold text-white">{s.value}</p>
-                <p className="mt-0.5 truncate text-[12px] text-[#d7d7d7]">{s.label}</p>
+                <p className="display-figure truncate text-[17px]">{s.value}</p>
+                <p className="mt-0.5 truncate text-[12px] text-muted-foreground">{s.label}</p>
               </div>
             ))}
           </div>
