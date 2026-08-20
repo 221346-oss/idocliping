@@ -171,6 +171,23 @@
     font-weight: 400;
   }
 
+  /* Creator app typeface — TikTok Sans across the whole creator shell */
+  .font-app,
+  .font-app h1,
+  .font-app h2,
+  .font-app h3,
+  .font-app h4,
+  .font-app h5,
+  .font-app h6,
+  .font-app .font-display,
+  .font-app .display-figure,
+  .font-app input,
+  .font-app textarea,
+  .font-app select,
+  .font-app button {
+    font-family: 'TikTok Sans', 'Barlow', -apple-system, system-ui, sans-serif;
+  }
+
 
 
   /* Hide scrollbars on horizontal filter rails */
