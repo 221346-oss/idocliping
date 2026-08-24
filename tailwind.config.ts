@@ -79,6 +79,19 @@ export default {
           medium: "hsl(var(--severity-medium))",
           low: "hsl(var(--severity-low))",
         },
+        brand: {
+          deep: "hsl(var(--brand-deep))",
+          teal: "hsl(var(--brand-teal))",
+          green: "hsl(var(--brand-green))",
+          mint: "hsl(var(--brand-mint))",
+          sky: "hsl(var(--brand-sky))",
+          sand: "hsl(var(--brand-sand))",
+          ink: "hsl(var(--brand-ink))",
+        },
+        alert: {
+          pink: "hsl(var(--alert-pink))",
+          amber: "hsl(var(--alert-amber))",
+        },
         state: {
           eligible: "hsl(var(--state-eligible))",
           paid: "hsl(var(--state-paid))",
