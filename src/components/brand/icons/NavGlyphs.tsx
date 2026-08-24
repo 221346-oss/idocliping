@@ -23,45 +23,44 @@ const base = (className?: string, size = 24) => ({
   "aria-hidden": true as const,
 });
 
-/** Explore — a clapper lens: slanted aperture inside a rounded square. */
+/** Explore — a rounded square with a central dot. Active fills the square. */
 export function ExploreGlyph({ active, className, size }: GlyphProps) {
   return (
     <svg {...base(className, size)}>
       <rect
-        x="2.6"
-        y="2.6"
-        width="18.8"
-        height="18.8"
-        rx="6.4"
-        transform="rotate(-12 12 12)"
+        x="2.75"
+        y="2.75"
+        width="18.5"
+        height="18.5"
+        rx="6"
         stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth="1.5"
         fill={active ? "currentColor" : "none"}
       />
       <circle
         cx="12"
         cy="12"
-        r="3.35"
+        r="2.6"
         fill={active ? "hsl(var(--primary-foreground))" : "currentColor"}
       />
     </svg>
   );
 }
 
-/** Activity — a submission flag planted on a pole. */
+/** Activity — a simple flag on a pole. Active fills the flag. */
 export function ActivityGlyph({ active, className, size }: GlyphProps) {
   return (
     <svg {...base(className, size)}>
       <path
-        d="M6.2 3.2v17.6"
+        d="M6.4 3.4v17.2"
         stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth="1.5"
         strokeLinecap="round"
       />
       <path
-        d="M6.2 4.4h9.9a1 1 0 0 1 .77 1.64l-2.1 2.53a1 1 0 0 0 0 1.28l2.1 2.53a1 1 0 0 1-.77 1.64H6.2z"
+        d="M6.4 4.6h10.2L13.6 9l3 4.4H6.4z"
         stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth="1.5"
         strokeLinejoin="round"
         fill={active ? "currentColor" : "none"}
       />
@@ -69,43 +68,49 @@ export function ActivityGlyph({ active, className, size }: GlyphProps) {
   );
 }
 
-/** Wallet — rounded pouch with a clipped flap corner and coin slot. */
+/** Wallet — a simple card wallet. Active fills the body. */
 export function WalletGlyph({ active, className, size }: GlyphProps) {
   return (
     <svg {...base(className, size)}>
-      <path
-        d="M3.2 8.6a3.4 3.4 0 0 1 3.4-3.4h8.1l2.6-2.05a1 1 0 0 1 1.62.78V5.3a3.4 3.4 0 0 1 2.88 3.36v6.74a3.4 3.4 0 0 1-3.4 3.4H6.6a3.4 3.4 0 0 1-3.4-3.4z"
+      <rect
+        x="2.9"
+        y="6.4"
+        width="18.2"
+        height="11.2"
+        rx="3.2"
         stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
+        strokeWidth="1.5"
         fill={active ? "currentColor" : "none"}
       />
+      <path
+        d="M3.3 10.2h17.4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
       <circle
-        cx="17.1"
+        cx="16.5"
         cy="12"
-        r="1.5"
+        r="1.4"
         fill={active ? "hsl(var(--primary-foreground))" : "currentColor"}
       />
     </svg>
   );
 }
 
-/** Profile — head and shoulders with a soft clipped shoulder line. */
+/** Profile — a simple head-and-shoulders silhouette. Active fills the shape. */
 export function ProfileGlyph({ active, className, size }: GlyphProps) {
   return (
     <svg {...base(className, size)}>
-      <circle
-        cx="12"
-        cy="8.1"
-        r="3.9"
+      <path
+        d="M12 11.2a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2z"
         stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth="1.5"
         fill={active ? "currentColor" : "none"}
       />
       <path
-        d="M4.6 20.2c0-3.7 3.31-6.2 7.4-6.2s7.4 2.5 7.4 6.2"
+        d="M4.4 19.8c0-3.6 3.4-5.8 7.6-5.8s7.6 2.2 7.6 5.8"
         stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth="1.5"
         strokeLinecap="round"
         fill={active ? "currentColor" : "none"}
       />
