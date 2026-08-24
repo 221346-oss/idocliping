@@ -18,9 +18,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    /* Brand accent #63ec00 */
-    --primary: 95 100% 46%;
-    --primary-foreground: 0 0% 7%;
+    /* Brand accent #25D366 */
+    --primary: 145 66% 49%;
+    --primary-foreground: 153 91% 13%;
 
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 9%;
@@ -34,39 +34,51 @@
     --destructive: 345 82% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 95 100% 40%;
-    --success-foreground: 0 0% 9%;
+    --success: 145 66% 43%;
+    --success-foreground: 153 91% 13%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 56 62% 50%;
+    --warning-foreground: 0 0% 9%;
 
-    --info: 0 0% 42%;
+    --info: 200 87% 57%;
     --info-foreground: 0 0% 100%;
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 95 100% 46%;
+    --ring: 145 66% 49%;
+
+
+    /* ---------- Brand palette (identity) ---------- */
+    --brand-deep: 172 79% 20%;      /* #075E54 */
+    --brand-teal: 172 77% 31%;      /* #128C7E */
+    --brand-green: 145 66% 49%;     /* #25D366 — primary accent */
+    --brand-mint: 92 68% 88%;       /* #DCF8C6 */
+    --brand-sky: 200 87% 57%;       /* #34B7F1 */
+    --brand-sand: 30 26% 90%;       /* #ECE5DD */
+    --brand-ink: 153 91% 13%;       /* #033D23 — logo tile */
+    --alert-pink: 345 82% 52%;      /* pinky red — alerts, campaign about to complete */
+    --alert-amber: 56 62% 50%;      /* #cfc430 — medium warnings */
 
     --radius: 1.25rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 40%;
-    --sidebar-primary: 95 100% 46%;
-    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-primary: 145 66% 49%;
+    --sidebar-primary-foreground: 153 91% 13%;
     --sidebar-accent: 0 0% 94%;
     --sidebar-accent-foreground: 0 0% 9%;
     --sidebar-border: 0 0% 92%;
-    --sidebar-ring: 95 100% 46%;
+    --sidebar-ring: 145 66% 49%;
 
     --severity-critical: 345 72% 51%;
     --severity-high: 25 95% 53%;
-    --severity-medium: 38 92% 50%;
-    --severity-low: 95 100% 46%;
+    --severity-medium: 56 62% 50%;
+    --severity-low: 145 66% 49%;
 
     /* Submission / campaign status tokens */
-    --state-eligible: 95 100% 40%;
-    --state-paid: 95 100% 40%;
-    --state-processing: 38 92% 50%;
+    --state-eligible: 145 66% 43%;
+    --state-paid: 145 66% 43%;
+    --state-processing: 56 62% 50%;
     --state-ineligible: 12 80% 55%;
     --state-rejected: 345 82% 52%;
 
@@ -90,8 +102,8 @@
     --popover: 240 3% 13%;
     --popover-foreground: 0 0% 96%;
 
-    --primary: 95 100% 46%;
-    --primary-foreground: 0 0% 7%;
+    --primary: 145 66% 49%;
+    --primary-foreground: 153 91% 13%;
 
     --secondary: 240 3% 15%;
     --secondary-foreground: 0 0% 93%;
@@ -105,36 +117,46 @@
     --destructive: 345 88% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 95 100% 46%;
-    --success-foreground: 0 0% 7%;
+    --success: 145 66% 49%;
+    --success-foreground: 153 91% 13%;
 
-    --warning: 38 100% 58%;
+    --warning: 56 62% 55%;
     --warning-foreground: 0 0% 7%;
 
-    --info: 0 0% 55%;
+    --info: 200 87% 62%;
     --info-foreground: 0 0% 100%;
 
     --border: 0 0% 18%;
     --input: 0 0% 24%;
-    --ring: 95 100% 46%;
+    --ring: 145 66% 49%;
+
+    --brand-deep: 172 79% 24%;
+    --brand-teal: 172 77% 35%;
+    --brand-green: 145 66% 49%;
+    --brand-mint: 92 68% 82%;
+    --brand-sky: 200 87% 62%;
+    --brand-sand: 30 26% 86%;
+    --brand-ink: 153 91% 13%;
+    --alert-pink: 345 88% 60%;
+    --alert-amber: 56 62% 55%;
 
     --sidebar-background: 240 3% 8%;
     --sidebar-foreground: 0 0% 58%;
-    --sidebar-primary: 95 100% 46%;
-    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-primary: 145 66% 49%;
+    --sidebar-primary-foreground: 153 91% 13%;
     --sidebar-accent: 240 3% 14%;
     --sidebar-accent-foreground: 0 0% 92%;
     --sidebar-border: 240 3% 16%;
-    --sidebar-ring: 95 100% 46%;
+    --sidebar-ring: 145 66% 49%;
 
     --severity-critical: 345 90% 60%;
     --severity-high: 25 100% 58%;
-    --severity-medium: 38 100% 55%;
-    --severity-low: 95 100% 46%;
+    --severity-medium: 56 62% 55%;
+    --severity-low: 145 66% 49%;
 
-    --state-eligible: 95 100% 46%;
-    --state-paid: 95 100% 46%;
-    --state-processing: 38 100% 58%;
+    --state-eligible: 145 66% 49%;
+    --state-paid: 145 66% 49%;
+    --state-processing: 56 62% 55%;
     --state-ineligible: 16 85% 60%;
     --state-rejected: 345 88% 60%;
 
