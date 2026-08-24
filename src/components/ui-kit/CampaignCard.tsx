@@ -82,10 +82,11 @@ export function BookmarkButton({ id, className }: { id: string; className?: stri
 }
 
 function barColor(pct: number) {
-  if (pct >= 80) return "bg-state-processing";
-  if (pct >= 50) return "bg-primary/80";
+  if (pct >= 85) return "bg-alert-pink";
+  if (pct >= 60) return "bg-alert-amber";
   return "bg-primary";
 }
+
 
 /** Explore card — Clipster layout: thumb, title, platforms, spend line, progress edge. */
 export function CampaignCard({ campaign, index = 0 }: { campaign: CampaignCardData; index?: number }) {
