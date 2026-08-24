@@ -30,10 +30,10 @@ export function BottomNav({ badge }: { badge?: Record<string, boolean> }) {
 
   return (
     <nav
-      className="md:hidden fixed inset-x-0 bottom-0 z-50 px-2.5 pb-[max(0.55rem,env(safe-area-inset-bottom))] pt-1 pointer-events-none"
+      className="md:hidden fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1 pointer-events-none"
       aria-label="Primary"
     >
-      <div className="pointer-events-auto mx-auto flex max-w-[24.5rem] items-center justify-around rounded-full border border-border bg-surface-raised/96 px-3 py-2.5 shadow-lift backdrop-blur-xl">
+      <div className="pointer-events-auto mx-auto flex max-w-[23rem] items-center justify-around rounded-[22px] border border-white/[0.06] bg-card/95 px-2 py-1.5 shadow-lift backdrop-blur-xl">
         {CREATOR_NAV.map((entry) => {
           const active = isNavActive(entry, pathname);
           const { Glyph } = entry;
@@ -44,11 +44,12 @@ export function BottomNav({ badge }: { badge?: Record<string, boolean> }) {
               aria-label={entry.label}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "relative flex h-11 w-11 items-center justify-center rounded-full press-scale focus-ring transition-colors duration-200",
+                "relative flex h-10 w-10 items-center justify-center rounded-full press-scale focus-ring transition-colors duration-200",
                 active ? "text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <Glyph active={active} size={30} />
+              <Glyph active={active} size={26} />
+
               {badge?.[entry.to] && (
                 <span className="absolute right-1.5 top-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-surface-raised" />
               )}
